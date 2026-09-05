@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4f1e6;color:#17150f;font-family:Anuphan,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#d8482b;text-decoration:none}a:hover{color:#b13a22}
+input,button{font-family:inherit;color:inherit;font-size:16px}
+input::placeholder{color:#a9a290}
+@keyframes stepIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+<script src="./image-slot.js"></script>
+</helmet>
+
+<sc-if value="{{ isPick }}" hint-placeholder-val="{{ true }}">
+<div style="min-height:100vh;display:flex;justify-content:center;background:#f4f1e6;overflow:hidden">
+<div style="width:100%;max-width:440px;display:flex;flex-direction:column;padding:0 0 30px">
+
+<div style="display:flex;align-items:center;justify-content:space-between;padding:22px 26px 0">
+<div style="font:600 11px IBM Plex Mono,monospace;letter-spacing:.16em">TT / 26</div>
+<div style="display:flex;gap:2px">
+<div onClick="{{ setTh }}" style="padding:3px 7px;font:600 9.5px IBM Plex Mono,monospace;background:{{ thBg }};color:{{ thFg }};cursor:pointer">TH</div>
+<div onClick="{{ setEn }}" style="padding:3px 7px;font:600 9.5px IBM Plex Mono,monospace;background:{{ enBg }};color:{{ enFg }};cursor:pointer">EN</div>
+</div>
+</div>
+
+<div style="padding:26px 26px 0">
+<div style="font:600 34px/1.05 Anuphan,sans-serif;letter-spacing:-.03em;text-wrap:pretty">{{ pickTitle }}</div>
+<div style="font:400 13px/1.6 Anuphan,sans-serif;color:#7d7767;margin-top:11px;max-width:24em">{{ pickSub }}</div>
+</div>
+
+<div style="position:relative;height:330px;margin-top:22px;display:flex;align-items:center;justify-content:center">
+<sc-for list="{{ arcCards }}" as="c" hint-placeholder-count="3">
+<div onClick="{{ c.onPick }}" style="position:absolute;width:196px;height:262px;left:50%;top:50%;margin:-131px 0 0 -98px;transform:{{ c.transform }};z-index:{{ c.z }};opacity:{{ c.opacity }};transition:transform .5s cubic-bezier(.22,1,.36,1),opacity .4s ease;cursor:pointer;box-shadow:{{ c.shadow }};background:#e8e4d6;overflow:hidden">
+<div style="position:absolute;inset:0"><image-slot id="{{ c.slotId }}" shape="rect" fit="cover" placeholder="{{ c.slotHint }}"></image-slot></div>
+<div style="position:absolute;inset:0;background:{{ c.scrim }};pointer-events:none"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;padding:14px 15px;pointer-events:none;display:flex;flex-direction:column;gap:3px">
+<div style="font:600 9px IBM Plex Mono,monospace;letter-spacing:.16em;color:{{ c.kicker }}">{{ c.date }}</div>
+<div style="font:600 17px/1.12 Anuphan,sans-serif;letter-spacing:-.02em;color:#fff">{{ c.name }}</div>
+<div style="font:400 10.5px Anuphan,sans-serif;color:rgba(255,255,255,.82)">{{ c.place }}</div>
+</div>
+<div style="position:absolute;top:12px;right:12px;padding:3px 8px;font:600 8.5px IBM Plex Mono,monospace;letter-spacing:.1em;background:{{ c.badgeBg }};color:{{ c.badgeFg }};pointer-events:none;white-space:nowrap">{{ c.status }}</div>
+</div>
+</sc-for>
+</div>
+
+<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:4px">
+<div onClick="{{ prevEv }}" style="width:44px;height:44px;border:1px solid #c9c3b0;display:grid;place-items:center;font:400 17px Anuphan,sans-serif;color:#5d5748;cursor:pointer" style-hover="border-color:#17150f;color:#17150f">←</div>
+<div style="display:flex;gap:6px;align-items:center">
+<sc-for list="{{ dots }}" as="d" hint-placeholder-count="3">
+<div onClick="{{ d.onPick }}" style="width:{{ d.w }};height:6px;background:{{ d.bg }};cursor:pointer;transition:width .3s ease"></div>
+</sc-for>
+</div>
+<div onClick="{{ nextEv }}" style="width:44px;height:44px;border:1px solid #c9c3b0;display:grid;place-items:center;font:400 17px Anuphan,sans-serif;color:#5d5748;cursor:pointer" style-hover="border-color:#17150f;color:#17150f">→</div>
+</div>
+
+<div style="padding:22px 26px 0;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ activeFacts }}" as="f" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;font:400 12.5px Anuphan,sans-serif;border-bottom:1px solid #ddd7c4;padding-bottom:8px"><span style="color:#7d7767">{{ f.k }}</span><span>{{ f.v }}</span></div>
+</sc-for>
+</div>
+<div onClick="{{ enterEvent }}" style="border-radius:99px;background:{{ ctaBg }};color:{{ ctaFg }};text-align:center;padding:17px 0;font:600 14px Anuphan,sans-serif;cursor:pointer">{{ ctaLabel }}</div>
+<div onClick="{{ goLookup }}" style="text-align:center;font:400 11.5px Anuphan,sans-serif;color:#7d7767;cursor:pointer" style-hover="color:#d8482b">{{ alreadyText }} <span style="color:#d8482b;font-weight:500">{{ lookupLink }}</span></div>
+</div>
+
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isAsk }}" hint-placeholder-val="{{ true }}">
+<div style="min-height:100vh;display:flex;justify-content:center;background:#f4f1e6">
+<div style="width:100%;max-width:440px;display:flex;flex-direction:column;padding:0 0 30px">
+
+<div style="position:relative;width:100%;aspect-ratio:16/6;background:#e8e4d6;overflow:hidden">
+<div style="position:absolute;inset:0"><image-slot id="{{ evWideSlot }}" shape="rect" fit="cover" placeholder="แบนเนอร์ของงาน"></image-slot></div>
+<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(19,17,12,.9) 0%,rgba(19,17,12,.32) 55%,rgba(19,17,12,.05) 100%);pointer-events:none"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;padding:14px 26px;pointer-events:none;display:flex;flex-direction:column;gap:3px">
+<div style="font:600 9px IBM Plex Mono,monospace;letter-spacing:.18em;color:rgba(255,255,255,.84);white-space:nowrap">{{ evMeta }}</div>
+<div style="font:600 19px/1.15 Anuphan,sans-serif;letter-spacing:-.025em;color:#fff">{{ evName }}</div>
+</div>
+</div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 26px 0;gap:12px">
+<div onClick="{{ goPick }}" style="font:500 10.5px Anuphan,sans-serif;color:#7d7767;cursor:pointer;white-space:nowrap" style-hover="color:#d8482b">← เปลี่ยนงาน</div>
+<div style="display:flex;align-items:center;gap:12px;flex:none">
+<div style="display:flex;gap:5px;align-items:center">
+<sc-for list="{{ ticks }}" as="tk" hint-placeholder-count="4">
+<div style="width:15px;height:2px;background:{{ tk.bg }}"></div>
+</sc-for>
+</div>
+<div style="display:flex;gap:2px">
+<div onClick="{{ setTh }}" style="padding:3px 7px;font:600 9.5px IBM Plex Mono,monospace;background:{{ thBg }};color:{{ thFg }};cursor:pointer">TH</div>
+<div onClick="{{ setEn }}" style="padding:3px 7px;font:600 9.5px IBM Plex Mono,monospace;background:{{ enBg }};color:{{ enFg }};cursor:pointer">EN</div>
+</div>
+</div>
+</div>
+
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px;padding:34px 0">
+<div style="font:600 76px/.82 Anuphan,sans-serif;color:#d8482b;letter-spacing:-.045em">{{ stepNum }}</div>
+
+<div>
+<div style="font:600 34px/1.08 Anuphan,sans-serif;letter-spacing:-.025em;text-wrap:pretty">{{ question }}</div>
+<div style="font:400 13px/1.55 Anuphan,sans-serif;color:#7d7767;margin-top:12px;max-width:22em">{{ helper }}</div>
+</div>
+
+<sc-if value="{{ isInput }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:13px;animation:stepIn .3s ease">
+<div style="border-bottom:2px solid {{ inputBorder }};padding-bottom:9px">
+<input value="{{ value }}" onChange="{{ onInput }}" onKeyDown="{{ onKey }}" placeholder="{{ placeholder }}" inputMode="{{ mode }}" autoFocus="{{ true }}" style="width:100%;background:transparent;border:0;outline:none;font:400 21px Anuphan,sans-serif" />
+</div>
+<div style="font:400 12px Anuphan,sans-serif;color:#c1391f;min-height:17px">{{ error }}</div>
+<div style="display:flex;flex-wrap:wrap;gap:7px">
+<sc-for list="{{ chips }}" as="ch" hint-placeholder-count="2">
+<div onClick="{{ ch.onPick }}" style="border:1px solid #c9c3b0;padding:7px 13px;font:400 12px Anuphan,sans-serif;color:#5d5748;cursor:pointer" style-hover="border-color:#17150f;color:#17150f">{{ ch.label }}</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isChoice }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:20px;animation:stepIn .3s ease">
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ types }}" as="ty" hint-placeholder-count="3">
+<div onClick="{{ ty.onPick }}" style="display:flex;align-items:center;gap:13px;border:1px solid {{ ty.border }};background:{{ ty.bg }};padding:14px 16px;cursor:pointer">
+<div style="width:15px;height:15px;border:1px solid {{ ty.dotBorder }};border-radius:99px;display:grid;place-items:center;flex:none">
+<div style="width:7px;height:7px;border-radius:99px;background:{{ ty.dot }}"></div>
+</div>
+<div style="font:400 15px Anuphan,sans-serif;color:{{ ty.fg }}">{{ ty.label }}</div>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;flex-direction:column;gap:7px">
+<div onClick="{{ toggleConsent }}" style="display:flex;gap:11px;align-items:flex-start;cursor:pointer">
+<div style="width:17px;height:17px;flex:none;border:1px solid {{ consentBorder }};background:{{ consentBg }};display:grid;place-items:center;margin-top:2px">
+<div style="width:7px;height:7px;background:{{ consentDot }}"></div>
+</div>
+<div style="font:400 12px/1.55 Anuphan,sans-serif;color:{{ consentFg }}">{{ consentText }}</div>
+</div>
+<div style="font:400 12px Anuphan,sans-serif;color:#c1391f;padding-left:28px">{{ consentError }}</div>
+</div>
+</div>
+</sc-if>
+</div>
+
+<div style="display:flex;align-items:center;gap:13px">
+<div onClick="{{ back }}" style="width:52px;height:52px;border:1px solid #c9c3b0;display:grid;place-items:center;font:400 19px Anuphan,sans-serif;color:#7d7767;cursor:pointer;flex:none" style-hover="border-color:#17150f;color:#17150f">←</div>
+<div onClick="{{ next }}" style="flex:1;border-radius:99px;background:#d8482b;color:#fff;text-align:center;padding:17px 0;font:600 14px Anuphan,sans-serif;cursor:pointer" style-hover="background:#c03d22">{{ nextLabel }}</div>
+</div>
+<div style="text-align:center;font:400 11.5px Anuphan,sans-serif;color:#7d7767;padding-top:14px">{{ alreadyText }} <span onClick="{{ goLookup }}" style="color:#d8482b;font-weight:500;cursor:pointer">{{ lookupLink }}</span></div>
+
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSending }}" hint-placeholder-val="{{ false }}">
+<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:#f4f1e6">
+<div style="width:34px;height:34px;border:2px solid #dcd6c4;border-top-color:#d8482b;border-radius:99px;animation:spin 1s linear infinite"></div>
+<div style="font:400 13px Anuphan,sans-serif;color:#7d7767">{{ savingText }}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isLookup }}" hint-placeholder-val="{{ false }}">
+<div style="min-height:100vh;display:flex;justify-content:center;background:#f4f1e6">
+<div style="width:100%;max-width:440px;padding:26px 26px 30px;display:flex;flex-direction:column;gap:24px;animation:rise .35s ease">
+<div style="font:600 11px IBM Plex Mono,monospace;letter-spacing:.16em">TT / 26</div>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px">
+<div style="font:600 38px/1.05 Anuphan,sans-serif;letter-spacing:-.03em;text-wrap:pretty">{{ lookupTitle }}</div>
+<div style="font:400 13px/1.6 Anuphan,sans-serif;color:#7d7767">{{ lookupSub }}</div>
+<div style="border-bottom:2px solid #17150f;padding-bottom:9px">
+<input value="{{ lookupEmail }}" onChange="{{ onLookupEmail }}" placeholder="name@company.com" inputMode="email" style="width:100%;background:transparent;border:0;outline:none;font:400 20px Anuphan,sans-serif" />
+</div>
+<div style="font:400 12px Anuphan,sans-serif;color:#c1391f;min-height:17px">{{ lookupError }}</div>
+</div>
+<div style="display:flex;align-items:center;gap:13px">
+<div onClick="{{ goForm }}" style="width:52px;height:52px;border:1px solid #c9c3b0;display:grid;place-items:center;font:400 19px Anuphan,sans-serif;color:#7d7767;cursor:pointer;flex:none" style-hover="border-color:#17150f;color:#17150f">←</div>
+<div onClick="{{ doLookup }}" style="flex:1;border-radius:99px;background:#17150f;color:#f4f1e6;text-align:center;padding:17px 0;font:600 14px Anuphan,sans-serif;cursor:pointer">{{ lookupBtn }}</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isPass }}" hint-placeholder-val="{{ false }}">
+<div style="min-height:100vh;display:flex;justify-content:center;background:#d8482b;color:#fff5ef">
+<div style="width:100%;max-width:440px;padding:24px 26px 34px;display:flex;flex-direction:column;gap:20px;animation:rise .4s ease">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div style="font:600 11px IBM Plex Mono,monospace;letter-spacing:.16em;opacity:.85">TT / 26</div>
+<div style="display:flex;gap:2px">
+<div onClick="{{ setTh }}" style="padding:3px 7px;font:600 9.5px IBM Plex Mono,monospace;background:{{ passThBg }};color:{{ passThFg }};cursor:pointer">TH</div>
+<div onClick="{{ setEn }}" style="padding:3px 7px;font:600 9.5px IBM Plex Mono,monospace;background:{{ passEnBg }};color:{{ passEnFg }};cursor:pointer">EN</div>
+</div>
+</div>
+
+<div>
+<div style="font:600 44px/.98 Anuphan,sans-serif;letter-spacing:-.035em">{{ doneTitle }}</div>
+<div style="font:400 13px/1.6 Anuphan,sans-serif;margin-top:12px;opacity:.9;max-width:24em">{{ passNote }}</div>
+</div>
+
+<div style="background:#f4f1e6;color:#17150f;padding:20px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px">
+<div style="min-width:0">
+<div style="font:500 9.5px IBM Plex Mono,monospace;letter-spacing:.18em;color:#8a8474">{{ passKicker }} · {{ evName }}</div>
+<div style="font:600 22px/1.15 Anuphan,sans-serif;margin-top:5px;letter-spacing:-.02em">{{ passName }}</div>
+<div style="font:400 12px Anuphan,sans-serif;color:#7d7767;margin-top:4px">{{ passOrg }}</div>
+</div>
+<div style="writing-mode:vertical-rl;font:600 11px IBM Plex Mono,monospace;letter-spacing:.2em;color:#d8482b;white-space:nowrap">{{ passType }}</div>
+</div>
+<div style="width:100%;aspect-ratio:1;color:#17150f">{{ qr }}</div>
+<div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #d6d0bd;padding-top:12px;gap:10px">
+<div style="font:600 14px IBM Plex Mono,monospace;letter-spacing:.1em;white-space:nowrap">{{ passCode }}</div>
+<div style="font:500 10px IBM Plex Mono,monospace;color:#6f6a5a;white-space:nowrap">18.12.2026 · H2</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;justify-content:space-between;font:400 12.5px Anuphan,sans-serif;border-bottom:1px solid rgba(255,245,239,.32);padding-bottom:9px"><span style="opacity:.8">{{ gateLabel }}</span><span>{{ gateVal }}</span></div>
+<div style="display:flex;justify-content:space-between;font:400 12.5px Anuphan,sans-serif;border-bottom:1px solid rgba(255,245,239,.32);padding-bottom:9px"><span style="opacity:.8">{{ doorsLabel }}</span><span>08:15</span></div>
+<div style="display:flex;justify-content:space-between;font:400 12.5px Anuphan,sans-serif"><span style="opacity:.8">{{ contactLabel }}</span><span>{{ passPhone }}</span></div>
+</div>
+
+<div style="display:flex;gap:9px">
+<div onClick="{{ saveImg }}" style="flex:1;border:1.5px solid rgba(255,245,239,.55);text-align:center;padding:14px 0;font:600 12.5px Anuphan,sans-serif;cursor:pointer" style-hover="border-color:#fff5ef">{{ saveImgLabel }}</div>
+<div onClick="{{ addWallet }}" style="flex:1;background:#17150f;color:#f4f1e6;text-align:center;padding:14px 0;font:600 12.5px Anuphan,sans-serif;cursor:pointer">WALLET</div>
+</div>
+<div onClick="{{ reset }}" style="text-align:center;font:500 12px Anuphan,sans-serif;color:#fff5ef;cursor:pointer;padding:6px 0 0;text-decoration:underline;text-underline-offset:3px">{{ newRegLabel }}</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#17150f;color:#f4f1e6;padding:12px 20px;font:500 11.5px Anuphan,sans-serif;white-space:nowrap;box-shadow:0 12px 30px rgba(23,21,15,.35)">{{ toast }}</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:480,&quot;height&quot;:900},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;th&quot;,&quot;en&quot;],&quot;default&quot;:&quot;th&quot;,&quot;tsType&quot;:&quot;\&quot;th\&quot; | \&quot;en\&quot;&quot;,&quot;section&quot;:&quot;ภาษา&quot;}}">
+const COPY = {
+  th: {
+    steps: [
+      { key: "name", q: "คุณชื่อ\nอะไร?", helper: "ชื่อนี้จะพิมพ์บนบัตรแขวนคอของคุณ", ph: "ชื่อ–นามสกุล", mode: "text" },
+      { key: "email", q: "อีเมล\nของคุณ", helper: "เราจะส่ง QR สำหรับเข้างานไปที่อีเมลนี้ และเปิดดูซ้ำได้ทุกเมื่อ", ph: "name@company.com", mode: "email", chips: ["@gmail.com", "@corp.co.th"] },
+      { key: "phone", q: "เบอร์ติดต่อ\nหน้างาน", helper: "ใช้เฉพาะกรณีติดต่อเรื่องงานนี้เท่านั้น", ph: "08X XXX XXXX", mode: "tel" },
+      { key: "org", q: "ทำงานที่\nไหน?", helper: "ไม่บังคับ — ข้ามได้ถ้าไม่ต้องการระบุ", ph: "ชื่อบริษัทหรือองค์กร", mode: "text" },
+      { key: "type", q: "เข้าร่วม\nแบบไหน?", helper: "เลือกประเภทบัตร แล้วยืนยันการเก็บข้อมูล" }
+    ],
+    types: ["ทั่วไป", "VIP", "สื่อ"],
+    consent: "ยินยอมให้ผู้จัดงานเก็บและใช้ข้อมูลตามนโยบาย PDPA",
+    next: "ถัดไป", skip: "ข้าม", finish: "ยืนยันและรับ QR",
+    already: "ลงทะเบียนไว้แล้ว?", lookupLink: "เปิดดู QR ของฉัน",
+    saving: "กำลังบันทึกลง Google Sheet…",
+    lookupTitle: "เปิดดู\nบัตรของฉัน", lookupSub: "กรอกอีเมลที่ใช้ลงทะเบียน ระบบจะเปิด QR ใบเดิมให้", lookupBtn: "ค้นหาบัตร",
+    done: "เรียบร้อย\nแล้ว!", passNote: "ยื่น QR นี้ที่ประตู เจ้าหน้าที่จะพิมพ์บัตรแขวนคอให้ทันที · เปิดซ้ำได้จากลิงก์ในอีเมล",
+    kicker: "ENTRY PASS", gate: "จุดลงทะเบียน", gateVal: "ฮอลล์ 2 · ประตู A", doors: "เวลาเปิดประตู", contact: "เบอร์ติดต่อ",
+    saveImg: "บันทึกรูป", newReg: "ลงทะเบียนคนใหม่",
+    err: { name: "กรุณากรอกชื่อ", email: "รูปแบบอีเมลไม่ถูกต้อง", phone: "กรอกเบอร์ 9–10 หลัก", consent: "กรุณายอมรับนโยบาย PDPA ก่อนดำเนินการต่อ", notfound: "ไม่พบการลงทะเบียนของอีเมลนี้" },
+    toastSaved: "บันทึกลง Google Sheet แล้ว", toastImg: "บันทึกรูป QR ลงเครื่องแล้ว", toastWallet: "เพิ่มบัตรใน Wallet แล้ว"
+  },
+  en: {
+    steps: [
+      { key: "name", q: "What's\nyour name?", helper: "This is the name printed on your lanyard badge.", ph: "Full name", mode: "text" },
+      { key: "email", q: "Your\nemail", helper: "We'll send your entry QR here — reopen it any time.", ph: "name@company.com", mode: "email", chips: ["@gmail.com", "@corp.co.th"] },
+      { key: "phone", q: "Contact\nnumber", helper: "Used only if we need to reach you about this event.", ph: "08X XXX XXXX", mode: "tel" },
+      { key: "org", q: "Where do\nyou work?", helper: "Optional — skip if you'd rather not say.", ph: "Company or organisation", mode: "text" },
+      { key: "type", q: "How are you\njoining?", helper: "Pick your pass type, then confirm data consent." }
+    ],
+    types: ["General", "VIP", "Press"],
+    consent: "I consent to the organiser storing my data under its PDPA policy.",
+    next: "NEXT", skip: "SKIP", finish: "CONFIRM & GET QR",
+    already: "Already registered?", lookupLink: "Open my QR",
+    saving: "Saving to Google Sheet…",
+    lookupTitle: "Find\nmy pass", lookupSub: "Enter the email you registered with and we'll reopen the same QR.", lookupBtn: "FIND MY PASS",
+    done: "You're\nin!", passNote: "Show this QR at the door — staff print your lanyard badge on the spot. Reopen it any time from the email link.",
+    kicker: "ENTRY PASS", gate: "Check-in point", gateVal: "Hall 2 · Gate A", doors: "Doors open", contact: "Contact",
+    saveImg: "SAVE IMAGE", newReg: "Register someone else",
+    err: { name: "Please enter your name", email: "Invalid email format", phone: "Enter a 9–10 digit number", consent: "Please accept the PDPA policy to continue.", notfound: "No registration found for that email." },
+    toastSaved: "Saved to Google Sheet", toastImg: "QR image saved", toastWallet: "Pass added to Wallet"
+  }
+};
+
+const LEGACY_EVENTS_UNUSED = [
+  { id: "tt", th: { name: "ThinkTech Summit 2026", date: "18–19 ธ.ค. 2569", place: "ไบเทค บางนา · ฮอลล์ 2", status: "เปิดรับ", seats: "เหลือ 240 ที่", price: "ไม่มีค่าใช้จ่าย", note: "บัตรแขวนคอพิมพ์หน้างาน" }, en: { name: "ThinkTech Summit 2026", date: "18–19 Dec 2026", place: "BITEC Bangna · Hall 2", status: "OPEN", seats: "240 seats left", price: "Free", note: "Lanyard printed on site" }, accent: "#d8482b", open: true },
+  { id: "gala", th: { name: "Annual Partner Gala", date: "24 ธ.ค. 2569", place: "ดุสิตธานี · แกรนด์บอลรูม", status: "เชิญเท่านั้น", seats: "เหลือ 32 ที่", price: "ตามบัตรเชิญ", note: "แต่งกาย: สากลนิยม" }, en: { name: "Annual Partner Gala", date: "24 Dec 2026", place: "Dusit Thani · Grand Ballroom", status: "INVITE", seats: "32 seats left", price: "By invitation", note: "Dress code: black tie" }, accent: "#a8874f", open: true },
+  { id: "lab", th: { name: "Founder Lab รุ่น 4", date: "9 ม.ค. 2570", place: "ทองหล่อ · ชั้น 6", status: "เปิดรับ", seats: "เหลือ 18 ที่", price: "2,500 บาท", note: "เวิร์กช็อปเต็มวัน" }, en: { name: "Founder Lab · Cohort 4", date: "9 Jan 2027", place: "Thonglor · 6th floor", status: "OPEN", seats: "18 seats left", price: "THB 2,500", note: "Full-day workshop" }, accent: "#2f6b4f", open: true },
+  { id: "roadshow", th: { name: "Regional Roadshow", date: "22 ก.พ. 2570", place: "เชียงใหม่ · เซ็นทรัลเฟส", status: "เร็ว ๆ นี้", seats: "ยังไม่เปิดรับ", price: "ไม่มีค่าใช้จ่าย", note: "เปิดลงทะเบียน 15 ม.ค." }, en: { name: "Regional Roadshow", date: "22 Feb 2027", place: "Chiang Mai · Central Fest", status: "SOON", seats: "Not open yet", price: "Free", note: "Opens 15 Jan" }, accent: "#2f4d8c", open: false }
+];
+
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    this.state = {
+      lang: p.lang === "en" ? "en" : "th",
+      screen: "pick", evIdx: 0, events: [], syncedAt: null,
+      step: 0,
+      vals: { name: "", email: "", phone: "", org: "" },
+      typeIdx: 0, consent: false,
+      error: "", consentError: "",
+      lookupEmail: "", lookupError: "",
+      pass: null, toast: ""
+    };
+  }
+  async componentDidMount() {
+    const S = await import("./event-store.js");
+    this.S = S;
+    S.init();
+    this._unsub = S.subscribe(() => this.setState({ events: S.get().events, syncedAt: S.get().updatedAt }));
+    this.setState({ events: S.get().events, syncedAt: S.get().updatedAt });
+    try { const raw = localStorage.getItem("tt26-pass"); if (raw) this.setState({ pass: JSON.parse(raw), screen: "pass" }); } catch (e) { }
+    this._key = e => {
+      if (this.state.screen !== "pick") return;
+      if (e.key === "ArrowRight") this.moveEv(1);
+      if (e.key === "ArrowLeft") this.moveEv(-1);
+    };
+    window.addEventListener("keydown", this._key);
+  }
+  moveEv(d) {
+    const n = this.evList().length || 1;
+    this.setState(s => ({ evIdx: (s.evIdx + d + n) % n }));
+  }
+  componentWillUnmount() { clearTimeout(this._t); window.removeEventListener("keydown", this._key); if (this._unsub) this._unsub(); }
+  evList() { return (this.state.events && this.state.events.length) ? this.state.events : []; }
+  flash(m) { this.setState({ toast: m }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: "" }), 2000); }
+
+  qr(seedStr, n) {
+    let h = 2166136261;
+    for (let i = 0; i < seedStr.length; i++) { h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619); }
+    const rnd = (a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; })(h);
+    const g = Array.from({ length: n }, () => new Array(n).fill(0));
+    const inFinder = (x, y) => (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (!inFinder(x, y)) g[y][x] = rnd() < 0.47 ? 1 : 0;
+    for (let i = 8; i < n - 8; i++) { g[6][i] = i % 2 ? 0 : 1; g[i][6] = i % 2 ? 0 : 1; }
+    const finder = (ox, oy) => { for (let y = 0; y < 7; y++) for (let x = 0; x < 7; x++) { const ring = x === 0 || y === 0 || x === 6 || y === 6, core = x >= 2 && x <= 4 && y >= 2 && y <= 4; g[oy + y][ox + x] = ring || core ? 1 : 0; } };
+    finder(0, 0); finder(n - 7, 0); finder(0, n - 7);
+    for (let y = 0; y < 5; y++) for (let x = 0; x < 5; x++) { const ring = x === 0 || y === 0 || x === 4 || y === 4; g[n - 9 + y][n - 9 + x] = ring || (x === 2 && y === 2) ? 1 : 0; }
+    let d = "";
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (g[y][x]) d += `M${x},${y}h1v1h-1Z`;
+    return React.createElement("svg", { viewBox: `-2 -2 ${n + 4} ${n + 4}`, width: "100%", height: "100%", shapeRendering: "crispEdges", style: { display: "block" } }, React.createElement("path", { d, fill: "currentColor" }));
+  }
+
+  stepError(key) {
+    const t = COPY[this.state.lang], v = this.state.vals;
+    if (key === "name" && !v.name.trim()) return t.err.name;
+    if (key === "email" && !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(v.email.trim())) return t.err.email;
+    if (key === "phone" && v.phone.replace(/\D/g, "").length < 9) return t.err.phone;
+    return "";
+  }
+
+  submit() {
+    const s = this.state, t = COPY[s.lang];
+    if (!s.consent) { this.setState({ consentError: t.err.consent }); return; }
+    this.setState({ screen: "sending" });
+    setTimeout(() => {
+      const ev = this.evList()[s.evIdx];
+      const reg = this.S.register(ev.id, {
+        name: s.vals.name.trim(), email: s.vals.email.trim(),
+        phone: s.vals.phone.trim(), org: s.vals.org.trim(),
+        type: COPY.th.types[s.typeIdx], source: "online"
+      });
+      const pass = {
+        name: reg.name, email: reg.email, phone: reg.phone,
+        org: s.vals.org.trim() || (s.lang === "en" ? "Individual" : "ผู้เข้าร่วมทั่วไป"),
+        typeIdx: s.typeIdx, code: reg.code, eventId: ev.id, eventName: ev.name
+      };
+      try { localStorage.setItem("tt26-pass", JSON.stringify(pass)); } catch (e) { }
+      this.setState({ pass, screen: "pass" });
+      this.flash(t.toastSaved);
+    }, 1400);
+  }
+
+  renderVals() {
+    const s = this.state, t = COPY[s.lang];
+    const evs = this.evList();
+    if (!evs.length) return { isPick: true, pickTitle: s.lang === "en" ? "Loading events…" : "กำลังโหลดรายการงาน…", pickSub: "", arcCards: [], dots: [], activeFacts: [], ctaLabel: "…", ctaBg: "#ded8c6", ctaFg: "#57533f", prevEv: () => { }, nextEv: () => { }, enterEvent: () => { } };
+    const ev = evs[Math.min(s.evIdx, evs.length - 1)];
+    const evc = { name: ev.name, date: ev.date, place: ev.place, status: ev.status, seats: ev.seats, price: ev.price };
+    const pickCopy = s.lang === "en"
+      ? { title: "Which event are you joining?", sub: "Pick an event to open its registration form. Each event has its own questions and badge.", cta: "Register for this event", soon: "Registration not open yet", facts: ["Date", "Venue", "Availability", "Fee"], hint: "Drop the event photo" }
+      : { title: "คุณจะเข้าร่วมงานไหน?", sub: "เลือกงานเพื่อเปิดฟอร์มลงทะเบียนของงานนั้น แต่ละงานมีคำถามและบัตรของตัวเอง", cta: "ลงทะเบียนงานนี้", soon: "ยังไม่เปิดรับลงทะเบียน", facts: ["วันที่จัด", "สถานที่", "ที่นั่ง", "ค่าเข้าร่วม"], hint: "วางรูปงานที่นี่" };
+    const n = evs.length;
+    const arcCards = evs.map((e, i) => {
+      let off = i - s.evIdx;
+      if (off > n / 2) off -= n;
+      if (off < -n / 2) off += n;
+      const a = off * 17;
+      const x = off * 108;
+      const y = Math.abs(off) * 26;
+      const sc = off === 0 ? 1 : 1 - Math.min(Math.abs(off), 2) * 0.13;
+      const ec = e;
+      return {
+        name: ec.name, date: (ec.date || "").toUpperCase(), place: ec.place, status: ec.status,
+        slotId: "ev-card-" + e.id, slotHint: pickCopy.hint,
+        transform: `translate3d(${x}px,${y}px,0) rotate(${a}deg) scale(${sc})`,
+        z: 10 - Math.abs(off), opacity: Math.abs(off) > 2 ? 0 : off === 0 ? 1 : 0.62,
+        shadow: off === 0 ? "0 22px 44px rgba(23,21,15,.3)" : "0 10px 22px rgba(23,21,15,.16)",
+        scrim: `linear-gradient(to top, rgba(19,17,12,.9) 0%, rgba(19,17,12,.42) 42%, rgba(19,17,12,.08) 100%)`,
+        kicker: off === 0 ? e.accent === "#d8482b" ? "#ffb3a2" : "#f0e2c4" : "rgba(255,255,255,.7)",
+        badgeBg: e.open ? e.accent : "rgba(255,255,255,.85)",
+        badgeFg: e.open ? "#fff" : "#3a352a",
+        onPick: () => { if (i === s.evIdx) { this.enterEvent(); } else { this.setState({ evIdx: i }); } }
+      };
+    });
+
+    const pickVals = {
+      isPick: s.screen === "pick",
+      pickTitle: pickCopy.title, pickSub: pickCopy.sub,
+      arcCards,
+      dots: evs.map((e, i) => ({
+        w: i === s.evIdx ? "22px" : "6px",
+        bg: i === s.evIdx ? "#17150f" : "#c9c3b0",
+        onPick: () => this.setState({ evIdx: i })
+      })),
+      prevEv: () => this.moveEv(-1),
+      nextEv: () => this.moveEv(1),
+      activeFacts: [
+        { k: pickCopy.facts[0], v: evc.date },
+        { k: pickCopy.facts[1], v: evc.place },
+        { k: pickCopy.facts[2], v: evc.seats },
+        { k: pickCopy.facts[3], v: evc.price }
+      ],
+      ctaLabel: ev.open ? pickCopy.cta : pickCopy.soon,
+      ctaBg: ev.open ? "#d8482b" : "#ded8c6",
+      ctaFg: ev.open ? "#fff" : "#57533f",
+      enterEvent: () => this.enterEvent()
+    };
+
+    const steps = t.steps, i = s.step, cur = steps[i];
+    const isChoice = cur.key === "type";
+    const val = isChoice ? "" : s.vals[cur.key];
+    const filled = (val || "").length > 0;
+    const optional = cur.key === "org";
+    const pass = s.pass;
+    let passTypeIdx = 0;
+    if (pass) {
+      if (typeof pass.typeIdx === "number") passTypeIdx = pass.typeIdx;
+      else if (pass.type) {
+        const hit = ["th", "en"].map(l => COPY[l].types.indexOf(pass.type)).find(x => x >= 0);
+        if (typeof hit === "number") passTypeIdx = hit;
+      }
+    }
+    const passTypeLabel = pass ? t.types[passTypeIdx] : "";
+
+    return {
+      ...pickVals,
+      isAsk: s.screen === "ask", isSending: s.screen === "sending", isPass: s.screen === "pass", isLookup: s.screen === "lookup",
+      setTh: () => this.setState({ lang: "th", error: "", consentError: "" }),
+      setEn: () => this.setState({ lang: "en", error: "", consentError: "" }),
+      thBg: s.lang === "th" ? "#17150f" : "transparent", thFg: s.lang === "th" ? "#f4f1e6" : "#8a8474",
+      enBg: s.lang === "en" ? "#17150f" : "transparent", enFg: s.lang === "en" ? "#f4f1e6" : "#8a8474",
+      passThBg: s.lang === "th" ? "#fff5ef" : "transparent", passThFg: s.lang === "th" ? "#d8482b" : "rgba(255,245,239,.75)",
+      passEnBg: s.lang === "en" ? "#fff5ef" : "transparent", passEnFg: s.lang === "en" ? "#d8482b" : "rgba(255,245,239,.75)",
+
+      ticks: steps.map((_, k) => ({ bg: k <= i ? "#17150f" : "#c9c3b0" })),
+      stepNum: String(i + 1).padStart(2, "0"),
+      question: cur.q.replace(/\n/g, " "),
+      helper: cur.helper,
+      isInput: !isChoice, isChoice,
+      value: val, placeholder: cur.ph || "", mode: cur.mode || "text",
+      inputBorder: s.error ? "#c1391f" : filled ? "#17150f" : "#c9c3b0",
+      error: s.error,
+      onInput: e => { const v = e.target.value; this.setState(st => ({ vals: { ...st.vals, [cur.key]: v }, error: "" })); },
+      onKey: e => { if (e.key === "Enter") this.next(); },
+      chips: (cur.chips || []).map(label => ({
+        label,
+        onPick: () => this.setState(st => {
+          const base = (st.vals[cur.key] || "").split("@")[0];
+          return { vals: { ...st.vals, [cur.key]: base + label }, error: "" };
+        })
+      })),
+
+      types: t.types.map((label, k) => ({
+        label,
+        border: k === s.typeIdx ? "#17150f" : "#c9c3b0",
+        bg: k === s.typeIdx ? "#ece7d7" : "transparent",
+        fg: k === s.typeIdx ? "#17150f" : "#5d5748",
+        dotBorder: k === s.typeIdx ? "#d8482b" : "#c9c3b0",
+        dot: k === s.typeIdx ? "#d8482b" : "transparent",
+        onPick: () => this.setState({ typeIdx: k })
+      })),
+      consentText: t.consent,
+      consentError: s.consentError,
+      consentBorder: s.consentError ? "#c1391f" : s.consent ? "#d8482b" : "#c9c3b0",
+      consentBg: s.consent ? "#d8482b" : "transparent",
+      consentDot: s.consent ? "#fff5ef" : "transparent",
+      consentFg: s.consentError ? "#c1391f" : "#5d5748",
+      toggleConsent: () => this.setState(st => ({ consent: !st.consent, consentError: "" })),
+
+      nextLabel: isChoice ? t.finish : (optional && !filled ? t.skip : t.next),
+      next: () => this.next(),
+      back: () => {
+        if (s.step === 0) { this.setState({ screen: "pick" }); return; }
+        this.setState(st => ({ step: st.step - 1, error: "" }));
+      },
+      evName: evc.name,
+      evMeta: evc.date + " · " + evc.place,
+      evWideSlot: "ev-wide-" + ev.id,
+      evLogoSlot: "ev-logo-" + ev.id,
+      evAccent: ev.accent,
+      alreadyText: t.already, lookupLink: t.lookupLink,
+      goLookup: () => this.setState({ screen: "lookup", lookupError: "" }),
+      goForm: () => this.setState({ screen: "pick" }),
+      goPick: () => this.setState({ screen: "pick" }),
+      savingText: t.saving,
+
+      lookupTitle: t.lookupTitle.replace(/\n/g, " "), lookupSub: t.lookupSub, lookupBtn: t.lookupBtn,
+      lookupEmail: s.lookupEmail, lookupError: s.lookupError,
+      onLookupEmail: e => this.setState({ lookupEmail: e.target.value, lookupError: "" }),
+      doLookup: () => {
+        const em = s.lookupEmail.trim().toLowerCase();
+        if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(em)) { this.setState({ lookupError: t.err.notfound }); return; }
+        let found = null, foundEv = null;
+        evs.forEach(e => {
+          const hit = e.att.find(a => (a.email || "").toLowerCase() === em);
+          if (hit && !found) { found = hit; foundEv = e; }
+        });
+        if (!found) {
+          let saved = null;
+          try { saved = JSON.parse(localStorage.getItem("tt26-pass") || "null"); } catch (er) { }
+          if (saved && (saved.email || "").toLowerCase() === em) { this.setState({ pass: saved, screen: "pass" }); return; }
+          this.setState({ lookupError: t.err.notfound });
+          return;
+        }
+        const idx = Math.max(0, COPY.th.types.indexOf(found.type));
+        this.setState({
+          evIdx: evs.findIndex(e => e.id === foundEv.id),
+          pass: { name: found.name, email: found.email, phone: found.phone, org: found.org, typeIdx: idx, code: found.code, eventId: foundEv.id, eventName: foundEv.name },
+          screen: "pass"
+        });
+      },
+
+      doneTitle: t.done.replace(/\n/g, " "),
+      passNote: t.passNote, passKicker: t.kicker,
+      passName: pass ? pass.name : "", passOrg: pass ? pass.org : "",
+      passPhone: pass ? pass.phone : "", passCode: pass ? pass.code : "",
+      passType: passTypeLabel.toUpperCase(),
+      gateLabel: t.gate, gateVal: t.gateVal, doorsLabel: t.doors, contactLabel: t.contact,
+      saveImgLabel: t.saveImg, newRegLabel: t.newReg,
+      qr: this.qr(pass ? pass.code + pass.email : "TT26", 25),
+      saveImg: () => this.flash(t.toastImg),
+      addWallet: () => this.flash(t.toastWallet),
+      reset: () => { try { localStorage.removeItem("tt26-pass"); } catch (e) { } this.setState({ screen: "pick", step: 0, vals: { name: "", email: "", phone: "", org: "" }, consent: false, typeIdx: 0, error: "", consentError: "", pass: null }); },
+      toast: s.toast
+    };
+  }
+
+  enterEvent() {
+    const ev = this.evList()[this.state.evIdx];
+    if (!ev) return;
+    if (!ev.open) { this.flash(this.state.lang === "en" ? "Registration opens later — check back soon." : "งานนี้ยังไม่เปิดรับลงทะเบียน"); return; }
+    this.setState({ screen: "ask", step: 0, error: "", consentError: "" });
+  }
+
+  next() {
+    const s = this.state, t = COPY[s.lang], steps = t.steps, cur = steps[s.step];
+    if (cur.key === "type") { this.submit(); return; }
+    const err = cur.key === "org" ? "" : this.stepError(cur.key);
+    if (err) { this.setState({ error: err }); return; }
+    this.setState({ step: s.step + 1, error: "" });
+  }
+}
+</script>
+</body>
+</html>

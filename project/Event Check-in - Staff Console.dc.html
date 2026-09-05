@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@200;300;400;500;600&family=Trirong:wght@200;300;400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#141310;color:#f0ece3;font-family:Anuphan,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#c9ac74;text-decoration:none}a:hover{color:#e0c893}
+input,button{font-family:inherit;color:inherit}
+::selection{background:#c9ac74;color:#1a1815}
+@keyframes scanline{0%{transform:translateY(0)}100%{transform:translateY(196px)}}
+@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.25}}
+</style>
+<script src="./image-slot.js"></script>
+</helmet>
+
+<sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ false }}">
+<div style="min-height:100vh;display:grid;place-items:center;padding:40px 20px;background:#141310">
+<div style="width:100%;max-width:392px;display:flex;flex-direction:column;gap:34px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="font:400 9.5px IBM Plex Mono,monospace;letter-spacing:.26em;color:#c9ac74">STAFF CONSOLE</div>
+<div style="font:200 34px/1.2 Trirong,serif">ระบบลงทะเบียน<br>เข้างาน</div>
+<div style="font:300 12.5px/1.7 Anuphan,sans-serif;color:#8b8578">สำหรับเจ้าหน้าที่ผู้จัดงานเท่านั้น · เข้าใช้งานด้วยบัญชี Google ที่ได้รับสิทธิ์ ข้อมูลทั้งหมดบันทึกลง Google Sheet แบบเรียลไทม์</div>
+</div>
+<div style="height:1px;background:#302c26"></div>
+<div onClick="{{ signIn }}" style="display:flex;align-items:center;gap:14px;border:1px solid #302c26;background:#1f1c18;padding:15px 18px;cursor:pointer" style-hover="border-color:#c9ac74">
+<div style="width:30px;height:30px;background:#f0ece3;color:#1a1815;display:grid;place-items:center;font:500 14px IBM Plex Mono,monospace;flex:none">G</div>
+<div style="flex:1">
+<div style="font:400 13.5px Anuphan,sans-serif">เข้าสู่ระบบด้วย Google</div>
+<div style="font:300 11px Anuphan,sans-serif;color:#6f6a5f;margin-top:1px">staff@thinktech.co.th</div>
+</div>
+<div style="font:400 14px IBM Plex Mono,monospace;color:#c9ac74">→</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;justify-content:space-between;font:300 11.5px Anuphan,sans-serif;color:#6f6a5f;border-bottom:1px solid #241f1b;padding-bottom:9px"><span>ลูกค้าลงทะเบียน</span><span style="color:#8b8578">ไม่ต้องเข้าสู่ระบบ</span></div>
+<div style="display:flex;justify-content:space-between;font:300 11.5px Anuphan,sans-serif;color:#6f6a5f"><span>สิทธิ์เจ้าหน้าที่</span><span style="color:#8b8578">กำหนดโดยผู้ดูแลงาน</span></div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ loggedIn }}" hint-placeholder-val="{{ true }}">
+<div style="min-height:100vh;display:flex;flex-wrap:wrap;align-items:stretch;background:#141310">
+
+<div style="width:236px;flex:none;border-right:1px solid #241f1b;background:#17150f;display:flex;flex-direction:column;padding:26px 0;min-height:100vh">
+<div style="padding:0 22px 22px;border-bottom:1px solid #241f1b">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.24em;color:#c9ac74">STAFF CONSOLE</div>
+<div style="font:200 19px/1.25 Trirong,serif;margin-top:9px">ThinkTech Events</div>
+</div>
+
+<div style="padding:18px 22px 14px;border-bottom:1px solid #241f1b;display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#6f6a5f">งานที่กำลังดู</div>
+<div onClick="{{ toggleNewEvent }}" title="เพิ่มงานใหม่" style="font:400 13px IBM Plex Mono,monospace;color:#c9ac74;cursor:pointer;line-height:1">+</div>
+</div>
+<sc-for list="{{ eventList }}" as="ev" hint-placeholder-count="3">
+<div onClick="{{ ev.onPick }}" style="cursor:pointer;padding:9px 11px;border:1px solid {{ ev.border }};background:{{ ev.bg }};display:flex;flex-direction:column;gap:2px" style-hover="border-color:#3f382e">
+<div style="font:400 12px/1.3 Anuphan,sans-serif;color:{{ ev.fg }}">{{ ev.name }}</div>
+<div style="font:400 9px IBM Plex Mono,monospace;color:#6f6a5f;letter-spacing:.06em">{{ ev.meta }}</div>
+</div>
+</sc-for>
+<div onClick="{{ toggleNewEvent }}" style="border:1px dashed #3a352d;color:#8b8578;padding:9px 11px;font:300 11.5px Anuphan,sans-serif;cursor:pointer;text-align:center" style-hover="border-color:#c9ac74;color:#c9ac74">+ เพิ่มงานใหม่</div>
+</div>
+
+<sc-if value="{{ showNewEvent }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;background:rgba(10,9,7,.72);display:grid;place-items:center;padding:24px;z-index:60">
+<div style="width:100%;max-width:430px;background:#1a1815;border:1px solid #c9ac74;padding:26px 26px 24px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+<div style="font:200 21px Trirong,serif">สร้างงานใหม่</div>
+<div onClick="{{ toggleNewEvent }}" style="font:400 10px IBM Plex Mono,monospace;color:#8b8578;cursor:pointer" style-hover="color:#c9ac74">ปิด ✕</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="border:1px solid #302c26;background:#1f1c18;padding:10px 13px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.18em;color:#6f6a5f">ชื่องาน *</div>
+<input value="{{ neName }}" onChange="{{ onNeName }}" placeholder="เช่น Tech Meetup 2027" style="width:100%;background:transparent;border:0;outline:none;font:300 15px Anuphan,sans-serif;margin-top:4px" />
+</div>
+<div style="display:flex;gap:12px;flex-wrap:wrap">
+<div style="flex:1;min-width:140px;border:1px solid #302c26;background:#1f1c18;padding:10px 13px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.18em;color:#6f6a5f">วันที่จัด</div>
+<input value="{{ neWhen }}" onChange="{{ onNeWhen }}" placeholder="15 มี.ค. 70" style="width:100%;background:transparent;border:0;outline:none;font:300 15px Anuphan,sans-serif;margin-top:4px" />
+</div>
+<div style="flex:1;min-width:140px;border:1px solid #302c26;background:#1f1c18;padding:10px 13px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.18em;color:#6f6a5f">สถานที่</div>
+<input value="{{ nePlace }}" onChange="{{ onNePlace }}" placeholder="ไอคอนสยาม" style="width:100%;background:transparent;border:0;outline:none;font:300 15px Anuphan,sans-serif;margin-top:4px" />
+</div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:9px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#6f6a5f">ธีมสีของงาน</div>
+<div style="display:flex;flex-wrap:wrap;gap:7px">
+<sc-for list="{{ neThemes }}" as="nt" hint-placeholder-count="5">
+<div onClick="{{ nt.onPick }}" style="border:1px solid {{ nt.border }};padding:7px 10px;display:flex;align-items:center;gap:7px;cursor:pointer" style-hover="border-color:#3f382e">
+<div style="width:12px;height:12px;background:{{ nt.paper }}"></div>
+<div style="width:12px;height:12px;background:{{ nt.accent }}"></div>
+<div style="font:400 10.5px Anuphan,sans-serif;color:{{ nt.fg }};white-space:nowrap">{{ nt.label }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="font:300 11px Anuphan,sans-serif;color:#e39a8f">{{ neError }}</div>
+<div onClick="{{ createEvent }}" style="background:#c9ac74;color:#1a1815;text-align:center;padding:15px 0;font:500 10.5px IBM Plex Mono,monospace;letter-spacing:.18em;cursor:pointer" style-hover="background:#dcbf87">สร้างงานและตั้งฟิลด์ฟอร์ม</div>
+<div style="font:300 10.5px/1.6 Anuphan,sans-serif;color:#6f6a5f">งานใหม่จะได้ฟิลด์เริ่มต้น 3 ช่อง (ชื่อ อีเมล เบอร์โทร) และสร้างชีตแยกใน Google Sheet ให้อัตโนมัติ</div>
+</div>
+</div>
+</sc-if>
+
+<div style="padding:16px 14px;display:flex;flex-direction:column;gap:2px">
+<div onClick="{{ goDash }}" style="display:flex;align-items:center;gap:9px;padding:10px 10px;cursor:pointer" style-hover="background:#1f1c18">
+<div style="width:2px;height:16px;background:{{ navDash }}"></div>
+<div style="font:400 11.5px Anuphan,sans-serif;white-space:nowrap;color:{{ navDashFg }}">ภาพรวมสด</div>
+</div>
+<div onClick="{{ goScan }}" style="display:flex;align-items:center;gap:9px;padding:10px 10px;cursor:pointer" style-hover="background:#1f1c18">
+<div style="width:2px;height:16px;background:{{ navScan }}"></div>
+<div style="font:400 11.5px Anuphan,sans-serif;white-space:nowrap;color:{{ navScanFg }}">สแกน QR เข้างาน</div>
+</div>
+<div onClick="{{ goList }}" style="display:flex;align-items:center;gap:9px;padding:10px 10px;cursor:pointer" style-hover="background:#1f1c18">
+<div style="width:2px;height:16px;background:{{ navList }}"></div>
+<div style="font:400 11.5px Anuphan,sans-serif;white-space:nowrap;color:{{ navListFg }}">ผู้ลงทะเบียน</div>
+<div style="margin-left:auto;font:400 9.5px IBM Plex Mono,monospace;color:#6f6a5f">{{ total }}</div>
+</div>
+<div onClick="{{ goHistory }}" style="display:flex;align-items:center;gap:9px;padding:10px 10px;cursor:pointer" style-hover="background:#1f1c18">
+<div style="width:2px;height:16px;background:{{ navHistory }}"></div>
+<div style="font:400 11.5px Anuphan,sans-serif;white-space:nowrap;color:{{ navHistoryFg }}">ประวัติย้อนหลัง</div>
+</div>
+<div onClick="{{ goFields }}" style="display:flex;align-items:center;gap:9px;padding:10px 10px;cursor:pointer" style-hover="background:#1f1c18">
+<div style="width:2px;height:16px;background:{{ navFields }}"></div>
+<div style="font:400 11.5px Anuphan,sans-serif;white-space:nowrap;color:{{ navFieldsFg }}">ฟิลด์ฟอร์ม</div>
+</div>
+<div onClick="{{ goBanner }}" style="display:flex;align-items:center;gap:9px;padding:10px 10px;cursor:pointer" style-hover="background:#1f1c18">
+<div style="width:2px;height:16px;background:{{ navBanner }}"></div>
+<div style="font:400 11.5px Anuphan,sans-serif;white-space:nowrap;color:{{ navBannerFg }}">ภาพและแบนเนอร์</div>
+</div>
+<div onClick="{{ goBadge }}" style="display:flex;align-items:center;gap:9px;padding:10px 10px;cursor:pointer" style-hover="background:#1f1c18">
+<div style="width:2px;height:16px;background:{{ navBadge }}"></div>
+<div style="font:400 11.5px Anuphan,sans-serif;white-space:nowrap;color:{{ navBadgeFg }}">บัตรเข้างาน</div>
+</div>
+<div onClick="{{ goTeam }}" style="display:flex;align-items:center;gap:9px;padding:10px 10px;cursor:pointer" style-hover="background:#1f1c18">
+<div style="width:2px;height:16px;background:{{ navTeam }}"></div>
+<div style="font:400 11.5px Anuphan,sans-serif;white-space:nowrap;color:{{ navTeamFg }}">ทีมและสิทธิ์</div>
+</div>
+</div>
+
+<div style="margin-top:auto;padding:18px 22px 0;border-top:1px solid #241f1b;display:flex;align-items:center;gap:11px">
+<div style="width:28px;height:28px;border-radius:99px;background:#302c26;display:grid;place-items:center;font:400 11px IBM Plex Mono,monospace;color:#c9ac74;flex:none">พ</div>
+<div style="min-width:0">
+<div style="font:400 11.5px Anuphan,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">พิมพ์ชนก ว.</div>
+<div style="font:400 9px IBM Plex Mono,monospace;color:#6f6a5f">ADMIN</div>
+</div>
+<div onClick="{{ signOut }}" style="margin-left:auto;font:400 9.5px IBM Plex Mono,monospace;color:#6f6a5f;cursor:pointer" style-hover="color:#c9ac74">ออก</div>
+</div>
+</div>
+
+<div style="flex:1;min-width:320px;display:flex;flex-direction:column">
+
+<div style="border-bottom:1px solid #241f1b;padding:20px 30px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;background:#17150f">
+<div style="min-width:0">
+<div style="font:200 22px/1.2 Trirong,serif">{{ eventName }}</div>
+<div style="font:400 9.5px IBM Plex Mono,monospace;color:#6f6a5f;letter-spacing:.1em;margin-top:5px">{{ eventMeta }}</div>
+</div>
+<div style="margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+<div style="display:flex;align-items:center;gap:9px;border:1px solid #302c26;padding:6px 12px">
+<div style="display:flex">
+<sc-for list="{{ crewOnline }}" as="c" hint-placeholder-count="3">
+<div title="{{ c.title }}" style="width:22px;height:22px;border-radius:99px;background:#1f1c18;border:1px solid {{ c.border }};color:{{ c.fg }};display:grid;place-items:center;font:400 9.5px IBM Plex Mono,monospace;margin-right:-6px">{{ c.initial }}</div>
+</sc-for>
+</div>
+<div style="font:400 9.5px Anuphan,sans-serif;color:#8b8578;letter-spacing:.04em;margin-left:8px;white-space:nowrap">{{ crewCount }}</div>
+</div>
+<div style="display:flex;align-items:center;gap:7px;border:1px solid #302c26;padding:7px 12px">
+<div style="width:5px;height:5px;border-radius:99px;background:#7fbf8a;animation:pulseDot 2s ease-in-out infinite"></div>
+<div style="font:400 9.5px IBM Plex Mono,monospace;color:#8b8578;letter-spacing:.08em;white-space:nowrap">{{ syncedLabel }}</div>
+</div>
+<div onClick="{{ exportCsv }}" style="border:1px solid #302c26;padding:7px 13px;font:400 9.5px IBM Plex Mono,monospace;letter-spacing:.14em;color:#f0ece3;cursor:pointer" style-hover="border-color:#c9ac74;color:#c9ac74">EXPORT CSV</div>
+</div>
+</div>
+
+<sc-if value="{{ isDash }}" hint-placeholder-val="{{ true }}">
+<div style="padding:30px;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-wrap:wrap;gap:14px">
+<div style="flex:1;min-width:132px;border:1px solid #302c26;background:#1a1815;padding:20px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#6f6a5f">ลงทะเบียนล่วงหน้า</div>
+<div style="font:200 38px/1 Trirong,serif;margin-top:12px">{{ total }}</div>
+</div>
+<div style="flex:1;min-width:132px;border:1px solid #c9ac74;background:#221e18;padding:20px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#c9ac74">เข้างานแล้ว</div>
+<div style="font:200 38px/1 Trirong,serif;margin-top:12px;color:#c9ac74">{{ checkedIn }}</div>
+</div>
+<div style="flex:1;min-width:132px;border:1px solid #302c26;background:#1a1815;padding:20px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#6f6a5f">อัตราเข้างาน</div>
+<div style="font:200 38px/1 Trirong,serif;margin-top:12px">{{ rate }}</div>
+</div>
+<div style="flex:1;min-width:132px;border:1px solid #302c26;background:#1a1815;padding:20px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#6f6a5f">Walk-in หน้างาน</div>
+<div style="font:200 38px/1 Trirong,serif;margin-top:12px">{{ walkins }}</div>
+</div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:24px;align-items:stretch">
+<div style="flex:2;min-width:340px;border:1px solid #302c26;background:#1a1815;padding:22px 24px 18px;display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:400 12.5px Anuphan,sans-serif">การเช็คอินรายชั่วโมง</div>
+<div style="font:400 9px IBM Plex Mono,monospace;color:#6f6a5f;letter-spacing:.12em">TODAY · LIVE</div>
+</div>
+<div style="display:flex;align-items:flex-end;gap:10px;height:172px">
+<sc-for list="{{ bars }}" as="b" hint-placeholder-count="7">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:9px;justify-content:flex-end;height:100%">
+<div style="font:400 9px IBM Plex Mono,monospace;color:#8b8578">{{ b.n }}</div>
+<div style="width:100%;background:{{ b.fill }};height:{{ b.h }}"></div>
+<div style="font:400 9px IBM Plex Mono,monospace;color:#6f6a5f">{{ b.hour }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="flex:1;min-width:240px;border:1px solid #302c26;background:#1a1815;padding:22px 24px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:400 12.5px Anuphan,sans-serif">เจ้าหน้าที่ที่กำลังสแกน</div>
+<div style="font:400 9px IBM Plex Mono,monospace;color:#6f6a5f;letter-spacing:.12em">SCANS</div>
+</div>
+<div>
+<sc-for list="{{ staffBoard }}" as="sb" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #241f1b">
+<div style="width:5px;height:5px;border-radius:99px;background:{{ sb.dot }};flex:none"></div>
+<div style="flex:1;min-width:0">
+<div style="font:400 12px Anuphan,sans-serif;color:{{ sb.fg }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ sb.name }}</div>
+<div style="font:300 10px Anuphan,sans-serif;color:#6f6a5f">{{ sb.meta }}</div>
+</div>
+<div style="font:400 13px IBM Plex Mono,monospace;color:#f0ece3">{{ sb.scans }}</div>
+</div>
+</sc-for>
+</div>
+<div style="font:300 10.5px/1.6 Anuphan,sans-serif;color:#6f6a5f">ทุกการเช็คอินบันทึกชื่อผู้สแกน เวลา และประตู ลงแถวเดียวกันใน Google Sheet</div>
+</div>
+
+<div style="flex:1;min-width:240px;border:1px solid #302c26;background:#1a1815;padding:22px 24px;display:flex;flex-direction:column;gap:16px">
+<div style="font:400 12.5px Anuphan,sans-serif">กิจกรรมล่าสุด (ทุกเครื่อง)</div>
+<div style="display:flex;flex-direction:column;gap:0">
+<sc-for list="{{ feed }}" as="f" hint-placeholder-count="5">
+<div style="display:flex;gap:12px;align-items:baseline;padding:11px 0;border-bottom:1px solid #241f1b">
+<div style="font:400 9px IBM Plex Mono,monospace;color:#6f6a5f;flex:none">{{ f.time }}</div>
+<div style="font:300 12px/1.4 Anuphan,sans-serif;color:#cfc9bd">{{ f.text }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isScan }}" hint-placeholder-val="{{ false }}">
+<div style="padding:30px;display:flex;flex-wrap:wrap;gap:30px;align-items:flex-start">
+
+<div style="width:318px;flex:none;display:flex;flex-direction:column;gap:12px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#6f6a5f">มุมมองบนมือถือเจ้าหน้าที่</div>
+<div style="width:318px;height:648px;border-radius:32px;background:#1a1815;box-shadow:0 0 0 8px #262320,0 20px 44px rgba(0,0,0,.5);overflow:hidden;display:flex;flex-direction:column">
+<div style="height:32px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font:400 10px IBM Plex Mono,monospace;color:#6f6a5f"><span>9:41</span><span>SCAN</span></div>
+<div style="padding:14px 22px 0;display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:200 18px Trirong,serif">สแกน QR</div>
+<div style="font:400 9px IBM Plex Mono,monospace;color:#c9ac74;letter-spacing:.12em">ประตู A</div>
+</div>
+<div style="padding:18px 22px 0">
+<div style="position:relative;width:100%;aspect-ratio:1;background:#0f0e0c;overflow:hidden">
+<div style="position:absolute;inset:0;background:radial-gradient(60% 60% at 50% 45%,rgba(201,172,116,.14),transparent 70%)"></div>
+<div style="position:absolute;top:22px;left:22px;width:26px;height:26px;border-top:2px solid #c9ac74;border-left:2px solid #c9ac74"></div>
+<div style="position:absolute;top:22px;right:22px;width:26px;height:26px;border-top:2px solid #c9ac74;border-right:2px solid #c9ac74"></div>
+<div style="position:absolute;bottom:22px;left:22px;width:26px;height:26px;border-bottom:2px solid #c9ac74;border-left:2px solid #c9ac74"></div>
+<div style="position:absolute;bottom:22px;right:22px;width:26px;height:26px;border-bottom:2px solid #c9ac74;border-right:2px solid #c9ac74"></div>
+<div style="position:absolute;left:22px;right:22px;top:38px;height:1px;background:linear-gradient(90deg,transparent,#c9ac74,transparent);animation:scanline 2.6s ease-in-out infinite alternate"></div>
+<div style="position:absolute;left:0;right:0;bottom:64px;text-align:center;font:300 11px Anuphan,sans-serif;color:#8b8578">วาง QR ของผู้เข้าร่วมให้อยู่ในกรอบ</div>
+</div>
+</div>
+<div style="padding:18px 22px;display:flex;flex-direction:column;gap:10px">
+<div onClick="{{ simulateScan }}" style="background:#c9ac74;color:#1a1815;text-align:center;padding:14px 0;font:500 10.5px IBM Plex Mono,monospace;letter-spacing:.2em;cursor:pointer" style-hover="background:#dcbf87">จำลองการสแกน</div>
+<div style="display:flex;gap:8px">
+<div onClick="{{ simulateDup }}" style="flex:1;border:1px solid #302c26;text-align:center;padding:13px 0;font:400 10px IBM Plex Mono,monospace;letter-spacing:.1em;color:#8b8578;cursor:pointer" style-hover="border-color:#a8564a;color:#d8877c">จำลองสแกนซ้ำ</div>
+<div onClick="{{ goList }}" style="flex:1;border:1px solid #302c26;text-align:center;padding:13px 0;font:400 10px IBM Plex Mono,monospace;letter-spacing:.1em;color:#f0ece3;cursor:pointer" style-hover="border-color:#c9ac74">ค้นหาชื่อ</div>
+</div>
+</div>
+<div style="margin-top:auto;padding:0 22px 22px;display:flex;flex-direction:column;gap:9px">
+<div style="border-top:1px solid #241f1b;padding-top:13px;display:flex;justify-content:space-between;font:400 9.5px IBM Plex Mono,monospace;color:#6f6a5f"><span>เครื่องนี้ · พิมพ์ชนก ว.</span><span style="color:#c9ac74">{{ myScans }}</span></div>
+<div style="font:300 10px/1.5 Anuphan,sans-serif;color:#575349">ทุกการสแกนบันทึกชื่อเจ้าหน้าที่คนนี้ลง Google Sheet</div>
+</div>
+</div>
+</div>
+
+<div style="flex:1;min-width:300px;display:flex;flex-direction:column;gap:14px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#6f6a5f">ผลการสแกนล่าสุด</div>
+<sc-if value="{{ hasScan }}" hint-placeholder-val="{{ true }}">
+<div style="border:1px solid {{ scanBorder }};background:{{ scanBg }};padding:26px 28px;display:flex;flex-wrap:wrap;gap:24px;align-items:center">
+<div style="min-width:200px;flex:1">
+<div style="font:400 9.5px IBM Plex Mono,monospace;letter-spacing:.22em;color:{{ scanFg }}">{{ scanStatus }}</div>
+<div style="font:200 27px/1.2 Trirong,serif;margin-top:10px">{{ scanName }}</div>
+<div style="font:300 12px Anuphan,sans-serif;color:#8b8578;margin-top:7px">{{ scanSub }}</div>
+<div style="font:400 10px IBM Plex Mono,monospace;color:{{ scanFg }};letter-spacing:.06em;margin-top:9px">{{ scanBy }}</div>
+<div style="display:flex;gap:9px;margin-top:18px">
+<div onClick="{{ printBadge }}" style="background:#f0ece3;color:#1a1815;padding:12px 18px;font:500 10px IBM Plex Mono,monospace;letter-spacing:.16em;cursor:pointer;white-space:nowrap" style-hover="background:#fff">{{ printLabel }}</div>
+<div onClick="{{ goBadge }}" style="border:1px solid #3a352d;padding:12px 18px;font:400 10px IBM Plex Mono,monospace;letter-spacing:.16em;cursor:pointer" style-hover="border-color:#c9ac74">ตั้งค่าบัตร</div>
+</div>
+</div>
+<div style="width:112px;height:112px;background:#f0ece3;color:#1a1815;padding:8px;flex:none">{{ qrSmall }}</div>
+</div>
+</sc-if>
+<sc-if value="{{ noScan }}" hint-placeholder-val="{{ false }}">
+<div style="border:1px dashed #302c26;background:#17150f;padding:30px 28px;font:300 12px/1.7 Anuphan,sans-serif;color:#6f6a5f">ยังไม่มีการสแกนในเครื่องนี้ · กด “จำลองการสแกน” เพื่อเช็คอินคนถัดไป ผลจะบันทึกลงประวัติทันที</div>
+</sc-if>
+<div style="border:1px solid #302c26;background:#1a1815">
+<sc-for list="{{ recentScans }}" as="r" hint-placeholder-count="4">
+<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:15px 22px;border-bottom:1px solid #241f1b">
+<div style="font:400 9.5px IBM Plex Mono,monospace;color:#6f6a5f;width:46px;flex:none">{{ r.time }}</div>
+<div style="flex:1;min-width:120px">
+<div style="font:300 13px Anuphan,sans-serif">{{ r.name }}</div>
+<div style="font:400 9.5px IBM Plex Mono,monospace;color:#6f6a5f;margin-top:2px">สแกนโดย {{ r.by }}</div>
+</div>
+<div style="font:400 9.5px IBM Plex Mono,monospace;color:#8b8578;letter-spacing:.1em">{{ r.code }}</div>
+<div style="font:400 9px IBM Plex Mono,monospace;color:{{ r.tagFg }};border:1px solid {{ r.tagBorder }};padding:3px 9px;letter-spacing:.1em">{{ r.tag }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isList }}" hint-placeholder-val="{{ false }}">
+<div style="padding:30px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+<div style="flex:1;min-width:240px;border:1px solid #302c26;background:#1a1815;display:flex;align-items:center;gap:11px;padding:0 14px">
+<div style="font:400 12px IBM Plex Mono,monospace;color:#6f6a5f">⌕</div>
+<input value="{{ query }}" onChange="{{ onQuery }}" placeholder="ค้นหาชื่อ อีเมล เบอร์โทร หรือรหัสบัตร" style="flex:1;background:transparent;border:0;outline:none;padding:13px 0;font:300 13px Anuphan,sans-serif" />
+</div>
+<div onClick="{{ toggleWalkin }}" style="background:#c9ac74;color:#1a1815;padding:13px 18px;font:500 10px IBM Plex Mono,monospace;letter-spacing:.16em;cursor:pointer" style-hover="background:#dcbf87">+ WALK-IN</div>
+</div>
+
+<sc-if value="{{ showWalkin }}" hint-placeholder-val="{{ false }}">
+<div style="border:1px solid #c9ac74;background:#221e18;padding:22px 24px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:200 19px Trirong,serif">ลงทะเบียน Walk-in หน้างาน</div>
+<div onClick="{{ toggleWalkin }}" style="font:400 10px IBM Plex Mono,monospace;color:#8b8578;cursor:pointer" style-hover="color:#c9ac74">ปิด ✕</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:12px">
+<div style="flex:1;min-width:180px;border:1px solid #302c26;background:#1a1815;padding:10px 13px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.18em;color:#6f6a5f">ชื่อ–นามสกุล</div>
+<input value="{{ wName }}" onChange="{{ onWName }}" placeholder="ชื่อผู้เข้าร่วม" style="width:100%;background:transparent;border:0;outline:none;font:300 14px Anuphan,sans-serif;margin-top:4px" />
+</div>
+<div style="flex:1;min-width:180px;border:1px solid #302c26;background:#1a1815;padding:10px 13px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.18em;color:#6f6a5f">อีเมล</div>
+<input value="{{ wEmail }}" onChange="{{ onWEmail }}" placeholder="name@company.com" style="width:100%;background:transparent;border:0;outline:none;font:300 14px Anuphan,sans-serif;margin-top:4px" />
+</div>
+<div style="flex:1;min-width:150px;border:1px solid #302c26;background:#1a1815;padding:10px 13px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.18em;color:#6f6a5f">เบอร์โทร</div>
+<input value="{{ wPhone }}" onChange="{{ onWPhone }}" placeholder="08X XXX XXXX" style="width:100%;background:transparent;border:0;outline:none;font:300 14px Anuphan,sans-serif;margin-top:4px" />
+</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+<div onClick="{{ addWalkin }}" style="background:#f0ece3;color:#1a1815;padding:13px 20px;font:500 10px IBM Plex Mono,monospace;letter-spacing:.16em;cursor:pointer" style-hover="background:#fff">บันทึกและเช็คอินทันที</div>
+<div style="font:300 11px Anuphan,sans-serif;color:#8b8578">{{ walkinHint }}</div>
+</div>
+</div>
+</sc-if>
+
+<div style="border:1px solid #302c26;background:#1a1815">
+<div style="display:flex;gap:10px;padding:13px 22px;border-bottom:1px solid #302c26;background:#17150f;font:400 9px IBM Plex Mono,monospace;letter-spacing:.16em;color:#6f6a5f">
+<div style="flex:2;min-width:0">ผู้เข้าร่วม</div>
+<div style="flex:2;min-width:0">ติดต่อ</div>
+<div style="width:84px;flex:none">รหัสบัตร</div>
+<div style="width:126px;flex:none">สถานะ · ผู้สแกน</div>
+<div style="width:104px;flex:none;text-align:right">จัดการ</div>
+</div>
+<sc-for list="{{ rows }}" as="row" hint-placeholder-count="7">
+<div style="display:flex;gap:10px;align-items:center;padding:14px 22px;border-bottom:1px solid #241f1b" style-hover="background:#1f1c18">
+<div style="flex:2;min-width:0;display:flex;flex-direction:column;gap:2px">
+<div style="font:400 13px Anuphan,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ row.name }}</div>
+<div style="font:300 10.5px Anuphan,sans-serif;color:#6f6a5f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ row.org }}</div>
+</div>
+<div style="flex:2;min-width:0;display:flex;flex-direction:column;gap:2px">
+<div style="font:300 11.5px Anuphan,sans-serif;color:#cfc9bd;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ row.email }}</div>
+<div style="font:400 10px IBM Plex Mono,monospace;color:#6f6a5f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ row.phone }}</div>
+</div>
+<div style="width:84px;flex:none;font:400 9.5px IBM Plex Mono,monospace;color:#8b8578;letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ row.code }}</div>
+<div style="width:126px;flex:none;display:flex;flex-direction:column;gap:4px">
+<div style="display:inline-flex;align-self:flex-start;align-items:center;gap:6px;border:1px solid {{ row.tagBorder }};padding:4px 10px">
+<div style="width:4px;height:4px;border-radius:99px;background:{{ row.tagFg }}"></div>
+<div style="font:400 9px IBM Plex Mono,monospace;color:{{ row.tagFg }};letter-spacing:.1em;white-space:nowrap">{{ row.tag }}</div>
+</div>
+<div style="font:400 9px IBM Plex Mono,monospace;color:#6f6a5f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ row.byLine }}</div>
+</div>
+<div style="width:104px;flex:none;display:flex;gap:6px;justify-content:flex-end">
+<div onClick="{{ row.onToggle }}" title="สลับสถานะเช็คอิน" style="border:1px solid #302c26;padding:6px 9px;font:400 9px IBM Plex Mono,monospace;color:#f0ece3;cursor:pointer;letter-spacing:.08em" style-hover="border-color:#c9ac74;color:#c9ac74">{{ row.action }}</div>
+<div onClick="{{ row.onDelete }}" title="ลบผู้ลงทะเบียน" style="border:1px solid #302c26;padding:6px 9px;font:400 9px IBM Plex Mono,monospace;color:#8b8578;cursor:pointer" style-hover="border-color:#a8564a;color:#d8877c">ลบ</div>
+</div>
+</div>
+</sc-for>
+<sc-if value="{{ isEmptyEvent }}" hint-placeholder-val="{{ false }}">
+<div style="padding:34px 22px;text-align:center;font:300 12px/1.7 Anuphan,sans-serif;color:#6f6a5f">{{ emptyHint }}</div>
+</sc-if>
+<div style="padding:14px 22px;display:flex;justify-content:space-between;font:400 9.5px IBM Plex Mono,monospace;color:#6f6a5f;letter-spacing:.1em">
+<div>{{ rowCount }}</div>
+<div>ทุกการแก้ไขบันทึกลง Google Sheet ทันที</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isHistory }}" hint-placeholder-val="{{ false }}">
+<div style="padding:30px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between">
+<div>
+<div style="font:200 21px Trirong,serif">ประวัติการสแกนย้อนหลัง</div>
+<div style="font:300 12px/1.6 Anuphan,sans-serif;color:#8b8578;margin-top:7px">ทุกครั้งที่สแกนถูกบันทึกเป็นแถวใหม่ ไม่ทับของเดิม · ตรงกับชีต Checkins ใน Google Sheet</div>
+</div>
+<div onClick="{{ openSheet }}" style="border:1px solid #302c26;padding:11px 16px;font:400 9.5px IBM Plex Mono,monospace;letter-spacing:.14em;color:#f0ece3;cursor:pointer;white-space:nowrap" style-hover="border-color:#c9ac74;color:#c9ac74">เปิดใน GOOGLE SHEET</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px">
+<sc-for list="{{ histTabs }}" as="ht" hint-placeholder-count="5">
+<div onClick="{{ ht.onPick }}" style="border:1px solid {{ ht.border }};background:{{ ht.bg }};color:{{ ht.fg }};padding:8px 14px;font:400 10px IBM Plex Mono,monospace;letter-spacing:.1em;cursor:pointer;white-space:nowrap">{{ ht.label }}</div>
+</sc-for>
+</div>
+<div style="border:1px solid #302c26;background:#1a1815">
+<div style="display:flex;gap:10px;padding:13px 22px;border-bottom:1px solid #302c26;background:#17150f;font:400 9px IBM Plex Mono,monospace;letter-spacing:.16em;color:#6f6a5f">
+<div style="width:104px;flex:none">วันเวลา</div>
+<div style="flex:2;min-width:0">ผู้เข้าร่วม</div>
+<div style="width:88px;flex:none">รหัสบัตร</div>
+<div style="flex:1;min-width:0">ผู้สแกน · จุด</div>
+<div style="width:74px;flex:none;text-align:right">ผล</div>
+</div>
+<sc-for list="{{ histRows }}" as="h" hint-placeholder-count="8">
+<div style="display:flex;gap:10px;align-items:center;padding:13px 22px;border-bottom:1px solid #241f1b" style-hover="background:#1f1c18">
+<div style="width:104px;flex:none;font:400 9.5px/1.5 IBM Plex Mono,monospace;color:#8b8578;white-space:nowrap">{{ h.date }}<br>{{ h.time }}</div>
+<div style="flex:2;min-width:0">
+<div style="font:400 12.5px Anuphan,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ h.name }}</div>
+<div style="font:400 9px IBM Plex Mono,monospace;color:#6f6a5f;margin-top:2px">{{ h.device }}</div>
+</div>
+<div style="width:88px;flex:none;font:400 9.5px IBM Plex Mono,monospace;color:#8b8578;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ h.code }}</div>
+<div style="flex:1;min-width:0">
+<div style="font:300 11.5px Anuphan,sans-serif;color:#cfc9bd;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ h.by }}</div>
+<div style="font:400 9px IBM Plex Mono,monospace;color:#6f6a5f;margin-top:2px">{{ h.gate }}</div>
+</div>
+<div style="width:74px;flex:none;display:flex;justify-content:flex-end">
+<div style="border:1px solid {{ h.bd }};color:{{ h.fg }};padding:3px 9px;font:400 9px IBM Plex Mono,monospace;letter-spacing:.1em;white-space:nowrap">{{ h.result }}</div>
+</div>
+</div>
+</sc-for>
+<div style="padding:14px 22px;font:400 9.5px IBM Plex Mono,monospace;color:#6f6a5f;letter-spacing:.1em">{{ histCount }}</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isBanner }}" hint-placeholder-val="{{ false }}">
+<div style="padding:30px;display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start">
+
+<div style="flex:1;min-width:330px;display:flex;flex-direction:column;gap:18px">
+<div>
+<div style="font:200 21px Trirong,serif">ภาพแบนเนอร์ของงาน</div>
+<div style="font:300 12px/1.6 Anuphan,sans-serif;color:#8b8578;margin-top:7px">ลากรูปลงช่องด้านล่างเพื่อใช้เป็นภาพประจำงาน · ภาพนี้ไปแสดงบนการ์ดเลือกงานในหน้าลูกค้า และเป็นหัวหน้าลงทะเบียน ตั้งค่าแยกทุก Event</div>
+</div>
+
+<div style="border:1px solid #302c26;background:#1a1815;padding:20px 22px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#6f6a5f">ภาพการ์ดแนวตั้ง · 3:4</div>
+<div style="font:400 9.5px IBM Plex Mono,monospace;color:#c9ac74;white-space:nowrap">แนะนำ 1200×1600px</div>
+</div>
+<div style="width:100%;max-width:214px;aspect-ratio:3/4;background:#221e18;border:1px solid #302c26">
+<image-slot id="{{ slotCard }}" shape="rect" fit="cover" placeholder="ลากรูปการ์ดของงานนี้"></image-slot>
+</div>
+</div>
+
+<div style="height:1px;background:#241f1b"></div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#6f6a5f">แบนเนอร์แนวนอน · 16:6</div>
+<div style="font:400 9.5px IBM Plex Mono,monospace;color:#c9ac74;white-space:nowrap">แนะนำ 1920×720px</div>
+</div>
+<div style="width:100%;aspect-ratio:16/6;background:#221e18;border:1px solid #302c26">
+<image-slot id="{{ slotWide }}" shape="rect" fit="cover" placeholder="ลากแบนเนอร์หัวหน้าลงทะเบียน"></image-slot>
+</div>
+</div>
+
+<div style="height:1px;background:#241f1b"></div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#6f6a5f">โลโก้งาน (พื้นโปร่งใส)</div>
+<div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center">
+<div style="width:120px;height:56px;background:#221e18;border:1px solid #302c26;flex:none">
+<image-slot id="{{ slotLogo }}" shape="rect" fit="contain" placeholder="ลากโลโก้"></image-slot>
+</div>
+<div style="font:300 11px/1.6 Anuphan,sans-serif;color:#6f6a5f;flex:1;min-width:150px">ใช้บนบัตรเข้างานเมื่อเปิดตัวเลือก “ชื่องานและเส้นแบรนด์”</div>
+</div>
+</div>
+
+<div style="height:1px;background:#241f1b"></div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#6f6a5f">ความเข้มของฝ้าดำบนภาพ</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px">
+<sc-for list="{{ scrimOpts }}" as="sc" hint-placeholder-count="3">
+<div onClick="{{ sc.onPick }}" style="border:1px solid {{ sc.border }};background:{{ sc.bg }};color:{{ sc.fg }};padding:9px 14px;font:400 10px IBM Plex Mono,monospace;letter-spacing:.1em;cursor:pointer;white-space:nowrap">{{ sc.label }}</div>
+</sc-for>
+</div>
+<div style="font:300 10.5px/1.6 Anuphan,sans-serif;color:#6f6a5f">ฝ้าช่วยให้ชื่องานบนภาพอ่านชัด เลือกเข้มขึ้นถ้าภาพสว่างมาก</div>
+</div>
+</div>
+
+<div style="font:300 11.5px Anuphan,sans-serif;color:#6f6a5f">{{ bannerHint }}</div>
+</div>
+
+<div style="width:330px;flex:none;display:flex;flex-direction:column;gap:12px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#6f6a5f">พรีวิวการ์ดในหน้าลูกค้า</div>
+<div style="border:1px solid #302c26;background:#1a1815;padding:22px;display:flex;justify-content:center">
+<div style="position:relative;width:196px;height:262px;background:#e8e4d6;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.45)">
+<div style="position:absolute;inset:0"><image-slot id="{{ slotCardPreview }}" shape="rect" fit="cover" placeholder="ภาพเดียวกับด้านซ้าย"></image-slot></div>
+<div style="position:absolute;inset:0;background:{{ previewScrim }};pointer-events:none"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;padding:14px 15px;pointer-events:none;display:flex;flex-direction:column;gap:3px">
+<div style="font:600 9px IBM Plex Mono,monospace;letter-spacing:.16em;color:{{ accentColor }};white-space:nowrap">{{ previewDate }}</div>
+<div style="font:600 17px/1.12 Anuphan,sans-serif;letter-spacing:-.02em;color:#fff">{{ eventName }}</div>
+<div style="font:400 10.5px Anuphan,sans-serif;color:rgba(255,255,255,.82)">{{ previewPlace }}</div>
+</div>
+<div style="position:absolute;top:12px;right:12px;padding:3px 8px;font:600 8.5px IBM Plex Mono,monospace;letter-spacing:.1em;background:{{ accentColor }};color:#fff;pointer-events:none;white-space:nowrap">เปิดรับ</div>
+</div>
+</div>
+<div style="font:300 11px/1.6 Anuphan,sans-serif;color:#6f6a5f">การ์ดนี้คือสิ่งที่ลูกค้าเห็นในหน้าเลือกงาน · ธีมสีดึงมาจากหน้าบัตรเข้างาน</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isFields }}" hint-placeholder-val="{{ false }}">
+<div style="padding:30px;display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start">
+<div style="flex:1;min-width:330px;display:flex;flex-direction:column;gap:16px">
+<div>
+<div style="font:200 21px Trirong,serif">ฟิลด์ในฟอร์มลงทะเบียน</div>
+<div style="font:300 12px/1.6 Anuphan,sans-serif;color:#8b8578;margin-top:7px">ตั้งค่าแยกตามแต่ละ Event · เพิ่ม ลบ หรือกำหนดว่าฟิลด์ใดจำเป็น แล้วหน้าลูกค้าจะอัปเดตทันที</div>
+</div>
+<div style="border:1px solid #302c26;background:#1a1815">
+<sc-for list="{{ fieldRows }}" as="fd" hint-placeholder-count="5">
+<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:14px 20px;border-bottom:1px solid #241f1b" style-hover="background:#1f1c18">
+<div style="font:400 10px IBM Plex Mono,monospace;color:#6f6a5f;width:22px;flex:none">{{ fd.num }}</div>
+<div style="flex:1;min-width:130px;display:flex;flex-direction:column;gap:2px">
+<div style="font:400 13px Anuphan,sans-serif">{{ fd.label }}</div>
+<div style="font:400 9px IBM Plex Mono,monospace;color:#6f6a5f;letter-spacing:.1em">{{ fd.type }}</div>
+</div>
+<div onClick="{{ fd.onRequired }}" style="border:1px solid {{ fd.reqBorder }};padding:5px 11px;font:400 9px IBM Plex Mono,monospace;color:{{ fd.reqFg }};letter-spacing:.1em;cursor:pointer">{{ fd.reqLabel }}</div>
+<div onClick="{{ fd.onRemove }}" style="font:400 10px IBM Plex Mono,monospace;color:#6f6a5f;cursor:pointer;padding:5px 4px" style-hover="color:#d8877c">✕</div>
+</div>
+</sc-for>
+<div style="padding:16px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+<input value="{{ newField }}" onChange="{{ onNewField }}" placeholder="ชื่อฟิลด์ใหม่ เช่น ตำแหน่งงาน" style="flex:1;min-width:170px;background:#17150f;border:1px solid #302c26;outline:none;padding:11px 13px;font:300 12.5px Anuphan,sans-serif" />
+<div onClick="{{ addField }}" style="border:1px solid #c9ac74;color:#c9ac74;padding:11px 16px;font:400 9.5px IBM Plex Mono,monospace;letter-spacing:.14em;cursor:pointer" style-hover="background:#221e18">+ เพิ่มฟิลด์</div>
+</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px">
+<sc-for list="{{ presets }}" as="p" hint-placeholder-count="4">
+<div onClick="{{ p.onAdd }}" style="border:1px dashed #3a352d;color:#8b8578;padding:8px 13px;font:300 11.5px Anuphan,sans-serif;cursor:pointer" style-hover="border-color:#c9ac74;color:#c9ac74">+ {{ p.label }}</div>
+</sc-for>
+</div>
+</div>
+
+<div style="width:330px;flex:none;display:flex;flex-direction:column;gap:12px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#6f6a5f">พรีวิวหน้าลูกค้า</div>
+<div style="border:1px solid #302c26;background:#1a1815;padding:24px 22px;display:flex;flex-direction:column;gap:18px">
+<div>
+<div style="font:400 9.5px IBM Plex Mono,monospace;letter-spacing:.26em;color:#c9ac74">{{ eventShort }}</div>
+<div style="font:200 25px/1.2 Trirong,serif;margin-top:11px">กรอกข้อมูล<br>เพื่อรับ QR</div>
+</div>
+<sc-for list="{{ previewFields }}" as="pf" hint-placeholder-count="4">
+<div style="border:1px solid #302c26;background:#1f1c18;padding:11px 13px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.18em;color:#6f6a5f">{{ pf.label }}</div>
+<div style="font:300 14px Anuphan,sans-serif;color:#575349;margin-top:4px">{{ pf.hint }}</div>
+</div>
+</sc-for>
+<div style="background:#c9ac74;color:#1a1815;text-align:center;padding:14px 0;font:500 10px IBM Plex Mono,monospace;letter-spacing:.2em">ยืนยันการลงทะเบียน</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isBadge }}" hint-placeholder-val="{{ false }}">
+<div style="padding:30px;display:flex;flex-wrap:wrap;gap:30px;align-items:flex-start">
+<div style="flex:1;min-width:310px;display:flex;flex-direction:column;gap:18px">
+<div>
+<div style="font:200 21px Trirong,serif">รูปแบบการพิมพ์บัตรเข้างาน</div>
+<div style="font:300 12px/1.6 Anuphan,sans-serif;color:#8b8578;margin-top:7px">เลือกขนาด องค์ประกอบ และสีที่จะพิมพ์ ตั้งค่าแยกได้ทุก Event</div>
+</div>
+
+<div style="border:1px solid #302c26;background:#1a1815;padding:20px 22px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#6f6a5f">ขนาดบัตร</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px">
+<sc-for list="{{ sizeOpts }}" as="s" hint-placeholder-count="3">
+<div onClick="{{ s.onPick }}" style="border:1px solid {{ s.border }};background:{{ s.bg }};color:{{ s.fg }};padding:9px 14px;font:400 10px IBM Plex Mono,monospace;letter-spacing:.1em;cursor:pointer">{{ s.label }}</div>
+</sc-for>
+</div>
+</div>
+
+<div style="height:1px;background:#241f1b"></div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#6f6a5f">องค์ประกอบที่พิมพ์</div>
+<sc-for list="{{ badgeToggles }}" as="t" hint-placeholder-count="5">
+<div onClick="{{ t.onToggle }}" style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #241f1b;cursor:pointer">
+<div style="width:32px;height:18px;flex:none;background:{{ t.trackBg }};border:1px solid {{ t.trackBorder }};display:flex;justify-content:{{ t.justify }};align-items:center;padding:2px">
+<div style="width:12px;height:12px;background:{{ t.knob }}"></div>
+</div>
+<div style="font:300 12.5px Anuphan,sans-serif;color:{{ t.fg }}">{{ t.label }}</div>
+</div>
+</sc-for>
+</div>
+
+<div style="height:1px;background:#241f1b"></div>
+
+<div style="display:flex;flex-direction:column;gap:11px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#6f6a5f">ธีมสีของงานนี้</div>
+<div style="font:400 9.5px IBM Plex Mono,monospace;color:#c9ac74;white-space:nowrap">{{ themeName }}</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px">
+<sc-for list="{{ themeCards }}" as="tm" hint-placeholder-count="5">
+<div onClick="{{ tm.onPick }}" style="border:1px solid {{ tm.border }};padding:8px 10px 9px;cursor:pointer;display:flex;flex-direction:column;gap:7px;min-width:92px" style-hover="border-color:#3f382e">
+<div style="display:flex;gap:3px">
+<div style="width:16px;height:16px;background:{{ tm.paper }}"></div>
+<div style="width:16px;height:16px;background:{{ tm.accent }}"></div>
+<div style="width:16px;height:16px;background:{{ tm.ink }}"></div>
+</div>
+<div style="display:flex;align-items:center;gap:6px">
+<div style="width:4px;height:4px;border-radius:99px;background:{{ tm.mark }}"></div>
+<div style="font:400 10.5px Anuphan,sans-serif;color:{{ tm.fg }};white-space:nowrap">{{ tm.label }}</div>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="font:300 10.5px/1.6 Anuphan,sans-serif;color:#6f6a5f">{{ themeHint }}</div>
+</div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:10px">
+<div onClick="{{ printBadge }}" style="background:#f0ece3;color:#1a1815;padding:14px 20px;font:500 10px IBM Plex Mono,monospace;letter-spacing:.16em;cursor:pointer" style-hover="background:#fff">พิมพ์ทดสอบ 1 ใบ</div>
+<div style="border:1px solid #302c26;padding:14px 20px;font:400 10px IBM Plex Mono,monospace;letter-spacing:.16em;color:#8b8578">บันทึกเป็นค่าเริ่มต้นของงานนี้</div>
+</div>
+<div style="font:300 11.5px Anuphan,sans-serif;color:#6f6a5f">{{ printHint }}</div>
+</div>
+
+<div style="flex:none;display:flex;flex-direction:column;gap:12px;align-items:center">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#6f6a5f">{{ badgeSizeLabel }}</div>
+<div style="width:258px;height:365px;background:{{ bPaper }};color:{{ bInk }};display:flex;flex-direction:column;box-shadow:0 16px 40px rgba(0,0,0,.45)">
+<div style="height:30px;background:{{ accentColor }};display:grid;place-items:center"><div style="width:40px;height:10px;border-radius:99px;background:rgba(255,255,255,.55)"></div></div>
+<sc-if value="{{ bLogo }}" hint-placeholder-val="{{ true }}">
+<div style="padding:14px 18px 0;display:flex;align-items:center;gap:9px">
+<div style="width:1px;height:14px;background:{{ accentColor }}"></div>
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.16em;color:{{ accentColor }};white-space:nowrap">{{ badgeEventLine }}</div>
+</div>
+</sc-if>
+<div style="flex:1;padding:16px 18px 0;display:flex;flex-direction:column">
+<div style="font:400 8.5px IBM Plex Mono,monospace;letter-spacing:.2em;color:{{ bLabel }}">ATTENDEE</div>
+<div style="font:200 26px/1.12 Trirong,serif;margin-top:8px">ณัฐพงษ์<br>สุวรรณเลิศ</div>
+<sc-if value="{{ bOrg }}" hint-placeholder-val="{{ true }}">
+<div style="font:300 11.5px Anuphan,sans-serif;color:{{ bMuted }};margin-top:9px">บริษัท คอร์ปเทค จำกัด</div>
+</sc-if>
+<sc-if value="{{ bType }}" hint-placeholder-val="{{ true }}">
+<div style="margin-top:auto;margin-bottom:14px;align-self:flex-start;border:1px solid {{ accentColor }};color:{{ accentColor }};padding:4px 11px;font:400 9px IBM Plex Mono,monospace;letter-spacing:.14em">GENERAL</div>
+</sc-if>
+</div>
+<sc-if value="{{ bQr }}" hint-placeholder-val="{{ true }}">
+<div style="background:{{ bFootBg }};color:{{ bFootInk }};padding:13px 18px;display:flex;align-items:center;gap:13px">
+<div style="width:66px;height:66px;flex:none;background:{{ bQrPaper }};color:{{ bQrInk }};padding:3px">{{ qrBadge }}</div>
+<div style="font:400 9.5px/1.7 IBM Plex Mono,monospace;letter-spacing:.04em;white-space:nowrap">TT26-4F2A-901<br>HALL 2 · GATE A<br>18.12.2026</div>
+</div>
+</sc-if>
+<sc-if value="{{ bBar }}" hint-placeholder-val="{{ true }}">
+<div style="height:12px;background:{{ accentColor }}"></div>
+</sc-if>
+</div>
+<div style="font:300 11px Anuphan,sans-serif;color:#6f6a5f">พรีวิวตามสัดส่วนงานพิมพ์จริง</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isTeam }}" hint-placeholder-val="{{ false }}">
+<div style="padding:30px;display:flex;flex-direction:column;gap:18px;max-width:820px">
+<div>
+<div style="font:200 21px Trirong,serif">ทีมงานและสิทธิ์การเข้าถึง</div>
+<div style="font:300 12px/1.6 Anuphan,sans-serif;color:#8b8578;margin-top:7px">เจ้าหน้าที่เข้าใช้งานด้วยบัญชี Google ของตนเอง · สิทธิ์กำหนดต่อ Event</div>
+</div>
+<div style="border:1px solid #302c26;background:#1a1815">
+<sc-for list="{{ teamRows }}" as="m" hint-placeholder-count="4">
+<div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;padding:15px 22px;border-bottom:1px solid #241f1b" style-hover="background:#1f1c18">
+<div style="position:relative;flex:none">
+<div style="width:32px;height:32px;border-radius:99px;background:#302c26;color:#c9ac74;display:grid;place-items:center;font:400 12px IBM Plex Mono,monospace">{{ m.initial }}</div>
+<div style="position:absolute;right:-1px;bottom:-1px;width:9px;height:9px;border-radius:99px;background:{{ m.dot }};border:2px solid #1a1815"></div>
+</div>
+<div style="flex:1;min-width:150px">
+<div style="font:400 13px Anuphan,sans-serif">{{ m.name }}</div>
+<div style="font:300 11px Anuphan,sans-serif;color:#6f6a5f">{{ m.email }}</div>
+<div style="font:400 9px IBM Plex Mono,monospace;color:#8b8578;margin-top:3px;letter-spacing:.06em">{{ m.live }}</div>
+</div>
+<div onClick="{{ m.onCycle }}" style="border:1px solid {{ m.border }};color:{{ m.fg }};padding:6px 12px;font:400 9px IBM Plex Mono,monospace;letter-spacing:.12em;cursor:pointer" style-hover="border-color:#c9ac74">{{ m.role }}</div>
+<div style="font:300 10.5px Anuphan,sans-serif;color:#6f6a5f;width:130px">{{ m.scope }}</div>
+</div>
+</sc-for>
+<div style="padding:16px 22px;font:400 9.5px IBM Plex Mono,monospace;color:#6f6a5f;letter-spacing:.1em;cursor:pointer" style-hover="color:#c9ac74">+ เชิญเจ้าหน้าที่ด้วยอีเมล Google</div>
+</div>
+<div style="border:1px solid #302c26;background:#17150f;padding:20px 22px;display:flex;flex-direction:column;gap:11px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.2em;color:#6f6a5f">สิทธิ์แต่ละบทบาท</div>
+<div style="display:flex;justify-content:space-between;font:300 12px Anuphan,sans-serif;border-bottom:1px solid #241f1b;padding-bottom:10px"><span style="color:#c9ac74">ADMIN</span><span style="color:#8b8578">ทุกอย่าง · จัดการฟิลด์ บัตร ทีม และลบข้อมูล</span></div>
+<div style="display:flex;justify-content:space-between;font:300 12px Anuphan,sans-serif;border-bottom:1px solid #241f1b;padding-bottom:10px"><span style="color:#c9ac74">STAFF</span><span style="color:#8b8578">สแกน เช็คอิน ลงทะเบียน Walk-in แก้ไขข้อมูล</span></div>
+<div style="display:flex;justify-content:space-between;font:300 12px Anuphan,sans-serif"><span style="color:#c9ac74">VIEWER</span><span style="color:#8b8578">ดูภาพรวมและรายชื่อเท่านั้น</span></div>
+</div>
+</div>
+</sc-if>
+
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#f0ece3;color:#1a1815;padding:13px 22px;font:400 11px IBM Plex Mono,monospace;letter-spacing:.1em;box-shadow:0 12px 30px rgba(0,0,0,.5);z-index:50;white-space:nowrap">{{ toast }}</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:860}}">
+const ORGS = ["บริษัท คอร์ปเทค จำกัด", "สยามดิจิทัล กรุ๊ป", "โอเชียนเวิร์คส์", "ฟรีแลนซ์", "มหาวิทยาลัยเทคโนโลยี", "เอ็นเนอร์จีวัน"];
+const NAMES = ["ณัฐพงษ์ สุวรรณเลิศ", "พิมพ์ชนก วราภรณ์", "กิตติภพ ธนะโชติ", "ศิรินทรา บุญมาก", "ธนกฤต อารีวงศ์", "ปวีณา จันทรเกษม", "อรรถพล ศรีสมบูรณ์", "ชนิดาภา เกียรติกุล", "วรินทร ทองประเสริฐ", "เมธาวี ปิยะวัฒน์", "สุทธิพงษ์ แก้วมณี", "ญาณิศา รัตนพล"];
+
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    const mk = (evPrefix, n, checked) => Array.from({ length: n }, (_, i) => ({
+      id: evPrefix + i,
+      name: NAMES[i % NAMES.length],
+      email: ["nattapong.s", "pimchanok.w", "kittipop.t", "sirintra.b", "thanakrit.a", "paveena.j", "atthaphon.s", "chanidapa.k", "warintorn.t", "methawee.p", "sutthipong.k", "yanisa.r"][i % 12] + "@" + ["corp.co.th", "siamdigital.com", "oceanworks.io", "gmail.com", "utech.ac.th", "energyone.co"][i % 6],
+      phone: "08" + (i % 9) + " " + (312 + i * 7) % 1000 + " " + (4100 + i * 13) % 10000,
+      org: ORGS[i % ORGS.length],
+      code: evPrefix.toUpperCase() + "-" + (4000 + i * 137).toString(16).toUpperCase() + "-" + (901 + i),
+      type: i % 7 === 0 ? "VIP" : i % 5 === 0 ? "สื่อ" : "ทั่วไป",
+      walkin: false,
+      checkedIn: i < checked,
+      by: i < checked ? ["พิมพ์ชนก ว.", "ธนกฤต อ.", "ญาณิศา ร."][i % 3] : null,
+      gate: i < checked ? ["ประตู A", "ประตู B", "ประตู A"][i % 3] : null,
+      at: i < checked ? "09:" + String(12 + i * 3).padStart(2, "0") : null
+    }));
+    this.state = {
+      auth: false,
+      view: "dash",
+      evIdx: 0,
+      query: "",
+      showWalkin: false,
+      wName: "", wEmail: "", wPhone: "",
+      newField: "",
+      showNewEvent: false,
+      neName: "", neWhen: "", nePlace: "", neTheme: "editorial",
+      neError: "",
+      toast: "",
+      me: "พิมพ์ชนก ว.",
+      myGate: "ประตู A",
+      clock: 41,
+      crew: [
+        { name: "พิมพ์ชนก ว.", role: "ADMIN", gate: "ประตู A", online: true, scans: 18 },
+        { name: "ธนกฤต อ.", role: "STAFF", gate: "ประตู B", online: true, scans: 24 },
+        { name: "ญาณิศา ร.", role: "STAFF", gate: "ประตู A", online: true, scans: 11 },
+        { name: "วรินทร ท.", role: "VIEWER", gate: "—", online: false, scans: 0 }
+      ],
+      scan: null,
+      log: [
+        { time: "09:41", text: "พิมพ์ชนก ว. เช็คอิน พิมพ์ชนก วราภรณ์ ที่ประตู A" },
+        { time: "09:40", text: "ธนกฤต อ. พิมพ์บัตร A6 · กิตติภพ ธนะโชติ" },
+        { time: "09:36", text: "ญาณิศา ร. เพิ่ม Walk-in · ธนกฤต อารีวงศ์" },
+        { time: "09:30", text: "พิมพ์ชนก ว. แก้ไขฟิลด์ฟอร์ม: เพิ่ม ‘บริษัท / องค์กร’" },
+        { time: "09:12", text: "เปิดรับเช็คอิน โดย พิมพ์ชนก ว." }
+      ],
+      badge: { size: "A6", logo: true, org: true, type: true, qr: true, bar: true, accent: "#c9ac74" },
+      themes: { tt: "editorial", gala: "brass", lab: "forest", roadshow: "ink" },
+      scrims: {},
+      syncedAt: null,
+      histFilter: "all",
+      events: [],
+      _legacy: [
+        { id: "tt", name: "ThinkTech Summit 2026", meta: "18–19 ธ.ค. · ไบเทค", short: "THINKTECH SUMMIT · 2026", fields: [{ label: "ชื่อ–นามสกุล", type: "TEXT", req: true }, { label: "อีเมล", type: "EMAIL", req: true }, { label: "เบอร์โทรศัพท์", type: "PHONE", req: true }, { label: "บริษัท / องค์กร", type: "TEXT", req: false }], att: mk("tt", 12, 7) },
+        { id: "gala", name: "Annual Partner Gala", meta: "24 ธ.ค. · ดุสิตธานี", short: "PARTNER GALA · 2026", fields: [{ label: "ชื่อ–นามสกุล", type: "TEXT", req: true }, { label: "อีเมล", type: "EMAIL", req: true }, { label: "ข้อจำกัดด้านอาหาร", type: "SELECT", req: false }], att: mk("gl", 8, 2) },
+        { id: "lab", name: "Founder Lab · รุ่น 4", meta: "9 ม.ค. 70 · ทองหล่อ", short: "FOUNDER LAB · 04", fields: [{ label: "ชื่อ–นามสกุล", type: "TEXT", req: true }, { label: "อีเมล", type: "EMAIL", req: true }, { label: "ตำแหน่งงาน", type: "TEXT", req: true }], att: mk("fl", 6, 0) },
+        { id: "roadshow", name: "Regional Roadshow", meta: "22 ก.พ. 70 · เชียงใหม่", short: "REGIONAL ROADSHOW", fields: [{ label: "ชื่อ–นามสกุล", type: "TEXT", req: true }, { label: "อีเมล", type: "EMAIL", req: true }, { label: "เบอร์โทรศัพท์", type: "PHONE", req: true }], att: [] }
+      ]
+    };
+  }
+
+  async componentDidMount() {
+    const S = await import("./event-store.js");
+    this.S = S;
+    S.init();
+    this._unsub = S.subscribe(() => this.pull());
+    this.pull();
+    this._live = setInterval(() => {
+      if (!this.state.auth || !this.S) return;
+      const ev = this.ev();
+      if (!ev) return;
+      const pending = ev.att.filter(a => !a.checkedIn);
+      if (!pending.length) return;
+      const who = this.state.crew[1 + Math.floor(Math.random() * 2)];
+      const target = pending[Math.floor(Math.random() * pending.length)];
+      this.S.checkin(ev.id, target.code, { name: who.name, gate: who.gate, device: "STAFF-02" });
+    }, 9000);
+  }
+  componentWillUnmount() { clearInterval(this._live); clearTimeout(this._t); if (this._unsub) this._unsub(); }
+
+  pull() {
+    const d = this.S.get();
+    this.setState(s => ({
+      events: d.events,
+      crew: d.crew,
+      log: d.log,
+      badge: { ...s.badge, ...d.badge },
+      syncedAt: d.updatedAt,
+      evIdx: Math.min(s.evIdx, d.events.length - 1)
+    }));
+  }
+
+  ev() { return this.state.events[this.state.evIdx]; }
+  patchEvent(fn) {
+    const id = this.ev().id;
+    this.S.update(s => { s.events = s.events.map(e => e.id === id ? fn(e) : e); });
+  }
+
+  checkIn(target, who, mode) {
+    const r = this.S.checkin(this.ev().id, target.code, { name: who.name, gate: who.gate, device: "STAFF-01" });
+    const dup = r.result === "duplicate";
+    this.setState({
+      scan: { name: target.name, code: target.code, type: target.type, org: target.org, status: dup ? "สแกนซ้ำ · เข้างานแล้ว" : "CHECK-IN สำเร็จ", by: dup ? r.firstBy : who.name, gate: dup ? r.firstGate : who.gate, at: this.S.timeOf(dup ? r.firstAt : new Date().toISOString()), dup }
+    });
+    if (mode === "mine") this.flash(dup ? "บัตรนี้เช็คอินแล้วโดย " + r.firstBy : "เช็คอินแล้ว · " + target.name + " (ผู้สแกน: " + who.name + ")");
+  }
+  flash(msg) {
+    this.setState({ toast: msg });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: "" }), 2200);
+  }
+
+  qr(seed, n, dots) {
+    const rnd = (a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; })(seed);
+    const g = Array.from({ length: n }, () => new Array(n).fill(0));
+    const inFinder = (x, y) => (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (!inFinder(x, y)) g[y][x] = rnd() < 0.47 ? 1 : 0;
+    for (let i = 8; i < n - 8; i++) { g[6][i] = i % 2 ? 0 : 1; g[i][6] = i % 2 ? 0 : 1; }
+    const finder = (ox, oy) => { for (let y = 0; y < 7; y++) for (let x = 0; x < 7; x++) { const ring = x === 0 || y === 0 || x === 6 || y === 6; const core = x >= 2 && x <= 4 && y >= 2 && y <= 4; g[oy + y][ox + x] = ring || core ? 1 : 0; } };
+    finder(0, 0); finder(n - 7, 0); finder(0, n - 7);
+    let d = "";
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (g[y][x]) d += dots ? `M${x + 0.9},${y + 0.5}a0.4,0.4 0 1,0 -0.8,0a0.4,0.4 0 1,0 0.8,0Z` : `M${x},${y}h1v1h-1Z`;
+    return React.createElement("svg", { viewBox: `-2 -2 ${n + 4} ${n + 4}`, width: "100%", height: "100%", shapeRendering: dots ? "auto" : "crispEdges", style: { display: "block" } }, React.createElement("path", { d, fill: "currentColor" }));
+  }
+
+  themeDefs() {
+    return {
+      editorial: { label: "Editorial", paper: "#f4f1e6", ink: "#17150f", accent: "#d8482b", muted: "#7d7767", label2: "#8a8474", footBg: "#17150f", footInk: "#f4f1e6" },
+      brass: { label: "Ivory & Brass", paper: "#f8f6f1", ink: "#191713", accent: "#a8874f", muted: "#8c8474", label2: "#a39a89", footBg: "#191713", footInk: "#f8f6f1" },
+      onyx: { label: "Onyx", paper: "#1a1815", ink: "#f0ece3", accent: "#c9ac74", muted: "#8b8578", label2: "#6f6a5f", footBg: "#f0ece3", footInk: "#1a1815" },
+      forest: { label: "Forest", paper: "#f1f4f0", ink: "#13201a", accent: "#2f6b4f", muted: "#5f7268", label2: "#82988d", footBg: "#13201a", footInk: "#f1f4f0" },
+      ink: { label: "Ink Blue", paper: "#eef0f4", ink: "#141a24", accent: "#2f4d8c", muted: "#5c6675", label2: "#8b93a1", footBg: "#141a24", footInk: "#eef0f4" }
+    };
+  }
+
+  renderVals() {
+    const s = this.state, ev = this.ev();
+    const TH = this.themeDefs();
+    if (!ev) return { loggedOut: !s.auth, loggedIn: false };
+    const themeKey = ev.theme || "editorial";
+    const th = TH[themeKey];
+    const st8 = this.S ? this.S.stats(ev.id) : { total: 0, checkedIn: 0, walkins: 0, rate: "0%" };
+    const nav = k => s.view === k ? "#c9ac74" : "transparent";
+    const navFg = k => s.view === k ? "#f0ece3" : "#8b8578";
+    const q = s.query.trim().toLowerCase();
+    const list = ev.att.filter(a => !q || (a.name + a.email + a.phone + a.code).toLowerCase().includes(q));
+    const checkedIn = ev.att.filter(a => a.checkedIn).length;
+    const barVals = [3, 11, 26, 19, 9, 5, 2];
+    const max = Math.max(...barVals);
+    const b = s.badge;
+
+    return {
+      loggedIn: s.auth, loggedOut: !s.auth,
+      signIn: () => { this.setState({ auth: true }); },
+      signOut: () => this.setState({ auth: false, view: "dash" }),
+      toast: s.toast,
+
+      eventName: ev.name,
+      eventMeta: (ev.date + (ev.place ? " · " + ev.place : "")).toUpperCase() + " · " + ev.att.length + " ผู้ลงทะเบียน",
+      eventShort: ev.short,
+      eventList: s.events.map((e, i) => ({
+        name: e.name, meta: e.date + (e.place ? " · " + e.place : ""),
+        border: i === s.evIdx ? "#c9ac74" : "#302c26",
+        bg: i === s.evIdx ? "#221e18" : "transparent",
+        fg: i === s.evIdx ? "#f0ece3" : "#8b8578",
+        onPick: () => this.setState({ evIdx: i, query: "", showWalkin: false })
+      })),
+
+      showNewEvent: s.showNewEvent,
+      toggleNewEvent: () => this.setState(st => ({ showNewEvent: !st.showNewEvent, neError: "" })),
+      neName: s.neName, neWhen: s.neWhen, nePlace: s.nePlace, neError: s.neError,
+      onNeName: e => this.setState({ neName: e.target.value, neError: "" }),
+      onNeWhen: e => this.setState({ neWhen: e.target.value }),
+      onNePlace: e => this.setState({ nePlace: e.target.value }),
+      neThemes: Object.keys(TH).map(k => ({
+        label: TH[k].label, accent: TH[k].accent, paper: TH[k].paper,
+        border: s.neTheme === k ? "#c9ac74" : "#302c26",
+        fg: s.neTheme === k ? "#f0ece3" : "#8b8578",
+        onPick: () => this.setState({ neTheme: k })
+      })),
+      createEvent: () => {
+        const name = s.neName.trim();
+        if (!name) { this.setState({ neError: "กรุณากรอกชื่องาน" }); return; }
+        const id = "ev" + Date.now().toString(36).slice(-5);
+        this.S.addEvent({ id, name, date: s.neWhen.trim(), place: s.nePlace.trim(), theme: s.neTheme, accent: TH[s.neTheme].accent, actor: s.me });
+        this.setState({
+          evIdx: this.S.get().events.length - 1,
+          showNewEvent: false, neName: "", neWhen: "", nePlace: "", neTheme: "editorial",
+          view: "fields"
+        });
+        this.flash("สร้างงาน " + name + " แล้ว · ตั้งฟิลด์ฟอร์มต่อได้เลย");
+      },
+      isEmptyEvent: ev.att.length === 0,
+      emptyHint: "ยังไม่มีผู้ลงทะเบียนในงานนี้ · แชร์ลิงก์หน้าลงทะเบียน หรือเพิ่ม Walk-in หน้างานได้เลย",
+
+      navDash: nav("dash"), navScan: nav("scan"), navList: nav("list"), navFields: nav("fields"), navBadge: nav("badge"), navTeam: nav("team"), navBanner: nav("banner"),
+      navDashFg: navFg("dash"), navScanFg: navFg("scan"), navListFg: navFg("list"), navFieldsFg: navFg("fields"), navBadgeFg: navFg("badge"), navTeamFg: navFg("team"), navBannerFg: navFg("banner"),
+      goBanner: () => this.setState({ view: "banner" }),
+      isBanner: s.view === "banner",
+      slotCard: "ev-card-" + ev.id,
+      slotWide: "ev-wide-" + ev.id,
+      slotLogo: "ev-logo-" + ev.id,
+      slotCardPreview: "ev-card-" + ev.id + "-preview",
+      previewDate: (ev.date || "").toUpperCase(),
+      previewPlace: ev.place || "ยังไม่ระบุสถานที่",
+      scrimOpts: [
+        { key: "soft", label: "บาง", v: ".62" },
+        { key: "mid", label: "กลาง", v: ".82" },
+        { key: "dark", label: "เข้ม", v: ".94" }
+      ].map(o => {
+        const cur = ev.scrim || "mid";
+        return {
+          label: o.label,
+          border: cur === o.key ? "#c9ac74" : "#302c26",
+          bg: cur === o.key ? "#221e18" : "transparent",
+          fg: cur === o.key ? "#c9ac74" : "#8b8578",
+          onPick: () => this.S.setEventProp(ev.id, { scrim: o.key })
+        };
+      }),
+      previewScrim: (() => {
+        const cur = ev.scrim || "mid";
+        const top = cur === "soft" ? ".72" : cur === "dark" ? ".98" : ".9";
+        const mid = cur === "soft" ? ".28" : cur === "dark" ? ".58" : ".42";
+        return `linear-gradient(to top, rgba(19,17,12,${top}) 0%, rgba(19,17,12,${mid}) 42%, rgba(19,17,12,.08) 100%)`;
+      })(),
+      bannerHint: "ภาพบันทึกต่อ Event · งาน " + ev.name + " ใช้ชุดภาพของตัวเอง ไม่กระทบงานอื่น",
+      goDash: () => this.setState({ view: "dash" }), goScan: () => this.setState({ view: "scan" }),
+      goList: () => this.setState({ view: "list" }), goFields: () => this.setState({ view: "fields" }),
+      goBadge: () => this.setState({ view: "badge" }), goTeam: () => this.setState({ view: "team" }),
+      isDash: s.view === "dash", isScan: s.view === "scan", isList: s.view === "list",
+      isFields: s.view === "fields", isBadge: s.view === "badge", isTeam: s.view === "team",
+
+      total: st8.total,
+      checkedIn: st8.checkedIn,
+      rate: st8.rate,
+      walkins: st8.walkins,
+      myScans: ((s.crew.find(c => c.name === s.me) || {}).scans) || 0,
+      isHistory: s.view === "history",
+      goHistory: () => this.setState({ view: "history" }),
+      navHistory: nav("history"), navHistoryFg: navFg("history"),
+      histTabs: [
+        { k: "all", label: "ทั้งหมด" },
+        { k: "ok", label: "สำเร็จ" },
+        { k: "duplicate", label: "สแกนซ้ำ" },
+        { k: "not_found", label: "ไม่พบบัตร" },
+        { k: "undo", label: "ยกเลิก" }
+      ].map(t => ({
+        label: t.label,
+        border: s.histFilter === t.k ? "#c9ac74" : "#302c26",
+        bg: s.histFilter === t.k ? "#221e18" : "transparent",
+        fg: s.histFilter === t.k ? "#c9ac74" : "#8b8578",
+        onPick: () => this.setState({ histFilter: t.k })
+      })),
+      histRows: (this.S ? this.S.history(ev.id, s.histFilter) : []).slice(0, 40).map(c => ({
+        date: this.S.dateOf(c.scannedAt),
+        time: this.S.timeOf(c.scannedAt),
+        name: c.name, code: c.badgeCode, by: c.scannedBy, gate: c.gate || "—", device: c.device,
+        result: c.result === "ok" ? "OK" : c.result === "duplicate" ? "ซ้ำ" : c.result === "undo" ? "ยกเลิก" : "ไม่พบ",
+        fg: c.result === "ok" ? "#7fbf8a" : c.result === "duplicate" ? "#d8877c" : "#8b8578",
+        bd: c.result === "ok" ? "#2f4a35" : c.result === "duplicate" ? "#4a2f2c" : "#302c26"
+      })),
+      histCount: (this.S ? this.S.history(ev.id, s.histFilter).length : 0) + " รายการ · เก็บถาวรแบบ append-only",
+      openSheet: () => this.flash("เปิด Google Sheet ของงาน " + ev.name),
+      crewOnline: s.crew.filter(c => c.online).map(c => ({
+        initial: c.name.slice(0, 1),
+        border: c.name === s.me ? "#c9ac74" : "#3a352d",
+        fg: c.name === s.me ? "#c9ac74" : "#8b8578",
+        title: c.name + " · " + c.gate
+      })),
+      crewCount: s.crew.filter(c => c.online).length + " เจ้าหน้าที่ออนไลน์",
+      staffBoard: s.crew.map(c => ({
+        name: c.name,
+        meta: c.online ? c.gate : "ออฟไลน์",
+        scans: c.scans || 0,
+        dot: c.online ? "#7fbf8a" : "#3a352d",
+        fg: c.name === s.me ? "#c9ac74" : "#f0ece3"
+      })),
+      teamOnline: s.crew,
+      exportCsv: () => {
+        try {
+          const blob = new Blob(["\ufeff" + this.S.csv(ev.id)], { type: "text/csv;charset=utf-8" });
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = ev.id + "-registrations.csv";
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+          this.flash("ส่งออก CSV แล้ว · " + ev.att.length + " แถว");
+        } catch (e) { this.flash("ส่งออกไม่สำเร็จ"); }
+      },
+      syncedLabel: "SYNCED " + (this.S ? this.S.timeOf(s.syncedAt) : "--:--") + " · GOOGLE SHEET",
+      bars: barVals.map((n, i) => ({ n, hour: ["08", "09", "10", "11", "12", "13", "14"][i], h: Math.round(n / max * 118) + 8 + "px", fill: n === max ? "#c9ac74" : "#3a352d" })),
+      feed: s.log,
+
+      simulateScan: () => {
+        const next = ev.att.find(a => !a.checkedIn);
+        if (!next) { this.flash("ผู้ลงทะเบียนทั้งหมดเข้างานแล้ว"); return; }
+        this.checkIn(next, { name: s.me, gate: s.myGate }, "mine");
+      },
+      simulateDup: () => {
+        const done = ev.att.find(a => a.checkedIn && a.by && a.by !== s.me) || ev.att.find(a => a.checkedIn);
+        if (!done) { this.flash("ยังไม่มีใครเช็คอิน"); return; }
+        this.checkIn(done, { name: s.me, gate: s.myGate }, "mine");
+      },
+      hasScan: !!s.scan,
+      noScan: !s.scan,
+      scanStatus: s.scan ? s.scan.status : "",
+      scanName: s.scan ? s.scan.name : "",
+      scanSub: s.scan ? s.scan.org + " · " + s.scan.type + " · " + s.scan.code : "",
+      scanBy: s.scan ? (s.scan.dup ? "เช็คอินไปแล้วโดย " : "บันทึกผู้สแกน: ") + s.scan.by + " · " + s.scan.gate + " · " + s.scan.at : "",
+      scanBorder: s.scan && s.scan.dup ? "#a8564a" : "#c9ac74",
+      scanFg: s.scan && s.scan.dup ? "#d8877c" : "#c9ac74",
+      scanBg: s.scan && s.scan.dup ? "#241b19" : "#221e18",
+      printLabel: "พิมพ์บัตร " + b.size,
+      qrSmall: this.qr(4421, 21, false),
+      recentScans: (this.S ? this.S.history(ev.id, "all") : []).slice(0, 6).map(r => ({
+        time: this.S.timeOf(r.scannedAt), name: r.name, code: r.badgeCode, by: r.scannedBy,
+        tag: r.result === "ok" ? "OK" : r.result === "duplicate" ? "ซ้ำ" : r.result === "undo" ? "ยกเลิก" : "ไม่พบ",
+        tagFg: r.result === "ok" ? "#7fbf8a" : r.result === "duplicate" ? "#d8877c" : "#8b8578",
+        tagBorder: r.result === "ok" ? "#2f4a35" : r.result === "duplicate" ? "#4a2f2c" : "#302c26"
+      })),
+      printBadge: () => this.flash("ส่งงานพิมพ์บัตร " + b.size + " แล้ว"),
+
+      query: s.query,
+      onQuery: e => this.setState({ query: e.target.value }),
+      rowCount: "แสดง " + list.length + " จาก " + ev.att.length + " รายการ",
+      rows: list.map(a => ({
+        name: a.name, org: a.org, email: a.email, phone: a.phone, code: a.code,
+        tag: a.checkedIn ? "เข้างานแล้ว" : "รอเข้างาน",
+        byLine: a.checkedIn ? a.at + " · " + a.by : "—",
+        tagFg: a.checkedIn ? "#7fbf8a" : "#8b8578",
+        tagBorder: a.checkedIn ? "#2f4a35" : "#302c26",
+        action: a.checkedIn ? "ยกเลิก" : "เช็คอิน",
+        onToggle: () => {
+          this.S.setCheckedIn(ev.id, a.id, !a.checkedIn, { name: s.me, gate: s.myGate });
+          this.flash(a.checkedIn ? "ยกเลิกเช็คอิน " + a.name : "เช็คอิน " + a.name + " โดย " + s.me);
+        },
+        onDelete: () => { this.S.removeAttendee(ev.id, a.id, { name: s.me }); this.flash("ลบ " + a.name + " แล้ว"); }
+      })),
+      showWalkin: s.showWalkin,
+      toggleWalkin: () => this.setState(st => ({ showWalkin: !st.showWalkin })),
+      wName: s.wName, wEmail: s.wEmail, wPhone: s.wPhone,
+      onWName: e => this.setState({ wName: e.target.value }),
+      onWEmail: e => this.setState({ wEmail: e.target.value }),
+      onWPhone: e => this.setState({ wPhone: e.target.value }),
+      walkinHint: s.wName.trim() ? "จะออกรหัสบัตรและพิมพ์ A6 ให้ทันที" : "กรอกชื่อเป็นอย่างน้อยเพื่อบันทึก",
+      addWalkin: () => {
+        const name = s.wName.trim();
+        if (!name) { this.flash("กรุณากรอกชื่อผู้เข้าร่วม"); return; }
+        const reg = this.S.register(ev.id, { name, email: s.wEmail.trim() || "—", phone: s.wPhone.trim() || "—", org: "Walk-in หน้างาน", source: "walkin", actor: s.me });
+        this.S.checkin(ev.id, reg.code, { name: s.me, gate: s.myGate, device: "STAFF-01" });
+        this.setState({ wName: "", wEmail: "", wPhone: "", showWalkin: false });
+        this.flash("เพิ่มและเช็คอิน " + name + " แล้ว · ผู้บันทึก " + s.me);
+      },
+
+      fieldRows: ev.fields.map((f, i) => ({
+        num: String(i + 1).padStart(2, "0"), label: f.label, type: f.type,
+        reqLabel: f.req ? "จำเป็น" : "ไม่บังคับ",
+        reqFg: f.req ? "#c9ac74" : "#6f6a5f",
+        reqBorder: f.req ? "#c9ac74" : "#302c26",
+        onRequired: () => this.S.setFields(ev.id, ev.fields.map((x, j) => j === i ? { ...x, req: !x.req } : x)),
+        onRemove: () => { this.S.setFields(ev.id, ev.fields.filter((_, j) => j !== i)); this.flash("ลบฟิลด์ " + f.label); }
+      })),
+      newField: s.newField,
+      onNewField: e => this.setState({ newField: e.target.value }),
+      addField: () => {
+        const label = s.newField.trim();
+        if (!label) { this.flash("พิมพ์ชื่อฟิลด์ก่อนเพิ่ม"); return; }
+        this.S.setFields(ev.id, [...ev.fields, { label, type: "TEXT", req: false }]);
+        this.setState({ newField: "" });
+        this.flash("เพิ่มฟิลด์ " + label);
+      },
+      presets: [
+        { label: "ตำแหน่งงาน", type: "TEXT" },
+        { label: "ประเภทผู้เข้าร่วม", type: "SELECT" },
+        { label: "เลือก Session", type: "SELECT" },
+        { label: "ข้อจำกัดด้านอาหาร", type: "SELECT" },
+        { label: "ที่มาที่รู้จักงาน", type: "SELECT" }
+      ].map(p => ({
+        label: p.label,
+        onAdd: () => {
+          if (ev.fields.some(f => f.label === p.label)) { this.flash("มีฟิลด์นี้อยู่แล้ว"); return; }
+          this.S.setFields(ev.id, [...ev.fields, { label: p.label, type: p.type, req: false }]);
+          this.flash("เพิ่มฟิลด์ " + p.label);
+        }
+      })),
+      previewFields: ev.fields.slice(0, 5).map(f => ({
+        label: f.label + (f.req ? " *" : ""),
+        hint: f.type === "EMAIL" ? "name@company.com" : f.type === "PHONE" ? "08X XXX XXXX" : f.type === "SELECT" ? "เลือกจากรายการ" : "พิมพ์คำตอบ"
+      })),
+
+      sizeOpts: ["A6", "4×6 นิ้ว", "สลิป 80mm"].map(label => ({
+        label,
+        border: b.size === label ? "#c9ac74" : "#302c26",
+        bg: b.size === label ? "#221e18" : "transparent",
+        fg: b.size === label ? "#c9ac74" : "#8b8578",
+        onPick: () => this.S.setBadge({ size: label })
+      })),
+      badgeSizeLabel: "BADGE PREVIEW · " + b.size.toUpperCase(),
+      badgeToggles: [
+        { k: "logo", label: "ชื่องานและเส้นแบรนด์" },
+        { k: "org", label: "บริษัท / องค์กร" },
+        { k: "type", label: "ประเภทผู้เข้าร่วม" },
+        { k: "qr", label: "QR และรหัสบัตร" },
+        { k: "bar", label: "แถบสีท้ายบัตร" }
+      ].map(t => ({
+        label: t.label,
+        trackBg: b[t.k] ? "#c9ac74" : "#1f1c18",
+        trackBorder: b[t.k] ? "#c9ac74" : "#302c26",
+        justify: b[t.k] ? "flex-end" : "flex-start",
+        knob: b[t.k] ? "#1a1815" : "#6f6a5f",
+        fg: b[t.k] ? "#f0ece3" : "#8b8578",
+        onToggle: () => this.S.setBadge({ [t.k]: !b[t.k] })
+      })),
+      themeCards: Object.keys(TH).map(k => ({
+        key: k, label: TH[k].label,
+        paper: TH[k].paper, ink: TH[k].ink, accent: TH[k].accent,
+        border: k === themeKey ? "#c9ac74" : "#302c26",
+        fg: k === themeKey ? "#f0ece3" : "#8b8578",
+        mark: k === themeKey ? "#c9ac74" : "transparent",
+        onPick: () => { this.S.setEventProp(ev.id, { theme: k, accent: TH[k].accent }); this.flash("ใช้ธีม " + TH[k].label + " กับงาน " + ev.name); }
+      })),
+      themeName: th.label,
+      badgeEventLine: ev.short,
+      themeHint: "ธีมนี้ใช้กับหน้าลงทะเบียนของลูกค้าและบัตรพิมพ์ของงาน " + ev.name + " เท่านั้น · งานอื่นเก็บธีมของตัวเองแยกกัน",
+      bPaper: th.paper, bInk: th.ink, bMuted: th.muted, bLabel: th.label2,
+      bFootBg: th.footBg, bFootInk: th.footInk,
+      bQrPaper: themeKey === "onyx" ? "#f0ece3" : "#ffffff",
+      bQrInk: themeKey === "onyx" ? "#1a1815" : "#0d0c0a",
+      accentColor: th.accent,
+      bLogo: b.logo, bOrg: b.org, bType: b.type, bQr: b.qr, bBar: b.bar,
+      qrBadge: this.qr(9114, 21, false),
+      printHint: "รองรับเครื่องพิมพ์บัตรและ label printer · ตั้งค่านี้ใช้กับงาน " + ev.name,
+
+      teamRows: [
+        { name: "พิมพ์ชนก วราภรณ์", email: "pimchanok@thinktech.co.th", role: "ADMIN", scope: "ทุก Event", crew: 0 },
+        { name: "ธนกฤต อารีวงศ์", email: "thanakrit@thinktech.co.th", role: "STAFF", scope: "ThinkTech Summit", crew: 1 },
+        { name: "ญาณิศา รัตนพล", email: "yanisa@thinktech.co.th", role: "STAFF", scope: "ThinkTech Summit", crew: 2 },
+        { name: "วรินทร ทองประเสริฐ", email: "warintorn@partner.co", role: "VIEWER", scope: "Founder Lab", crew: 3 }
+      ].map(m => ({
+        ...m, initial: m.name.slice(0, 1),
+        dot: (s.crew[m.crew] || {}).online ? "#7fbf8a" : "#3a352d",
+        live: (s.crew[m.crew] || {}).online ? s.crew[m.crew].gate + " · สแกนแล้ว " + (s.crew[m.crew].scans || 0) : "ออฟไลน์",
+        border: m.role === "ADMIN" ? "#c9ac74" : "#302c26",
+        fg: m.role === "ADMIN" ? "#c9ac74" : "#8b8578",
+        onCycle: () => this.flash("เปลี่ยนสิทธิ์ของ " + m.name)
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

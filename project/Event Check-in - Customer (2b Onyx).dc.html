@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@200;300;400;500&family=Trirong:wght@200;300&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#141310;color:#f0ece3;font-family:Anuphan,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#c9ac74;text-decoration:none}a:hover{color:#e0c893}
+input,select,button{font-family:inherit;color:inherit;font-size:16px}
+input::placeholder{color:#8b8578}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style></helmet>
+
+<div style="min-height:100vh;display:flex;justify-content:center;padding:0 16px 40px;background:radial-gradient(120% 60% at 50% 0%,#1d1a15,#141310 70%)">
+<div style="width:100%;max-width:430px;display:flex;flex-direction:column">
+
+<div style="display:flex;align-items:center;justify-content:space-between;padding:22px 2px 0">
+<div style="font:400 9.5px IBM Plex Mono,monospace;letter-spacing:.24em;color:#c9ac74;white-space:nowrap">THINKTECH SUMMIT · 2026</div>
+<div style="display:flex;border:1px solid #302c26">
+<div onClick="{{ setTh }}" style="padding:5px 10px;font:500 9.5px IBM Plex Mono,monospace;background:{{ thBg }};color:{{ thFg }};cursor:pointer">TH</div>
+<div onClick="{{ setEn }}" style="padding:5px 10px;font:500 9.5px IBM Plex Mono,monospace;background:{{ enBg }};color:{{ enFg }};cursor:pointer">EN</div>
+</div>
+</div>
+
+<sc-if value="{{ isForm }}" hint-placeholder-val="{{ true }}">
+<div style="padding:26px 2px 0;display:flex;flex-direction:column;gap:22px;animation:rise .4s ease">
+<div>
+<div style="font:200 31px/1.2 Trirong,serif">{{ t.title }}</div>
+<div style="font:300 12.5px/1.7 Anuphan,sans-serif;color:#8b8578;margin-top:10px">{{ t.sub }}</div>
+</div>
+
+<sc-if value="{{ showPrefill }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ prefill }}" style="display:flex;align-items:center;gap:12px;border:1px solid #302c26;background:#1f1c18;padding:13px 15px;cursor:pointer" style-hover="border-color:#c9ac74">
+<div style="width:28px;height:28px;background:#f0ece3;color:#1a1815;display:grid;place-items:center;font:500 13px IBM Plex Mono,monospace;flex:none">G</div>
+<div style="font:300 12px/1.5 Anuphan,sans-serif;color:#8b8578">{{ t.prefill }}</div>
+</div>
+</sc-if>
+
+<div style="display:flex;flex-direction:column;gap:14px">
+<sc-for list="{{ fields }}" as="f" hint-placeholder-count="4">
+<div style="border:1px solid {{ f.border }};background:#1f1c18;padding:11px 14px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.18em;color:{{ f.labelFg }}">{{ f.label }}</div>
+<div style="font:300 9.5px Anuphan,sans-serif;color:#e39a8f">{{ f.error }}</div>
+</div>
+<input value="{{ f.value }}" onChange="{{ f.onInput }}" placeholder="{{ f.placeholder }}" inputMode="{{ f.mode }}" style="width:100%;background:transparent;border:0;outline:none;padding:5px 0 1px;font:300 16px Anuphan,sans-serif" />
+</div>
+</sc-for>
+
+<div>
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.18em;color:#6f6a5f;margin-bottom:8px">{{ t.typeLabel }}</div>
+<div style="display:flex;gap:7px">
+<sc-for list="{{ types }}" as="ty" hint-placeholder-count="3">
+<div onClick="{{ ty.onPick }}" style="flex:1;border:1px solid {{ ty.border }};background:{{ ty.bg }};color:{{ ty.fg }};text-align:center;padding:11px 0;font:400 12.5px Anuphan,sans-serif;cursor:pointer">{{ ty.label }}</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:7px;padding-top:2px">
+<div onClick="{{ toggleConsent }}" style="display:flex;gap:11px;align-items:flex-start;cursor:pointer">
+<div style="width:17px;height:17px;flex:none;border:1px solid {{ consentBorder }};background:{{ consentBg }};display:grid;place-items:center;margin-top:2px">
+<div style="width:7px;height:7px;background:{{ consentDot }}"></div>
+</div>
+<div style="font:300 11.5px/1.6 Anuphan,sans-serif;color:{{ consentFg }}">{{ t.consent }}</div>
+</div>
+<div style="font:300 11px/1.5 Anuphan,sans-serif;color:#e39a8f;padding-left:28px">{{ consentError }}</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:11px">
+<div onClick="{{ submit }}" style="background:#c9ac74;color:#1a1815;text-align:center;padding:16px 0;font:500 10.5px IBM Plex Mono,monospace;letter-spacing:.2em;cursor:pointer" style-hover="background:#dcbf87">{{ t.submit }}</div>
+<div style="text-align:center;font:300 11px Anuphan,sans-serif;color:#6f6a5f">{{ t.already }} <span onClick="{{ goLookup }}" style="color:#c9ac74;cursor:pointer">{{ t.lookupLink }}</span></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSending }}" hint-placeholder-val="{{ false }}">
+<div style="padding:120px 2px;display:flex;flex-direction:column;align-items:center;gap:20px">
+<div style="width:34px;height:34px;border:1px solid #302c26;border-top-color:#c9ac74;border-radius:99px;animation:spin 1s linear infinite"></div>
+<div style="font:300 12px Anuphan,sans-serif;color:#8b8578">{{ t.saving }}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isLookup }}" hint-placeholder-val="{{ false }}">
+<div style="padding:26px 2px 0;display:flex;flex-direction:column;gap:20px;animation:rise .4s ease">
+<div>
+<div style="font:200 28px/1.2 Trirong,serif">{{ t.lookupTitle }}</div>
+<div style="font:300 12.5px/1.7 Anuphan,sans-serif;color:#8b8578;margin-top:10px">{{ t.lookupSub }}</div>
+</div>
+<div style="border:1px solid #302c26;background:#1f1c18;padding:11px 14px">
+<div style="font:400 9px IBM Plex Mono,monospace;letter-spacing:.18em;color:#6f6a5f">{{ t.emailLabel }}</div>
+<input value="{{ lookupEmail }}" onChange="{{ onLookupEmail }}" placeholder="name@company.com" inputMode="email" style="width:100%;background:transparent;border:0;outline:none;padding:5px 0 1px;font:300 16px Anuphan,sans-serif" />
+</div>
+<div style="font:300 11px Anuphan,sans-serif;color:#e39a8f">{{ lookupError }}</div>
+<div onClick="{{ doLookup }}" style="background:#c9ac74;color:#1a1815;text-align:center;padding:16px 0;font:500 10.5px IBM Plex Mono,monospace;letter-spacing:.2em;cursor:pointer" style-hover="background:#dcbf87">{{ t.lookupBtn }}</div>
+<div onClick="{{ goForm }}" style="text-align:center;font:300 11px Anuphan,sans-serif;color:#6f6a5f;cursor:pointer" style-hover="color:#c9ac74">{{ t.backForm }}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isPass }}" hint-placeholder-val="{{ false }}">
+<div style="padding:24px 2px 0;display:flex;flex-direction:column;gap:20px;animation:rise .45s ease">
+<div style="text-align:center;display:flex;flex-direction:column;gap:9px">
+<div style="font:400 9.5px IBM Plex Mono,monospace;letter-spacing:.26em;color:#c9ac74">{{ t.confirmed }}</div>
+<div style="font:200 26px/1.25 Trirong,serif">{{ passName }}</div>
+<div style="font:300 11.5px Anuphan,sans-serif;color:#8b8578">{{ t.emailedTo }} {{ passEmail }}</div>
+</div>
+
+<div style="background:#f0ece3;color:#1a1815;padding:24px 22px;display:flex;flex-direction:column;align-items:center;gap:16px">
+<div style="width:100%;max-width:220px;aspect-ratio:1">{{ qr }}</div>
+<div style="font:500 14px IBM Plex Mono,monospace;letter-spacing:.2em;white-space:nowrap">{{ passCode }}</div>
+<div style="width:100%;border-top:1px solid #d8d2c4;padding-top:13px;display:flex;justify-content:space-between;font:400 10px IBM Plex Mono,monospace;color:#4a463d;letter-spacing:.08em"><span>{{ passType }}</span><span>18.12.2026 · 09:00</span></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;font:300 12px Anuphan,sans-serif;border-bottom:1px solid #241f1b;padding-bottom:10px"><span style="color:#a59e90">{{ t.gate }}</span><span>{{ t.gateVal }}</span></div>
+<div style="display:flex;justify-content:space-between;font:300 12px Anuphan,sans-serif;border-bottom:1px solid #241f1b;padding-bottom:10px"><span style="color:#a59e90">{{ t.doors }}</span><span>08:15</span></div>
+<div style="display:flex;justify-content:space-between;font:300 12px Anuphan,sans-serif"><span style="color:#a59e90">{{ t.phoneLabelShort }}</span><span>{{ passPhone }}</span></div>
+</div>
+
+<div style="display:flex;gap:9px">
+<div onClick="{{ saveImg }}" style="flex:1;border:1px solid #3a352d;text-align:center;padding:14px 0;font:400 10px IBM Plex Mono,monospace;letter-spacing:.14em;cursor:pointer" style-hover="border-color:#c9ac74">{{ t.saveImg }}</div>
+<div onClick="{{ addWallet }}" style="flex:1;background:#f0ece3;color:#1a1815;text-align:center;padding:14px 0;font:500 10px IBM Plex Mono,monospace;letter-spacing:.14em;cursor:pointer" style-hover="background:#fff">WALLET</div>
+</div>
+<div style="font:300 11.5px/1.7 Anuphan,sans-serif;color:#a59e90;text-align:center">{{ t.passNote }}</div>
+<div onClick="{{ reset }}" style="text-align:center;font:400 11.5px Anuphan,sans-serif;color:#c9ac74;cursor:pointer;padding:8px 0 2px" style-hover="color:#e0c893">{{ t.newReg }}</div>
+</div>
+</sc-if>
+
+</div>
+</div>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#f0ece3;color:#1a1815;padding:12px 20px;font:400 10.5px IBM Plex Mono,monospace;letter-spacing:.08em;white-space:nowrap;box-shadow:0 12px 30px rgba(0,0,0,.5)">{{ toast }}</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:480,&quot;height&quot;:900},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;th&quot;,&quot;en&quot;],&quot;default&quot;:&quot;th&quot;,&quot;tsType&quot;:&quot;\&quot;th\&quot; | \&quot;en\&quot;&quot;,&quot;section&quot;:&quot;ภาษา&quot;},&quot;showGooglePrefill&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;ฟอร์ม&quot;},&quot;requireOrg&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;ฟอร์ม&quot;}}">
+const COPY = {
+  th: {
+    title: "ลงทะเบียน\nเข้าร่วมงาน", sub: "18–19 ธันวาคม 2569 · ไบเทค บางนา ฮอลล์ 2 · กรอกไม่เกิน 1 นาที แล้วรับ QR สำหรับเข้างานทันที",
+    prefill: "กรอกอัตโนมัติด้วยบัญชี Google", typeLabel: "ประเภทผู้เข้าร่วม",
+    consent: "ยินยอมให้ผู้จัดงานเก็บและใช้ข้อมูลตามนโยบาย PDPA",
+    submit: "ยืนยันการลงทะเบียน", already: "ลงทะเบียนไว้แล้ว?", lookupLink: "เปิดดู QR ของฉัน",
+    saving: "กำลังบันทึกลง Google Sheet…",
+    lookupTitle: "เปิดดูบัตรของฉัน", lookupSub: "กรอกอีเมลที่ใช้ลงทะเบียน ระบบจะเปิด QR ใบเดิมให้",
+    emailLabel: "อีเมลที่ลงทะเบียน", lookupBtn: "ค้นหาบัตร", backForm: "← กลับไปหน้าลงทะเบียน",
+    confirmed: "ลงทะเบียนสำเร็จ", emailedTo: "ส่งสำเนาไปที่",
+    gate: "จุดลงทะเบียน", gateVal: "ฮอลล์ 2 · ประตู A", doors: "เวลาเปิดประตู", phoneLabelShort: "เบอร์ติดต่อ",
+    saveImg: "บันทึกรูป", passNote: "แสดง QR นี้ที่ประตู เจ้าหน้าที่จะพิมพ์บัตรแขวนคอให้ทันที · เปิดซ้ำได้จากลิงก์ในอีเมล",
+    newReg: "ลงทะเบียนคนใหม่",
+    fields: [
+      { key: "name", label: "ชื่อ–นามสกุล", ph: "ชื่อและนามสกุลของคุณ", mode: "text" },
+      { key: "email", label: "อีเมล", ph: "name@company.com", mode: "email" },
+      { key: "phone", label: "เบอร์โทรศัพท์", ph: "08X XXX XXXX", mode: "tel" },
+      { key: "org", label: "บริษัท / องค์กร", ph: "ไม่บังคับ", mode: "text" }
+    ],
+    types: ["ทั่วไป", "VIP", "สื่อ"],
+    err: { name: "กรอกชื่อ", email: "อีเมลไม่ถูกต้อง", phone: "เบอร์ไม่ถูกต้อง", consent: "กรุณายอมรับนโยบาย PDPA ก่อนดำเนินการต่อ", notfound: "ไม่พบการลงทะเบียนของอีเมลนี้" },
+    toastSaved: "บันทึกลง Google Sheet แล้ว", toastImg: "บันทึกรูป QR ลงเครื่องแล้ว", toastWallet: "เพิ่มบัตรใน Wallet แล้ว", toastPrefill: "ดึงชื่อและอีเมลจาก Google แล้ว"
+  },
+  en: {
+    title: "Register\nfor the event", sub: "18–19 Dec 2026 · BITEC Bangna, Hall 2 · Under a minute, and your entry QR is issued instantly.",
+    prefill: "Autofill with your Google account", typeLabel: "Attendee type",
+    consent: "I consent to the organiser storing my data under its PDPA policy.",
+    submit: "CONFIRM REGISTRATION", already: "Already registered?", lookupLink: "Open my QR",
+    saving: "Saving to Google Sheet…",
+    lookupTitle: "Find my pass", lookupSub: "Enter the email you registered with and we'll reopen the same QR.",
+    emailLabel: "Registered email", lookupBtn: "FIND MY PASS", backForm: "← Back to registration",
+    confirmed: "REGISTRATION CONFIRMED", emailedTo: "Copy sent to",
+    gate: "Check-in point", gateVal: "Hall 2 · Gate A", doors: "Doors open", phoneLabelShort: "Contact",
+    saveImg: "SAVE IMAGE", passNote: "Show this QR at the door — staff will print your lanyard badge on the spot. Reopen it any time from the email link.",
+    newReg: "Register someone else",
+    fields: [
+      { key: "name", label: "FULL NAME", ph: "Your full name", mode: "text" },
+      { key: "email", label: "EMAIL", ph: "name@company.com", mode: "email" },
+      { key: "phone", label: "PHONE", ph: "08X XXX XXXX", mode: "tel" },
+      { key: "org", label: "COMPANY / ORGANISATION", ph: "Optional", mode: "text" }
+    ],
+    types: ["General", "VIP", "Press"],
+    err: { name: "Required", email: "Invalid email", phone: "Invalid number", consent: "Please accept the PDPA policy to continue.", notfound: "No registration found for that email." },
+    toastSaved: "Saved to Google Sheet", toastImg: "QR image saved", toastWallet: "Pass added to Wallet", toastPrefill: "Name and email pulled from Google"
+  }
+};
+
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    this.state = {
+      lang: p.lang === "en" ? "en" : "th",
+      step: "form",
+      vals: { name: "", email: "", phone: "", org: "" },
+      typeIdx: 0,
+      consent: false,
+      errors: {},
+      lookupEmail: "",
+      lookupError: "",
+      pass: null,
+      toast: ""
+    };
+  }
+  componentDidMount() {
+    try {
+      const raw = localStorage.getItem("tt26-pass");
+      if (raw) { const pass = JSON.parse(raw); this.setState({ pass, step: "pass" }); }
+    } catch (e) { }
+  }
+  componentWillUnmount() { clearTimeout(this._t); }
+  flash(m) { this.setState({ toast: m }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: "" }), 2000); }
+
+  qr(seedStr, n) {
+    let h = 2166136261;
+    for (let i = 0; i < seedStr.length; i++) { h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619); }
+    const rnd = (a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; })(h);
+    const g = Array.from({ length: n }, () => new Array(n).fill(0));
+    const inFinder = (x, y) => (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (!inFinder(x, y)) g[y][x] = rnd() < 0.47 ? 1 : 0;
+    for (let i = 8; i < n - 8; i++) { g[6][i] = i % 2 ? 0 : 1; g[i][6] = i % 2 ? 0 : 1; }
+    const finder = (ox, oy) => { for (let y = 0; y < 7; y++) for (let x = 0; x < 7; x++) { const ring = x === 0 || y === 0 || x === 6 || y === 6, core = x >= 2 && x <= 4 && y >= 2 && y <= 4; g[oy + y][ox + x] = ring || core ? 1 : 0; } };
+    finder(0, 0); finder(n - 7, 0); finder(0, n - 7);
+    for (let y = 0; y < 5; y++) for (let x = 0; x < 5; x++) { const ring = x === 0 || y === 0 || x === 4 || y === 4; g[n - 9 + y][n - 9 + x] = ring || (x === 2 && y === 2) ? 1 : 0; }
+    let d = "";
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (g[y][x]) d += `M${x},${y}h1v1h-1Z`;
+    return React.createElement("svg", { viewBox: `-2 -2 ${n + 4} ${n + 4}`, width: "100%", height: "100%", shapeRendering: "crispEdges", style: { display: "block" } }, React.createElement("path", { d, fill: "currentColor" }));
+  }
+
+  validate() {
+    const t = COPY[this.state.lang], v = this.state.vals, e = {};
+    if (!v.name.trim()) e.name = t.err.name;
+    if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(v.email.trim())) e.email = t.err.email;
+    if (v.phone.replace(/\D/g, "").length < 9) e.phone = t.err.phone;
+    return e;
+  }
+
+  renderVals() {
+    const s = this.state, t = COPY[s.lang];
+    const requireOrg = this.props.requireOrg ?? false;
+    const chip = on => ({ border: on ? "#c9ac74" : "#302c26", bg: on ? "#221e18" : "transparent", fg: on ? "#c9ac74" : "#8b8578" });
+
+    return {
+      t: { ...t, title: t.title.replace("\n", " ") },
+      setTh: () => this.setState({ lang: "th", errors: {} }),
+      setEn: () => this.setState({ lang: "en", errors: {} }),
+      thBg: s.lang === "th" ? "#c9ac74" : "transparent", thFg: s.lang === "th" ? "#1a1815" : "#6f6a5f",
+      enBg: s.lang === "en" ? "#c9ac74" : "transparent", enFg: s.lang === "en" ? "#1a1815" : "#6f6a5f",
+
+      isForm: s.step === "form", isSending: s.step === "sending", isPass: s.step === "pass", isLookup: s.step === "lookup",
+      showPrefill: this.props.showGooglePrefill ?? true,
+      prefill: () => { this.setState(st => ({ vals: { ...st.vals, name: st.lang === "en" ? "Nattapong Suwanlert" : "ณัฐพงษ์ สุวรรณเลิศ", email: "nattapong.s@corp.co.th" }, errors: {} })); this.flash(t.toastPrefill); },
+
+      fields: t.fields.map(f => {
+        const err = s.errors[f.key];
+        const filled = (s.vals[f.key] || "").length > 0;
+        return {
+          label: f.label + (f.key === "org" && !requireOrg ? "" : " *"),
+          labelFg: err ? "#d8877c" : filled ? "#c9ac74" : "#6f6a5f",
+          border: err ? "#a8564a" : filled ? "#4a4238" : "#302c26",
+          value: s.vals[f.key], placeholder: f.ph, mode: f.mode, error: err || "",
+          onInput: e => { const val = e.target.value; this.setState(st => ({ vals: { ...st.vals, [f.key]: val }, errors: { ...st.errors, [f.key]: "" } })); }
+        };
+      }),
+      types: t.types.map((label, i) => ({ label, onPick: () => this.setState({ typeIdx: i }), ...chip(i === s.typeIdx) })),
+
+      consent: s.consent,
+      toggleConsent: () => this.setState(st => ({ consent: !st.consent, errors: { ...st.errors, consent: "" } })),
+      consentBorder: s.errors.consent ? "#a8564a" : s.consent ? "#c9ac74" : "#3a352d",
+      consentBg: s.consent ? "#c9ac74" : "transparent",
+      consentDot: s.consent ? "#1a1815" : "transparent",
+      consentFg: s.errors.consent ? "#e39a8f" : "#8b8578",
+      consentError: s.errors.consent || "",
+
+      submit: () => {
+        const e = this.validate();
+        if (!s.consent) e.consent = t.err.consent;
+        if (Object.keys(e).length) { this.setState({ errors: e }); return; }
+        this.setState({ step: "sending" });
+        setTimeout(() => {
+          const rand = Math.random().toString(16).slice(2, 6).toUpperCase();
+          const seq = 900 + Math.floor(Math.random() * 99);
+          const pass = {
+            name: s.vals.name.trim(), email: s.vals.email.trim(),
+            phone: s.vals.phone.trim() || "—", org: s.vals.org.trim(),
+            type: t.types[s.typeIdx], code: "TT26-" + rand + "-" + seq
+          };
+          try { localStorage.setItem("tt26-pass", JSON.stringify(pass)); } catch (er) { }
+          this.setState({ pass, step: "pass" });
+          this.flash(t.toastSaved);
+        }, 1400);
+      },
+
+      goLookup: () => this.setState({ step: "lookup", lookupError: "" }),
+      goForm: () => this.setState({ step: "form" }),
+      lookupEmail: s.lookupEmail,
+      lookupError: s.lookupError,
+      onLookupEmail: e => this.setState({ lookupEmail: e.target.value, lookupError: "" }),
+      doLookup: () => {
+        const em = s.lookupEmail.trim().toLowerCase();
+        let saved = null;
+        try { saved = JSON.parse(localStorage.getItem("tt26-pass") || "null"); } catch (e) { }
+        if (saved && saved.email.toLowerCase() === em) { this.setState({ pass: saved, step: "pass" }); return; }
+        if (/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(em)) {
+          const pass = { name: s.lang === "en" ? "Pimchanok Waraporn" : "พิมพ์ชนก วราภรณ์", email: em, phone: "089 214 6607", org: "Siam Digital Group", type: t.types[0], code: "TT26-4F2A-901" };
+          this.setState({ pass, step: "pass" });
+          return;
+        }
+        this.setState({ lookupError: t.err.notfound });
+      },
+
+      passName: s.pass ? s.pass.name : "",
+      passEmail: s.pass ? s.pass.email : "",
+      passPhone: s.pass ? s.pass.phone : "",
+      passCode: s.pass ? s.pass.code : "",
+      passType: s.pass ? (s.lang === "en" ? "ADMIT ONE · " : "บัตรเข้างาน · ") + s.pass.type : "",
+      qr: this.qr(s.pass ? s.pass.code + s.pass.email : "TT26", 25),
+      saveImg: () => this.flash(t.toastImg),
+      addWallet: () => this.flash(t.toastWallet),
+      reset: () => { try { localStorage.removeItem("tt26-pass"); } catch (e) { } this.setState({ step: "form", vals: { name: "", email: "", phone: "", org: "" }, consent: false, errors: {}, pass: null }); },
+      toast: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

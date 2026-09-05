@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;500;600&family=Trirong:wght@200;300;400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+doc-page:not(:defined){visibility:hidden}
+body{font-family:Anuphan,system-ui,sans-serif;color:#1c1a16}
+a{color:#8a6d33}a:hover{color:#6d5527}
+</style>
+<script src="./doc-page.js"></script>
+</helmet>
+
+<doc-page margin="0.8in">
+
+<div slot="header" style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #ddd8cb;padding-bottom:7px;font:400 8.5pt IBM Plex Mono,monospace;color:#8c8474;letter-spacing:.12em">
+<span>EVENT CHECK-IN · TECHNICAL HANDOFF</span><span>v1.0 · ก.ย. 2569</span>
+</div>
+<div slot="footer" style="display:flex;justify-content:space-between;border-top:1px solid #ddd8cb;padding-top:7px;font:400 8.5pt IBM Plex Mono,monospace;color:#a39a89;letter-spacing:.08em">
+<span>Google Sheet + Apps Script</span><span>ภายในทีมผู้จัดงาน</span>
+</div>
+
+<h1 style="font:300 30pt/1.15 Trirong,serif;margin:0 0 14px;letter-spacing:-.01em">ระบบลงทะเบียนเข้างาน<br>โครงสร้างข้อมูลและ API</h1>
+<p style="font:400 11.5pt/1.7 Anuphan,sans-serif;color:#5d574b;margin:0 0 26px;max-width:34em">เอกสารส่งต่อสำหรับนักพัฒนา ครอบคลุมโครงสร้าง Google Sheet, Apps Script endpoints, การกันข้อมูลชนกันเมื่อเจ้าหน้าที่หลายคนสแกนพร้อมกัน, รูปแบบ QR และการพิมพ์บัตร A6 อ้างอิงดีไซน์จาก <em>Staff Console</em> และหน้าลูกค้าแนวทาง 2b</p>
+
+<h2 style="font:500 14pt/1.3 Anuphan,sans-serif;margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid #1c1a16">1 · ภาพรวมสถาปัตยกรรม</h2>
+<p style="font:400 11pt/1.75 Anuphan,sans-serif;margin:0 0 12px">ระบบทำงานออนไลน์ 100% โดยใช้ Google Sheet เป็นฐานข้อมูลเดียว และ Apps Script (Web App) เป็น API ชั้นเดียวที่ทุกหน้าเรียกใช้ ห้ามให้หน้าเว็บเขียนชีตตรง เพื่อให้การล็อกและการตรวจสิทธิ์อยู่ที่จุดเดียว</p>
+<div style="border:1px solid #ddd8cb;background:#faf8f4;padding:16px 18px;margin:0 0 14px;break-inside:avoid">
+<div style="font:500 9pt IBM Plex Mono,monospace;letter-spacing:.14em;color:#8a6d33;margin-bottom:9px">FLOW</div>
+<div style="font:400 10.5pt/1.9 IBM Plex Mono,monospace;color:#3a352d">หน้าลูกค้า (public) ──POST /register──▶ Apps Script ──▶ Sheet: Registrations<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──▶ ส่งอีเมล QR (MailApp)<br>หน้า Staff (ต้อง login) ──POST /checkin──▶ LockService ──▶ Sheet: Checkins + Registrations</div>
+</div>
+<ul style="font:400 11pt/1.75 Anuphan,sans-serif;margin:0 0 24px;padding-left:22px">
+<li style="margin-bottom:5px">Deploy เป็น Web App สองตัว: <strong>public</strong> (Execute as: me / Access: anyone) สำหรับลงทะเบียน และ <strong>staff</strong> (Access: anyone with Google account) สำหรับงานเจ้าหน้าที่</li>
+<li style="margin-bottom:5px">หน้าเว็บทั้งสองฝั่งเป็นไฟล์เดียวกันไม่ได้ — แยก URL/โฮสต์ เพื่อไม่ให้โค้ดฝั่ง staff หลุดถึงลูกค้า</li>
+<li>ทุก response เป็น JSON รูปแบบ <span style="font-family:IBM Plex Mono,monospace;font-size:10pt">{ ok, data, error }</span></li>
+</ul>
+
+<h2 style="font:500 14pt/1.3 Anuphan,sans-serif;margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid #1c1a16">2 · ชีตในไฟล์เดียว</h2>
+<table style="width:100%;border-collapse:collapse;font:400 10pt/1.6 Anuphan,sans-serif;margin:0 0 24px">
+<thead><tr style="background:#f2efe8">
+<th style="text-align:left;padding:8px 10px;border-bottom:1px solid #cfc9ba;font-weight:500;width:23%">ชีต</th>
+<th style="text-align:left;padding:8px 10px;border-bottom:1px solid #cfc9ba;font-weight:500">หน้าที่</th>
+<th style="text-align:left;padding:8px 10px;border-bottom:1px solid #cfc9ba;font-weight:500;width:24%">คีย์</th>
+</tr></thead>
+<tbody>
+<tr><td style="padding:8px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">Events</td><td style="padding:8px 10px;border-bottom:1px solid #e6e1d6">รายการงาน · ชื่อ วันเวลา สถานที่ สถานะเปิด/ปิดรับ</td><td style="padding:8px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">event_id</td></tr>
+<tr><td style="padding:8px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">Fields</td><td style="padding:8px 10px;border-bottom:1px solid #e6e1d6">ฟิลด์ฟอร์มของแต่ละงาน · ลำดับ ชนิด จำเป็นหรือไม่ ตัวเลือก</td><td style="padding:8px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">event_id + key</td></tr>
+<tr><td style="padding:8px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">Registrations</td><td style="padding:8px 10px;border-bottom:1px solid #e6e1d6">ผู้ลงทะเบียน 1 แถว = 1 คน + สถานะเข้างานล่าสุด</td><td style="padding:8px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">reg_id</td></tr>
+<tr><td style="padding:8px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">Checkins</td><td style="padding:8px 10px;border-bottom:1px solid #e6e1d6">ประวัติการสแกนทุกครั้ง (append-only) ใช้ย้อนดูข้อมูลย้อนหลัง</td><td style="padding:8px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">scan_id</td></tr>
+<tr><td style="padding:8px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">Staff</td><td style="padding:8px 10px;border-bottom:1px solid #e6e1d6">allowlist อีเมล Google + บทบาท + ขอบเขต Event</td><td style="padding:8px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">email</td></tr>
+<tr><td style="padding:8px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">BadgeConfig</td><td style="padding:8px 10px;border-bottom:1px solid #e6e1d6">ค่าพิมพ์บัตรต่อ Event · ขนาด องค์ประกอบที่พิมพ์ สีเน้น</td><td style="padding:8px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">event_id</td></tr>
+<tr><td style="padding:8px 10px;font-family:IBM Plex Mono,monospace;font-size:9.5pt">AuditLog</td><td style="padding:8px 10px">การแก้ไข/ลบข้อมูล ใครทำ เมื่อไหร่ ค่าก่อน–หลัง</td><td style="padding:8px 10px;font-family:IBM Plex Mono,monospace;font-size:9.5pt">log_id</td></tr>
+</tbody>
+</table>
+
+<h2 style="font:500 14pt/1.3 Anuphan,sans-serif;margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid #1c1a16">3 · คอลัมน์สำคัญ</h2>
+<p style="font:400 10.5pt/1.7 Anuphan,sans-serif;color:#5d574b;margin:0 0 12px">ฟิลด์ที่ผู้จัดงานเพิ่มเองผ่านหน้า “ฟิลด์ฟอร์ม” ไม่ต้องเพิ่มคอลัมน์ใหม่ทุกครั้ง — เก็บรวมใน <span style="font-family:IBM Plex Mono,monospace;font-size:10pt">answers_json</span> แล้วมีคอลัมน์ช่วยอ่าน (flatten) ให้เฉพาะฟิลด์ที่ใช้ค้นหาบ่อย</p>
+<table style="width:100%;border-collapse:collapse;font:400 10pt/1.6 Anuphan,sans-serif;margin:0 0 14px">
+<thead><tr style="background:#f2efe8">
+<th style="text-align:left;padding:8px 10px;border-bottom:1px solid #cfc9ba;font-weight:500;width:34%">Registrations</th>
+<th style="text-align:left;padding:8px 10px;border-bottom:1px solid #cfc9ba;font-weight:500">ความหมาย</th>
+</tr></thead>
+<tbody>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">reg_id · event_id</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">รหัสแถวและงานที่สังกัด</td></tr>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">badge_code</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">รหัสบัตรที่พิมพ์บนบัตรและอยู่ใน QR เช่น TT26-4F2A-901</td></tr>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">qr_token</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">token ลงลายเซ็น ใช้ยืนยันว่า QR ออกโดยระบบ</td></tr>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">full_name · email · phone</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">ฟิลด์หลัก 3 ตัวที่ทุกงานมี ใช้ค้นหาหน้างาน</td></tr>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">answers_json</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">คำตอบฟิลด์ที่ผู้จัดงานเพิ่มเอง (JSON)</td></tr>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">source</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">online · walkin</td></tr>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">status</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">registered · checked_in · cancelled · deleted</td></tr>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">checked_in_at</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">เวลาเข้างานครั้งแรก (ISO 8601 + timezone)</td></tr>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt;background:#faf6ec"><strong>checked_in_by</strong></td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;background:#faf6ec">อีเมล Google ของเจ้าหน้าที่ที่สแกน — บังคับมีค่าเมื่อ status = checked_in</td></tr>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt;background:#faf6ec"><strong>gate · device_id</strong></td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;background:#faf6ec">ประตู/จุดสแกน และรหัสเครื่องที่ใช้สแกน</td></tr>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">scan_count</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">จำนวนครั้งที่ถูกสแกน (ครั้งที่ 2 ขึ้นไปคือสแกนซ้ำ)</td></tr>
+<tr><td style="padding:7px 10px;font-family:IBM Plex Mono,monospace;font-size:9.5pt">updated_at · updated_by</td><td style="padding:7px 10px">แก้ไขล่าสุดเมื่อไหร่ โดยใคร</td></tr>
+</tbody>
+</table>
+<p style="font:400 10.5pt/1.7 Anuphan,sans-serif;color:#5d574b;margin:0 0 24px"><strong style="color:#1c1a16">ชีต Checkins</strong> เก็บทุกครั้งที่สแกน ไม่ทับของเดิม: <span style="font-family:IBM Plex Mono,monospace;font-size:10pt">scan_id, event_id, reg_id, badge_code, scanned_at, scanned_by, gate, device_id, result</span> โดย <span style="font-family:IBM Plex Mono,monospace;font-size:10pt">result</span> = ok · duplicate · not_found · wrong_event ทำให้ย้อนดูได้ว่าใครสแกนอะไรตอนไหน และดูสถิติแยกเจ้าหน้าที่ได้ตรงจากชีตนี้</p>
+
+<h2 style="font:500 14pt/1.3 Anuphan,sans-serif;margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid #1c1a16">4 · Apps Script endpoints</h2>
+<table style="width:100%;border-collapse:collapse;font:400 10pt/1.6 Anuphan,sans-serif;margin:0 0 24px">
+<thead><tr style="background:#f2efe8">
+<th style="text-align:left;padding:8px 10px;border-bottom:1px solid #cfc9ba;font-weight:500;width:27%">action</th>
+<th style="text-align:left;padding:8px 10px;border-bottom:1px solid #cfc9ba;font-weight:500;width:14%">สิทธิ์</th>
+<th style="text-align:left;padding:8px 10px;border-bottom:1px solid #cfc9ba;font-weight:500">ทำอะไร</th>
+</tr></thead>
+<tbody>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">getEventForm</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">public</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">ส่งฟิลด์ฟอร์มของงานนั้นให้หน้าลูกค้า render</td></tr>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">register</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">public</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">สร้างแถวใหม่ ออก badge_code + qr_token ส่งอีเมล คืน URL หน้า QR</td></tr>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">getMyPass</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">public + token</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">เปิดดู QR ซ้ำจากลิงก์ในอีเมล</td></tr>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt;background:#faf6ec">checkin</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;background:#faf6ec">staff</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;background:#faf6ec">ตรวจ token → ล็อก → บันทึกเข้างาน + ชื่อผู้สแกน → คืนผล ok/duplicate</td></tr>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">searchAttendees</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">staff</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">ค้นหาชื่อ/เบอร์/อีเมล/รหัสบัตร</td></tr>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">addWalkin</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">staff</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">ลงทะเบียนหน้างานและเช็คอินทันที</td></tr>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">updateAttendee · deleteAttendee</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">staff/admin</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">แก้ไข/ลบ (soft delete + เขียน AuditLog)</td></tr>
+<tr><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6;font-family:IBM Plex Mono,monospace;font-size:9.5pt">saveFields · saveBadgeConfig</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">admin</td><td style="padding:7px 10px;border-bottom:1px solid #e6e1d6">บันทึกฟิลด์ฟอร์มและรูปแบบบัตรของงานนั้น</td></tr>
+<tr><td style="padding:7px 10px;font-family:IBM Plex Mono,monospace;font-size:9.5pt">getDashboard</td><td style="padding:7px 10px">staff</td><td style="padding:7px 10px">ยอดรวม ยอดรายชั่วโมง สถิติแยกเจ้าหน้าที่ กิจกรรมล่าสุด</td></tr>
+</tbody>
+</table>
+
+<h2 style="font:500 14pt/1.3 Anuphan,sans-serif;margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid #1c1a16">5 · เจ้าหน้าที่หลายคนพร้อมกัน</h2>
+<p style="font:400 11pt/1.75 Anuphan,sans-serif;margin:0 0 12px">ปัญหาที่ต้องกันคือสองเครื่องสแกนคนเดียวกันในเวลาเกือบพร้อมกัน และการเขียนชีตทับกัน แก้ด้วยสามอย่าง: ล็อกทั้งสคริปต์ตอนเขียน, ตัดสินผลจากค่าที่อ่านหลังได้ล็อกเท่านั้น, และไม่ลบทับประวัติ</p>
+<pre style="font:400 8.6pt/1.65 IBM Plex Mono,monospace;background:#f7f5f0;border:1px solid #e0dbcf;border-left:3px solid #8a6d33;padding:14px 16px;margin:0 0 10px;white-space:pre-wrap;break-inside:avoid">function checkin(p) {
+  const staff = requireStaff(p.eventId);            // ตรวจ Session.getActiveUser() กับชีต Staff
+  if (!verifyToken(p.qrToken)) return err('not_found');
+
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(15000)) return err('busy');     // คิวสั้น ๆ ไม่ให้เขียนพร้อมกัน
+  try {
+    const row = findRegRow(p.eventId, p.badgeCode); // อ่านสด "หลัง" ได้ล็อกแล้วเท่านั้น
+    if (!row) return err('not_found');
+
+    const already = row.status === 'checked_in';
+    appendCheckin({                                  // ประวัติเขียนทุกครั้ง ไม่ทับ
+      regId: row.reg_id, badgeCode: p.badgeCode,
+      scannedBy: staff.email, gate: staff.gate,
+      deviceId: p.deviceId, result: already ? 'duplicate' : 'ok'
+    });
+
+    if (already) {
+      bumpScanCount(row);
+      return ok({ result: 'duplicate', name: row.full_name,
+                  by: row.checked_in_by, at: row.checked_in_at, gate: row.gate });
+    }
+    setRow(row, { status: 'checked_in', checked_in_at: nowIso(),
+                  checked_in_by: staff.email, gate: staff.gate,
+                  device_id: p.deviceId, scan_count: 1 });
+    return ok({ result: 'ok', name: row.full_name, badge: buildBadge(row) });
+  } finally {
+    lock.releaseLock();
+  }
+}</pre>
+<ul style="font:400 11pt/1.75 Anuphan,sans-serif;margin:0 0 14px;padding-left:22px">
+<li style="margin-bottom:5px"><strong>คนแรกชนะ</strong> — <span style="font-family:IBM Plex Mono,monospace;font-size:10pt">checked_in_by</span> เก็บคนที่สแกนสำเร็จครั้งแรก คนที่สแกนทีหลังได้ผล <span style="font-family:IBM Plex Mono,monospace;font-size:10pt">duplicate</span> พร้อมชื่อคนแรกและเวลา (ตรงกับกล่องเตือนสีแดงในหน้า Staff)</li>
+<li style="margin-bottom:5px"><strong>ทุกการสแกนถูกบันทึก</strong> — แม้เป็น duplicate ก็ยังลงชีต Checkins ทำให้รู้ว่าใครสแกนซ้ำที่ประตูไหน</li>
+<li style="margin-bottom:5px"><strong>อ่านหลังล็อกเสมอ</strong> — ห้ามใช้ค่าที่ฝั่งเบราว์เซอร์ถืออยู่มาตัดสิน มิฉะนั้นสองเครื่องจะเห็นสถานะเก่าเหมือนกันทั้งคู่</li>
+<li style="margin-bottom:5px"><strong>เขียนแบบ batch</strong> — ใช้ <span style="font-family:IBM Plex Mono,monospace;font-size:10pt">setValues()</span> ครั้งเดียวต่อการเรียก และเลี่ยงสูตรในคอลัมน์ที่เขียนบ่อย เพื่อไม่ให้ชีตคำนวณใหม่ทั้งไฟล์</li>
+<li><strong>idempotency</strong> — ให้เครื่องสแกนส่ง <span style="font-family:IBM Plex Mono,monospace;font-size:10pt">client_scan_id</span> (uuid) มาด้วย ถ้าซ้ำให้คืนผลเดิมโดยไม่เขียนใหม่ กันกรณีเน็ตหลุดแล้วกดซ้ำ</li>
+</ul>
+<div style="border:1px solid #ddd8cb;background:#faf8f4;padding:14px 16px;margin:0 0 24px;font:400 10.5pt/1.7 Anuphan,sans-serif;color:#5d574b;break-inside:avoid"><strong style="color:#1c1a16">อัปเดตแบบเรียลไทม์:</strong> Apps Script ไม่มี push — ให้หน้า Staff เรียก <span style="font-family:IBM Plex Mono,monospace;font-size:10pt">getDashboard</span> ทุก 8–10 วินาที ส่ง <span style="font-family:IBM Plex Mono,monospace;font-size:10pt">since</span> เป็นเวลาที่ได้ข้อมูลล่าสุด แล้วรับเฉพาะรายการใหม่ (เท่ากับพฤติกรรมกิจกรรมสดใน prototype) ระวังโควตา Apps Script: 20 เครื่อง × ทุก 10 วิ ≈ 7,200 เรียก/ชม.</div>
+
+<h2 style="font:500 14pt/1.3 Anuphan,sans-serif;margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid #1c1a16">6 · QR และความปลอดภัย</h2>
+<p style="font:400 11pt/1.75 Anuphan,sans-serif;margin:0 0 10px">QR บรรจุข้อความสั้น ไม่ใส่ข้อมูลส่วนบุคคล: <span style="font-family:IBM Plex Mono,monospace;font-size:10pt">EVENT|BADGE_CODE|SIG</span> โดย SIG คือ 10 ตัวแรกของ HMAC-SHA256 ของสองส่วนแรกด้วยคีย์ลับที่เก็บใน Script Properties ทำให้ปลอมบัตรไม่ได้ และถ้าใครถ่ายรูป QR ต่อกันก็ยังกันซ้ำได้ด้วย duplicate detection</p>
+<ul style="font:400 11pt/1.75 Anuphan,sans-serif;margin:0 0 24px;padding-left:22px">
+<li style="margin-bottom:5px">สร้างภาพ QR ฝั่งเบราว์เซอร์ด้วยไลบรารีในหน้าเว็บ ไม่ต้องพึ่งบริการภาพภายนอก (ข้อมูลไม่ออกนอกระบบ)</li>
+<li style="margin-bottom:5px">ลิงก์เปิดดู QR ซ้ำใช้ token แยกคนละตัวกับ SIG และหมดอายุหลังงานจบ 7 วัน</li>
+<li>PDPA: เก็บ consent เป็นคอลัมน์ (<span style="font-family:IBM Plex Mono,monospace;font-size:10pt">consent_at</span>, เวอร์ชันนโยบาย) และตั้งรอบลบข้อมูลหลังงานตามที่แจ้งลูกค้า</li>
+</ul>
+
+<h2 style="font:500 14pt/1.3 Anuphan,sans-serif;margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid #1c1a16">7 · สิทธิ์เจ้าหน้าที่และการพิมพ์บัตร</h2>
+<p style="font:400 11pt/1.75 Anuphan,sans-serif;margin:0 0 12px">ตรวจตัวตนจาก <span style="font-family:IBM Plex Mono,monospace;font-size:10pt">Session.getActiveUser().getEmail()</span> เทียบกับชีต Staff — ห้ามส่ง role มาจากฝั่งหน้าเว็บ บทบาท: <strong>ADMIN</strong> ทำได้ทุกอย่างรวมถึงลบและตั้งค่า, <strong>STAFF</strong> สแกน เช็คอิน walk-in แก้ไข, <strong>VIEWER</strong> ดูอย่างเดียว ขอบเขตกำหนดต่อ Event ในคอลัมน์ <span style="font-family:IBM Plex Mono,monospace;font-size:10pt">event_scope</span></p>
+<p style="font:400 11pt/1.75 Anuphan,sans-serif;margin:0 0 24px">บัตรพิมพ์จากหน้าเว็บโดยตรง: BadgeConfig เก็บ <span style="font-family:IBM Plex Mono,monospace;font-size:10pt">size</span> (A6 · 4×6in · 80mm), ธงเปิด/ปิดองค์ประกอบ (<span style="font-family:IBM Plex Mono,monospace;font-size:10pt">show_logo, show_org, show_type, show_qr, show_bar</span>) และ <span style="font-family:IBM Plex Mono,monospace;font-size:10pt">accent</span> หน้าเว็บ render บัตรตาม config แล้วสั่งพิมพ์ที่ขนาดกระดาษจริง — ตั้ง margin 0 และให้เครื่องพิมพ์บัตรใช้ขนาดกำหนดเอง 105×148 มม. สำหรับ A6</p>
+
+<h2 style="font:500 14pt/1.3 Anuphan,sans-serif;margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid #1c1a16">8 · ลำดับงานที่แนะนำ</h2>
+<ol style="font:400 11pt/1.75 Anuphan,sans-serif;margin:0 0 8px;padding-left:22px">
+<li style="margin-bottom:5px">ตั้งชีตตามหัวข้อ 2–3 พร้อมข้อมูลตัวอย่าง 20 แถว</li>
+<li style="margin-bottom:5px">Apps Script: <span style="font-family:IBM Plex Mono,monospace;font-size:10pt">register</span> + <span style="font-family:IBM Plex Mono,monospace;font-size:10pt">getEventForm</span> → ต่อหน้าลูกค้าให้ลงทะเบียนได้จริงและได้ QR</li>
+<li style="margin-bottom:5px"><span style="font-family:IBM Plex Mono,monospace;font-size:10pt">checkin</span> พร้อม LockService + หน้าสแกนบนมือถือ (ทดสอบสองเครื่องยิงพร้อมกันจริง)</li>
+<li style="margin-bottom:5px">รายชื่อ ค้นหา walk-in แก้ไข ลบ + AuditLog</li>
+<li style="margin-bottom:5px">ฟิลด์ฟอร์มต่อ Event และ BadgeConfig</li>
+<li>Dashboard + สถิติแยกเจ้าหน้าที่ และซ้อมงานจริง 1 รอบก่อนวันงาน</li>
+</ol>
+<p style="font:400 10.5pt/1.7 Anuphan,sans-serif;color:#8c8474;margin:0">ข้อควรระวังก่อนวันงาน: ทดสอบโควตา Apps Script ที่จำนวนเครื่องจริง, สำรองไฟล์ชีตอัตโนมัติรายวัน, และเตรียมโหมดค้นหาด้วยชื่อไว้เสมอกรณีกล้องสแกนไม่ทำงาน</p>
+
+</doc-page>
+</x-dc>
+</body>
+</html>
