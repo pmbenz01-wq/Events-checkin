@@ -17,8 +17,7 @@
         { key: "name", q: "คุณชื่อ\nอะไร?", helper: "ชื่อนี้จะพิมพ์บนบัตรแขวนคอของคุณ", ph: "ชื่อ–นามสกุล", mode: "text" },
         { key: "email", q: "อีเมล\nของคุณ", helper: "เราจะส่ง QR สำหรับเข้างานไปที่อีเมลนี้ และเปิดดูซ้ำได้ทุกเมื่อ", ph: "name@company.com", mode: "email", chips: ["@gmail.com", "@corp.co.th"] },
         { key: "phone", q: "เบอร์ติดต่อ\nหน้างาน", helper: "ใช้เฉพาะกรณีติดต่อเรื่องงานนี้เท่านั้น", ph: "08X XXX XXXX", mode: "tel" },
-        { key: "org", q: "ทำงานที่\nไหน?", helper: "ไม่บังคับ — ข้ามได้ถ้าไม่ต้องการระบุ", ph: "ชื่อบริษัทหรือองค์กร", mode: "text" },
-        { key: "type", q: "เข้าร่วม\nแบบไหน?", helper: "เลือกประเภทบัตร แล้วยืนยันการเก็บข้อมูล" }
+        { key: "org", q: "ทำงานที่\nไหน?", helper: "ไม่บังคับ — ข้ามได้ถ้าไม่ต้องการระบุ แล้วยืนยันการเก็บข้อมูล", ph: "ชื่อบริษัทหรือองค์กร", mode: "text" }
       ],
       types: ["ทั่วไป", "VIP", "สื่อ"],
       consent: "ยินยอมให้ผู้จัดงานเก็บและใช้ข้อมูลตามนโยบาย PDPA",
@@ -45,8 +44,7 @@
         { key: "name", q: "What's\nyour name?", helper: "This is the name printed on your lanyard badge.", ph: "Full name", mode: "text" },
         { key: "email", q: "Your\nemail", helper: "We'll send your entry QR here — reopen it any time.", ph: "name@company.com", mode: "email", chips: ["@gmail.com", "@corp.co.th"] },
         { key: "phone", q: "Contact\nnumber", helper: "Used only if we need to reach you about this event.", ph: "08X XXX XXXX", mode: "tel" },
-        { key: "org", q: "Where do\nyou work?", helper: "Optional — skip if you'd rather not say.", ph: "Company or organisation", mode: "text" },
-        { key: "type", q: "How are you\njoining?", helper: "Pick your pass type, then confirm data consent." }
+        { key: "org", q: "Where do\nyou work?", helper: "Optional — skip if you'd rather not say. Then confirm data consent.", ph: "Company or organisation", mode: "text" }
       ],
       types: ["General", "VIP", "Press"],
       consent: "I consent to the organiser storing my data under its PDPA policy.",
@@ -69,7 +67,7 @@
     evIdx: 0,
     step: 0,
     vals: { name: "", email: "", phone: "", org: "" },
-    typeIdx: 0, consent: false,
+    consent: false,
     error: "", consentError: "",
     lookupEmail: "", lookupError: "", lookupBusy: false,
     pass: null, toast: "",
@@ -249,23 +247,24 @@
     const c = t();
     const ev = state.events[state.evIdx];
     const steps = c.steps, i = state.step, cur = steps[i];
-    const isChoice = cur.key === "type";
-    const val = isChoice ? "" : state.vals[cur.key];
+    const isLast = i === steps.length - 1;
+    const val = state.vals[cur.key];
     const filled = (val || "").length > 0;
     const optional = cur.key === "org";
     const inputBorder = state.error ? "#c1391f" : filled ? "#17150f" : "#c9c3b0";
 
     const ticks = steps.map((_, k) => `<div class="tick ${k <= i ? "is-done" : ""}"></div>`).join("");
 
-    let body;
-    if (isChoice) {
-      const typeRows = c.types.map((label, k) => `
-        <div class="type-row ${k === state.typeIdx ? "is-active" : ""}" data-action="pick-type" data-idx="${k}">
-          <div class="type-radio"><div class="type-radio-dot"></div></div>
-          <div class="type-label">${esc(label)}</div>
-        </div>`).join("");
-      body = `<div class="choice-block">
-        <div class="type-list">${typeRows}</div>
+    const chips = (cur.chips || []).map(label => `<div class="chip" data-action="chip" data-label="${esc(label)}">${esc(label)}</div>`).join("");
+    let body = `<div class="input-block">
+        <div class="input-underline" style="border-bottom-color:${inputBorder}">
+          <input class="text-input" id="step-input" type="${cur.mode === "email" ? "email" : cur.mode === "tel" ? "tel" : "text"}" value="${esc(val)}" placeholder="${esc(cur.ph || "")}" autocomplete="off" />
+        </div>
+        <div class="field-error">${esc(state.error)}</div>
+        ${chips ? `<div class="chips">${chips}</div>` : ""}
+      </div>`;
+    if (isLast) {
+      body = `<div class="choice-block">${body}
         <div class="consent-block">
           <div class="consent-row" data-action="toggle-consent">
             <div class="consent-box ${state.consent ? "is-checked" : ""} ${state.consentError ? "is-error" : ""}"><div class="consent-box-dot"></div></div>
@@ -274,18 +273,9 @@
           <div class="consent-error">${esc(state.consentError)}</div>
         </div>
       </div>`;
-    } else {
-      const chips = (cur.chips || []).map(label => `<div class="chip" data-action="chip" data-label="${esc(label)}">${esc(label)}</div>`).join("");
-      body = `<div class="input-block">
-        <div class="input-underline" style="border-bottom-color:${inputBorder}">
-          <input class="text-input" id="step-input" type="${cur.mode === "email" ? "email" : cur.mode === "tel" ? "tel" : "text"}" value="${esc(val)}" placeholder="${esc(cur.ph || "")}" autocomplete="off" />
-        </div>
-        <div class="field-error">${esc(state.error)}</div>
-        ${chips ? `<div class="chips">${chips}</div>` : ""}
-      </div>`;
     }
 
-    const nextLabel = isChoice ? c.finish : (optional && !filled ? c.skip : c.next);
+    const nextLabel = isLast ? c.finish : (optional && !filled ? c.skip : c.next);
 
     return `<div class="screen"><div class="screen-inner">
       <div class="ask-banner">
@@ -453,7 +443,6 @@
         render();
         break;
       }
-      case "pick-type": setState({ typeIdx: Number(el.dataset.idx) }); break;
       case "toggle-consent": setState({ consent: !state.consent, consentError: "" }); break;
       case "back": back(); break;
       case "next": next(); break;
@@ -481,9 +470,10 @@
 
   function next() {
     const c = t(), steps = c.steps, cur = steps[state.step];
-    if (cur.key === "type") { submit(); return; }
+    const isLast = state.step === steps.length - 1;
     const err = cur.key === "org" ? "" : stepError(cur.key);
     if (err) { setState({ error: err }); return; }
+    if (isLast) { submit(); return; }
     setState({ step: state.step + 1, error: "" });
   }
 
@@ -502,7 +492,7 @@
         eventId: ev.id,
         name: state.vals.name.trim(), email: state.vals.email.trim(),
         phone: state.vals.phone.trim(), org: state.vals.org.trim(),
-        type: COPY.th.types[state.typeIdx], consent: true
+        consent: true
       });
       if (!res.ok) throw new Error(res.error || "register_failed");
       const d = res.data;
@@ -553,7 +543,7 @@
     try { localStorage.removeItem(PASS_KEY); } catch (e) { /* ignore */ }
     setState({
       screen: "pick", step: 0, vals: { name: "", email: "", phone: "", org: "" },
-      consent: false, typeIdx: 0, error: "", consentError: "", pass: null
+      consent: false, error: "", consentError: "", pass: null
     });
   }
 
