@@ -1,19 +1,41 @@
 # Backend — Google Sheet + Apps Script
 
-Implements the **customer-facing** endpoints from `../project/Handoff - Google Sheet และ Apps Script.dc.html`:
-`listEvents` (an addition — the picker screen needs an event list, which the handoff
-doc didn't name explicitly but which the same public/read architecture covers),
-`getEventForm`, `register`, `getMyPass`.
+Three files go into one Apps Script project:
 
-The staff-only endpoints (`checkin`, `searchAttendees`, `addWalkin`, `updateAttendee`,
-`deleteAttendee`, `saveFields`, `saveBadgeConfig`, `getDashboard`) are **not** included —
-those belong to the Staff Console, which is a separate build.
+| File | What it is |
+|---|---|
+| `Code.gs` | All server code — the public JSON API **and** the staff `svc()` API |
+| `Staff.html` | The Staff Console page (a thin shell; the UI loads from GitHub Pages) |
+| `Badge.html` | The A6 badge print page |
+
+**Public API** (customer site, no login): `listEvents`, `getEventForm`, `register`,
+`getMyPass` — served from `doGet`/`doPost` as JSON.
+
+**Staff API** (Google login required): `bootstrap`, `dashboard`, `checkin`,
+`attendees`, `fields`, `setCheckedIn`, `addWalkin`, `deleteAttendee`, `history`,
+`csv`, `saveFields`, `saveBadgeConfig`, `createEvent`, `setEventProp`, `team`,
+`setRole`, `badgeData` — all behind the single `svc()` entry point, called from
+the console via `google.script.run`, never over HTTP.
+
+## Why the Staff Console is served by Apps Script, not GitHub Pages
+
+Google sign-in is the whole point of the staff side — every check-in has to record
+*who* scanned it. That only works if the page runs on the same origin as the script:
+`Session.getActiveUser().getEmail()` is populated, and `google.script.run` needs no
+CORS. A staff page hosted on GitHub Pages calling a login-required Apps Script URL
+would be redirected to Google's login page and blocked by CORS.
+
+So `Staff.html` is served by Apps Script — but it's deliberately a thin shell that
+loads `staff.css` / `staff.js` from GitHub Pages. **UI changes are a `git push`;
+only `Code.gs` changes need a redeploy.**
 
 ## Deploy
 
 1. Create a new Google Sheet.
 2. **Extensions → Apps Script**, delete the boilerplate `Code.gs` content, paste in
-   this folder's `Code.gs`.
+   this folder's `Code.gs`. Then add two HTML files — click **+ → HTML** twice and
+   name them exactly **`Staff`** and **`Badge`** (Apps Script appends `.html`
+   itself), pasting in `Staff.html` and `Badge.html`.
 3. In the Apps Script editor, select `setupSheets` from the function dropdown and
    click **Run** (once). This creates the `Events`, `Fields`, and `Registrations`
    sheets with headers, seeds 4 sample events (matching the design's prototype
@@ -36,6 +58,27 @@ those belong to the Staff Console, which is a separate build.
 
 Redeploy (**Deploy → Manage deployments → Edit → New version**) after any code change —
 editing `Code.gs` alone doesn't update the live `/exec` URL's behavior.
+
+## Deploy #2 — the Staff Console
+
+The same project gets a **second** deployment, with different access settings. This
+is what staff open in a browser.
+
+1. **Deploy → New deployment → Web app** again:
+   - Execute as: **Me**
+   - Who has access: **Anyone with a Google account** ← different from deploy #1
+2. Open that `/exec` URL while signed in with a Google account that is listed in the
+   **Team Access** sheet. You should land on the console.
+3. Give the URL to your staff. Anyone not on the allowlist gets a clear "you're not
+   on the team list" screen naming the exact row they need added.
+
+**If the console says Google didn't send your email:** the deployment can't identify
+the visitor. Edit that deployment to `Execute as: User accessing the web app` and
+share the Google Sheet with each staff member (Viewer is enough). The console's error
+screen spells this out too.
+
+**Gate names** come from the `gate` column of the Team Access sheet — that's what gets
+written on every check-in, so set it per person before the event.
 
 ## Team access is a separate file
 

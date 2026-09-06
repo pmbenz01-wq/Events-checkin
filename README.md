@@ -5,25 +5,45 @@ Claude Design handoff bundle below.
 
 ## What's here
 
-- **`customer/`** — the real implementation (vanilla HTML/CSS/JS): event picker →
-  5-step registration form → QR pass, TH/EN, calling the Apps Script backend.
-- **`docs/`** — a straight copy of `customer/`, served by **GitHub Pages** (Pages can
-  only serve `/` or `/docs` from a branch, not an arbitrary folder name). **After
-  editing anything in `customer/`, copy it into `docs/` and commit both** — GitHub
-  Pages will not pick up `customer/` changes on its own:
-  ```
-  cp -r customer/. docs/
-  ```
-- **`backend/`** — the Google Apps Script backend (`Code.gs`) plus its setup/deploy
-  instructions (`backend/README.md`). Deployed separately at script.google.com; this
-  repo just holds the source.
-- **`project/`, `chats/`** — the original Claude Design handoff bundle (prototypes +
-  the design conversation). Kept for reference; not part of the live site.
+- **`customer/`** — the public registration site (vanilla HTML/CSS/JS): event picker →
+  5-step form → real scannable QR pass, TH/EN. Hosted on GitHub Pages.
+- **`staff/`** — the Staff Console UI (dark "Onyx" theme): live dashboard, camera QR
+  scanning, attendee search / manual check-in / walk-in, scan history + CSV export,
+  form fields, badge config, team roles. Hosted on GitHub Pages but *loaded by* the
+  Apps Script page, so Google sign-in works — see `backend/README.md`.
+- **`backend/`** — the Apps Script project source: `Code.gs` (public API + staff API),
+  `Staff.html`, `Badge.html` (A6 print), plus deploy instructions.
+- **`docs/`** — **build output, don't edit.** GitHub Pages can only serve `/` or
+  `/docs`, so this holds a copy of `customer/` (at the root) and `staff/` (under
+  `/staff`). Regenerate with `./sync-docs.sh` after any UI change, and commit it.
+- **`project/`, `chats/`** — the original Claude Design handoff bundle. Reference only.
 
-## Live site
+## The two live URLs
 
-Enable it once under **Settings → Pages → Source: Deploy from a branch → main /docs**.
-The URL will be `https://pmbenz01-wq.github.io/events-checkin/`.
+| | Who | Where |
+|---|---|---|
+| Registration site | Public, no login | `https://pmbenz01-wq.github.io/Events-checkin/` |
+| Staff Console | Google login, allowlisted | the Apps Script `/exec` URL of deploy #2 |
+
+Pages is enabled under **Settings → Pages → Deploy from a branch → main /docs**.
+
+## Making a change
+
+```
+# edit customer/ or staff/
+./sync-docs.sh                      # refresh docs/ from source
+git add -A && git commit && git push
+```
+That's the whole loop for UI work — GitHub Pages picks it up in a minute or two.
+Only edits to `backend/Code.gs` additionally require re-pasting it into Apps Script
+and redeploying.
+
+## Known gaps
+
+- Staff can edit an event's form fields and they save to the sheet, but the customer
+  form still renders its fixed 5 questions — the two aren't wired together yet.
+- Per-event images/banners (the design's "ภาพและแบนเนอร์" screen) aren't built; the
+  customer cards show placeholder panels.
 
 ---
 
