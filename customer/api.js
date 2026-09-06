@@ -1,4 +1,4 @@
-// Thin client for the Apps Script backend (see ../backend/Code.gs).
+// Thin client for the Apps Script backend (see the staff-console repo's backend/Code.gs).
 //
 // POST bodies are sent as text/plain (containing JSON) rather than
 // application/json, and GETs use a plain query string — both are CORS

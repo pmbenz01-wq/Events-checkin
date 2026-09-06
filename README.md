@@ -1,49 +1,55 @@
-# Event Check-in
+# Event Check-in — Customer Site
 
-Live customer registration site for the Event Check-in system, implemented from the
+Public registration site for the Event Check-in system, implemented from the
 Claude Design handoff bundle below.
+
+**The Staff Console lives in a separate repo:**
+[pmbenz01-wq/staff-console](https://github.com/pmbenz01-wq/staff-console) —
+split out since this repo's customer site has zero code coupling to it (it
+only calls the deployed Apps Script /exec URL). Both still read and write the
+same Google Sheet; the Sheet was never tied to either repo.
 
 ## What's here
 
-- **`customer/`** — the public registration site (vanilla HTML/CSS/JS): event picker →
-  5-step form → real scannable QR pass, TH/EN. Hosted on GitHub Pages.
-- **`staff/`** — the Staff Console UI (dark "Onyx" theme): live dashboard, camera QR
-  scanning, attendee search / manual check-in / walk-in, scan history + CSV export,
-  form fields, badge config, team roles. Hosted on GitHub Pages but *loaded by* the
-  Apps Script page, so Google sign-in works — see `backend/README.md`.
-- **`backend/`** — the Apps Script project source: `Code.gs` (public API + staff API),
-  `Staff.html`, `Badge.html` (A6 print), plus deploy instructions.
-- **`docs/`** — **build output, don't edit.** GitHub Pages can only serve `/` or
-  `/docs`, so this holds a copy of `customer/` (at the root) and `staff/` (under
-  `/staff`). Regenerate with `./sync-docs.sh` after any UI change, and commit it.
-- **`project/`, `chats/`** — the original Claude Design handoff bundle. Reference only.
+- **`customer/`** — the public registration site (vanilla HTML/CSS/JS): event
+  picker → 5-step form → real scannable QR pass, TH/EN. Hosted on GitHub Pages.
+- **`docs/`** — **build output, don't edit.** GitHub Pages can only serve `/`
+  or `/docs`, so this is a copy of `customer/`. Regenerate with
+  `./sync-docs.sh` after any change, and commit it.
+- **`project/`, `chats/`** — the original Claude Design handoff bundle.
+  Reference only.
+
+The Apps Script backend (`Code.gs`) and Staff Console now live in
+[staff-console](https://github.com/pmbenz01-wq/staff-console) — that's also
+where the deploy instructions are.
 
 ## The two live URLs
 
 | | Who | Where |
 |---|---|---|
 | Registration site | Public, no login | `https://pmbenz01-wq.github.io/Events-checkin/` |
-| Staff Console | Google login, allowlisted | the Apps Script `/exec` URL of deploy #2 |
+| Staff Console | Google login, allowlisted | the Apps Script /exec URL — see the staff-console repo |
 
 Pages is enabled under **Settings → Pages → Deploy from a branch → main /docs**.
 
 ## Making a change
 
 ```
-# edit customer/ or staff/
+# edit customer/
 ./sync-docs.sh                      # refresh docs/ from source
 git add -A && git commit && git push
 ```
-That's the whole loop for UI work — GitHub Pages picks it up in a minute or two.
-Only edits to `backend/Code.gs` additionally require re-pasting it into Apps Script
-and redeploying.
+That's the whole loop — GitHub Pages picks it up in a minute or two. This repo
+never needs a redeploy on the Apps Script side; that only applies to changes
+in the staff-console repo's backend/Code.gs.
 
 ## Known gaps
 
-- Staff can edit an event's form fields and they save to the sheet, but the customer
-  form still renders its fixed 5 questions — the two aren't wired together yet.
-- Per-event images/banners (the design's "ภาพและแบนเนอร์" screen) aren't built; the
-  customer cards show placeholder panels.
+- Staff can edit an event's form fields and they save to the sheet, but the
+  customer form still renders its fixed 4 questions — the two aren't wired
+  together yet.
+- Per-event images/banners (the Staff Console's "ภาพและแบนเนอร์" screen) aren't
+  built; the customer cards show placeholder panels.
 
 ---
 
