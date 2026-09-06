@@ -156,7 +156,11 @@ input::placeholder{color:#575349}
 .c-grow2{flex:2;min-width:0}
 .c-grow1{flex:1;min-width:0}
 .c-code{width:96px;flex:none;font:400 9.5px "IBM Plex Mono",monospace;color:#8b8578;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-type{width:84px;flex:none}
 .c-status{width:132px;flex:none;display:flex;flex-direction:column;gap:4px}
+.type-btn{width:100%;text-align:center}
+.type-btn.is-vip{border-color:#c9ac74;color:#c9ac74}
+.type-btn.is-press{border-color:#5f7ba8;color:#9db4d8}
 .c-actions{width:104px;flex:none;display:flex;gap:6px;justify-content:flex-end}
 .cell-name{font:400 13px Anuphan,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cell-sub{font:300 10.5px Anuphan,sans-serif;color:#6f6a5f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

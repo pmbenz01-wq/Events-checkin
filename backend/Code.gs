@@ -300,7 +300,9 @@ function register(p) {
   var email = String(p.email || '').trim().toLowerCase();
   var phone = String(p.phone || '').trim();
   var org = String(p.org || '').trim();
-  var type = String(p.type || '').trim();
+  // Everyone registers as a general attendee. VIP / press is a decision the
+  // organiser makes, not the attendee — staff set it from the console.
+  var type = 'ทั่วไป';
   var consent = p.consent === true || p.consent === 'true';
 
   if (!eventId) throw new Error('missing_event');
@@ -459,6 +461,7 @@ function svc(action, p) {
       case 'attendees': data = svcAttendees_(p.eventId, p.query); break;
       case 'fields': requireStaff_(p.eventId, 'VIEWER'); data = getEventForm(p.eventId); break;
       case 'setCheckedIn': data = svcSetCheckedIn_(p); break;
+      case 'setType': data = svcSetType_(p); break;
       case 'addWalkin': data = svcAddWalkin_(p); break;
       case 'deleteAttendee': data = svcDeleteAttendee_(p); break;
       case 'history': data = svcHistory_(p.eventId, p.filter); break;
@@ -705,6 +708,30 @@ function svcSetCheckedIn_(p) {
   throw new Error('not_found');
 }
 
+// Pass type is set here, not at registration — the organiser decides who is
+// VIP or press. Written straight to the Registrations row so the badge and
+// the attendee's own pass screen both pick it up on next read.
+var PASS_TYPES = ['ทั่วไป', 'VIP', 'สื่อ'];
+
+function svcSetType_(p) {
+  var staff = requireStaff_(p.eventId, 'STAFF');
+  var type = String(p.type || '').trim();
+  if (PASS_TYPES.indexOf(type) < 0) throw new Error('bad_type');
+
+  var t = readSheet_(SHEETS.REGISTRATIONS);
+  var col = {}; t.headers.forEach(function (h, i) { col[h] = i + 1; });
+  for (var i = 0; i < t.rows.length; i++) {
+    var o = rowToObj_(t.headers, t.rows[i]);
+    if (o.reg_id !== p.regId) continue;
+    t.sheet.getRange(i + 2, col.type).setValue(type);
+    t.sheet.getRange(i + 2, col.updated_at).setValue(new Date().toISOString());
+    t.sheet.getRange(i + 2, col.updated_by).setValue(staff.email);
+    audit_(staff, 'setType', p.eventId, p.regId, o.full_name + ' → ' + type);
+    return { ok: true, type: type };
+  }
+  throw new Error('not_found');
+}
+
 function svcAddWalkin_(p) {
   var staff = requireStaff_(p.eventId, 'STAFF');
   var name = String(p.name || '').trim();
@@ -727,7 +754,7 @@ function svcAddWalkin_(p) {
     // at the door.
     sh.appendRow([
       regId, p.eventId, badgeCode, signQr_(p.eventId, badgeCode), name, email, phone,
-      String(p.org || ''), String(p.type || 'ทั่วไป'), JSON.stringify({}), 'walkin', 'checked_in',
+      String(p.org || ''), (PASS_TYPES.indexOf(String(p.type)) >= 0 ? String(p.type) : 'ทั่วไป'), JSON.stringify({}), 'walkin', 'checked_in',
       nowIso, nowIso, nowIso, staff.email, staff.gate, 'MANUAL', 1, nowIso, staff.email
     ]);
   } finally {

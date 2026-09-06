@@ -42,6 +42,9 @@
     ink: { label: "Ink Blue", paper: "#eef1f6", accent: "#2f4d8c", ink: "#12161f" }
   };
 
+  // Kept in the same order the backend validates against; cycling walks this list.
+  var PASS_TYPES = ["ทั่วไป", "VIP", "สื่อ"];
+
   var NAV = [
     { id: "dash", label: "ภาพรวมสด" },
     { id: "scan", label: "สแกน QR เข้างาน" },
@@ -72,7 +75,7 @@
     showWalkin: false,
     showNewEvent: false,
     ne: { name: "", date: "", place: "", theme: "editorial", error: "" },
-    walkin: { name: "", email: "", phone: "" },
+    walkin: { name: "", email: "", phone: "", type: "ทั่วไป" },
     newField: "",
     toast: "",
     busy: false
@@ -84,6 +87,12 @@
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
+  }
+  // VIP and press get a visible accent so they stand out while scanning a list.
+  function typeClass(type) {
+    if (type === "VIP") return " is-vip";
+    if (type === "สื่อ") return " is-press";
+    return "";
   }
   function ev() { return state.events.filter(function (e) { return e.id === state.eventId; })[0] || null; }
   function theme() { var e = ev(); return THEMES[e && e.theme] || THEMES.editorial; }
@@ -372,6 +381,11 @@
         '<div class="c-grow2"><div class="cell-sub" style="color:#cfc9bd">' + esc(r.email || "") + "</div>" +
         '<div class="cell-mono">' + esc(r.phone || "") + "</div></div>" +
         '<div class="c-code">' + esc(r.code) + "</div>" +
+        '<div class="c-type">' +
+        (can("STAFF")
+          ? '<button class="mini type-btn' + typeClass(r.type) + '" data-act="cycle-type" data-id="' + esc(r.regId) + '" data-type="' + esc(r.type || "") + '" title="กดเพื่อเปลี่ยนประเภทบัตร">' + esc(r.type || "—") + "</button>"
+          : '<div class="tag"><div class="tag-label">' + esc(r.type || "—") + "</div></div>") +
+        "</div>" +
         '<div class="c-status"><div class="tag' + (isIn ? " is-in" : "") + '"><div class="tag-dot"></div>' +
         '<div class="tag-label">' + (isIn ? "เข้างานแล้ว" : "ลงทะเบียน") + "</div></div>" +
         '<div class="cell-mono">' + esc(isIn ? (r.by || "") : "") + "</div></div>" +
@@ -389,6 +403,10 @@
       '<div class="field"><div class="field-label">อีเมล</div><input id="w-email" value="' + esc(state.walkin.email) + '" placeholder="name@company.com" /></div>' +
       '<div class="field"><div class="field-label">เบอร์โทร</div><input id="w-phone" value="' + esc(state.walkin.phone) + '" placeholder="08X XXX XXXX" /></div>' +
       "</div>" +
+      '<div><div class="side-kicker" style="margin-bottom:9px">ประเภทบัตร</div><div class="pills">' +
+      PASS_TYPES.map(function (ty) {
+        return '<div class="pill' + (state.walkin.type === ty ? " is-active" : "") + '" data-act="walkin-type" data-id="' + esc(ty) + '">' + esc(ty) + "</div>";
+      }).join("") + "</div></div>" +
       '<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">' +
       '<button class="btn-light" data-act="save-walkin">บันทึกและเช็คอินทันที</button>' +
       '<div class="muted">สร้างรหัสบัตรใหม่และเช็คอินให้ทันทีในขั้นตอนเดียว</div></div></div>' : "";
@@ -400,7 +418,8 @@
       walkin +
       '<div class="card"><div class="thead">' +
       '<div class="c-grow2">ผู้เข้าร่วม</div><div class="c-grow2">ติดต่อ</div>' +
-      '<div class="c-code">รหัสบัตร</div><div class="c-status">สถานะ · ผู้สแกน</div><div class="c-actions">จัดการ</div></div>' +
+      '<div class="c-code">รหัสบัตร</div><div class="c-type">ประเภทบัตร</div>' +
+      '<div class="c-status">สถานะ · ผู้สแกน</div><div class="c-actions">จัดการ</div></div>' +
       (rows || '<div class="empty">ยังไม่มีผู้ลงทะเบียนในงานนี้</div>') +
       '<div class="tfoot"><div>' + state.rows.length + " รายการ</div><div>ทุกการแก้ไขบันทึกลง Google Sheet ทันที</div></div></div></div>";
   }
@@ -772,6 +791,14 @@
         break;
       }
       case "toggle-walkin": state.showWalkin = !state.showWalkin; render(); break;
+      case "walkin-type": state.walkin.type = el.dataset.id; render(); break;
+      case "cycle-type": {
+        var cur = el.dataset.type;
+        var next = PASS_TYPES[(PASS_TYPES.indexOf(cur) + 1) % PASS_TYPES.length];
+        api("setType", { eventId: state.eventId, regId: el.dataset.id, type: next })
+          .then(function () { flash("เปลี่ยนเป็น " + next); loadScreen(); }).catch(fail);
+        break;
+      }
       case "save-walkin": saveWalkin(); break;
       case "toggle-in": {
         var on = el.dataset.on === "1";
@@ -859,9 +886,10 @@
     var w = state.walkin;
     if (!w.name.trim()) { flash("กรอกชื่อก่อน"); return; }
     api("addWalkin", {
-      eventId: state.eventId, name: w.name.trim(), email: w.email.trim(), phone: w.phone.trim()
+      eventId: state.eventId, name: w.name.trim(), email: w.email.trim(),
+      phone: w.phone.trim(), type: w.type
     }).then(function (r) {
-      state.walkin = { name: "", email: "", phone: "" };
+      state.walkin = { name: "", email: "", phone: "", type: "ทั่วไป" };
       state.showWalkin = false;
       flash("เพิ่มและเช็คอินแล้ว · " + r.badgeCode);
       loadScreen();
