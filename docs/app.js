@@ -139,12 +139,6 @@
     render();
   }
 
-  function moveEv(d) {
-    const n = state.events.length || 1;
-    state.evIdx = (state.evIdx + d + n) % n;
-    render();
-  }
-
   // ---------------------------------------------------------------------
   // Render dispatch
   // ---------------------------------------------------------------------
@@ -160,6 +154,7 @@
 
     app.innerHTML = html;
     bindEvents();
+    if (state.screen === "pick") ensureHeroScroll();
   }
 
   function langToggleHtml() {
@@ -186,39 +181,30 @@
     }
 
     const evs = state.events;
-    const n = evs.length;
-    const ev = evs[Math.min(state.evIdx, n - 1)];
 
-    const cards = evs.map((e, i) => {
-      let off = i - state.evIdx;
-      if (off > n / 2) off -= n;
-      if (off < -n / 2) off += n;
-      const a = off * 17, x = off * 108, y = Math.abs(off) * 26;
-      const sc = off === 0 ? 1 : 1 - Math.min(Math.abs(off), 2) * 0.13;
-      const transform = `translate3d(${x}px,${y}px,0) rotate(${a}deg) scale(${sc})`;
-      const z = 10 - Math.abs(off);
-      const opacity = Math.abs(off) > 2 ? 0 : off === 0 ? 1 : 0.62;
-      const shadow = off === 0 ? "0 22px 44px rgba(23,21,15,.3)" : "0 10px 22px rgba(23,21,15,.16)";
-      const kicker = off === 0 ? (e.accent === "#d8482b" ? "#ffb3a2" : "#f0e2c4") : "rgba(255,255,255,.7)";
-      const badgeBg = e.open ? e.accent : "rgba(255,255,255,.85)";
-      const badgeFg = e.open ? "#fff" : "#3a352a";
-      return `<div class="arc-card" data-action="pick-card" data-idx="${i}" style="transform:${transform};z-index:${z};opacity:${opacity};box-shadow:${shadow}">
-        ${e.image ? `<img class="arc-card-img" src="${esc(e.image)}" alt="">` : `<div class="img-placeholder">${esc(c.hint)}</div>`}
-        <div class="arc-card-scrim" style="background:linear-gradient(to top, rgba(19,17,12,.9) 0%, rgba(19,17,12,.42) 42%, rgba(19,17,12,.08) 100%)"></div>
-        <div class="arc-card-info">
-          <div class="arc-card-kicker" style="color:${kicker}">${esc((e.date || "").toUpperCase())}</div>
-          <div class="arc-card-name">${esc(e.name)}</div>
-          <div class="arc-card-place">${esc(e.place)}</div>
+    const sections = evs.map((e, i) => {
+      const facts = [
+        [c.facts[0], e.date], [c.facts[1], e.place], [c.facts[2], e.seats], [c.facts[3], e.price]
+      ].map(([k, v]) => `<div class="pick-fact"><span class="k">${esc(k)}</span><span>${esc(v)}</span></div>`).join("");
+      const badgeBg = e.open ? e.accent : "#ded8c6";
+      const badgeFg = e.open ? "#fff" : "#57533f";
+      return `<section class="hero-event">
+        <div class="hero-media-wrap" data-hero-media>
+          <div class="hero-media">
+            ${e.image ? `<img class="hero-img" src="${esc(e.image)}" alt="">` : `<div class="img-placeholder">${esc(c.hint)}</div>`}
+            <div class="hero-media-scrim"></div>
+            <div class="hero-media-badge" style="background:${badgeBg};color:${badgeFg}">${esc(e.status)}</div>
+          </div>
         </div>
-        <div class="arc-card-badge" style="background:${badgeBg};color:${badgeFg}">${esc(e.status)}</div>
-      </div>`;
+        <div class="hero-info">
+          <div class="hero-kicker">${esc((e.date || "").toUpperCase())}</div>
+          <div class="hero-name">${esc(e.name)}</div>
+          <div class="hero-place">${esc(e.place)}</div>
+          <div class="pick-facts">${facts}</div>
+          <div class="cta ${e.open ? "is-open" : "is-closed"}" data-action="hero-enter" data-idx="${i}">${esc(e.open ? c.cta : c.soon)}</div>
+        </div>
+      </section>`;
     }).join("");
-
-    const dots = evs.map((e, i) => `<div class="arc-dot ${i === state.evIdx ? "is-active" : ""}" data-action="pick-dot" data-idx="${i}"></div>`).join("");
-
-    const facts = [
-      [c.facts[0], ev.date], [c.facts[1], ev.place], [c.facts[2], ev.seats], [c.facts[3], ev.price]
-    ].map(([k, v]) => `<div class="pick-fact"><span class="k">${esc(k)}</span><span>${esc(v)}</span></div>`).join("");
 
     return `<div class="screen"><div class="screen-inner">
       <div class="pick-topbar"><div class="brandmark">TT / 26</div>${langToggleHtml()}</div>
@@ -226,18 +212,48 @@
         <div class="pick-title">${esc(c.title)}</div>
         <div class="pick-sub">${esc(c.sub)}</div>
       </div>
-      <div class="arc-wrap">${cards}</div>
-      <div class="arc-nav">
-        <div class="arc-arrow" data-action="prev-ev">←</div>
-        <div class="arc-dots">${dots}</div>
-        <div class="arc-arrow" data-action="next-ev">→</div>
-      </div>
-      <div class="pick-details">
-        <div class="pick-facts">${facts}</div>
-        <div class="cta ${ev.open ? "is-open" : "is-closed"}" data-action="enter-event">${esc(ev.open ? c.cta : c.soon)}</div>
-        <div class="lookup-link-row" data-action="go-lookup">${esc(t().already)} <span class="accent">${esc(t().lookupLink)}</span></div>
-      </div>
+      ${sections}
+      <div class="lookup-link-row" data-action="go-lookup">${esc(t().already)} <span class="accent">${esc(t().lookupLink)}</span></div>
     </div></div>`;
+  }
+
+  // Scroll-linked reveal for the hero picker: each event's image container
+  // grows from a narrow, zoomed-in square to full-width with rounded corners
+  // as its section crosses the viewport — same "start end" -> "start start"
+  // progress convention a scroll-linked library would use, just computed by
+  // hand off getBoundingClientRect() so no animation dependency is needed.
+  let heroRaf = null;
+  let heroScrollBound = false;
+
+  function ensureHeroScroll() {
+    if (!heroScrollBound) {
+      window.addEventListener("scroll", onHeroScrollRaw, { passive: true });
+      window.addEventListener("resize", onHeroScrollRaw, { passive: true });
+      heroScrollBound = true;
+    }
+    onHeroScroll();
+  }
+
+  function onHeroScrollRaw() {
+    if (heroRaf) return;
+    heroRaf = requestAnimationFrame(() => { heroRaf = null; onHeroScroll(); });
+  }
+
+  function onHeroScroll() {
+    const wraps = document.querySelectorAll("[data-hero-media]");
+    if (!wraps.length) return;
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    wraps.forEach(wrap => {
+      const rect = wrap.getBoundingClientRect();
+      const p = Math.max(0, Math.min(1, (vh - rect.top) / vh));
+      const media = wrap.querySelector(".hero-media");
+      if (media) {
+        media.style.width = (56 + p * 44) + "%";
+        media.style.borderRadius = (p * 22) + "px";
+      }
+      const img = wrap.querySelector(".hero-img");
+      if (img) img.style.transform = `scale(${1.35 - p * 0.35})`;
+    });
   }
 
   // ---------------------------------------------------------------------
@@ -424,15 +440,14 @@
     switch (action) {
       case "lang": setState({ lang: el.dataset.lang, error: "", consentError: "" }); break;
       case "retry-events": loadEvents(); break;
-      case "prev-ev": moveEv(-1); break;
-      case "next-ev": moveEv(1); break;
-      case "pick-dot": setState({ evIdx: Number(el.dataset.idx) }); break;
-      case "pick-card": {
+      case "hero-enter": {
         const idx = Number(el.dataset.idx);
-        if (idx === state.evIdx) enterEvent(); else setState({ evIdx: idx });
+        const ev = state.events[idx];
+        if (!ev) break;
+        if (!ev.open) { flash(t().err.eventClosed); break; }
+        setState({ screen: "ask", evIdx: idx, step: 0, error: "", consentError: "" });
         break;
       }
-      case "enter-event": enterEvent(); break;
       case "go-lookup": setState({ screen: "lookup", lookupError: "" }); break;
       case "go-pick": setState({ screen: "pick" }); break;
       case "chip": {
@@ -451,13 +466,6 @@
       case "add-wallet": flash(t().toastWallet); break;
       case "reset": resetAll(); break;
     }
-  }
-
-  function enterEvent() {
-    const ev = state.events[state.evIdx];
-    if (!ev) return;
-    if (!ev.open) { flash(t().err.eventClosed); return; }
-    setState({ screen: "ask", step: 0, error: "", consentError: "" });
   }
 
   function stepError(key) {

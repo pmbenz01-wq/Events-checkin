@@ -22,33 +22,30 @@ input::placeholder{color:#a9a290}
 .pass-inner .lang-btn:not(.is-active){background:transparent;color:rgba(255,245,239,.75)}
 
 .img-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:16px;background:repeating-linear-gradient(135deg,#e8e4d6,#e8e4d6 10px,#e2ddcc 10px,#e2ddcc 20px);color:#9a927c;font:600 9.5px Prompt,sans-serif;letter-spacing:.1em;text-transform:uppercase}
-.arc-card-img,.ask-banner-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ask-banner-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 
-/* -- pick screen (event picker / arc carousel) -- */
+/* -- pick screen (event picker / scroll-reveal hero list) -- */
 .pick-topbar{display:flex;align-items:center;justify-content:space-between;padding:22px 26px 0}
 .brandmark{font:600 11px Prompt,sans-serif;letter-spacing:.16em}
 .pick-heading{padding:26px 26px 0}
 .pick-title{font:600 34px/1.05 Prompt,sans-serif;letter-spacing:-.03em;text-wrap:pretty}
 .pick-sub{font:400 13px/1.6 Prompt,sans-serif;color:#7d7767;margin-top:11px;max-width:24em}
 
-.arc-wrap{position:relative;height:330px;margin-top:22px;display:flex;align-items:center;justify-content:center}
-.arc-card{position:absolute;width:196px;height:262px;left:50%;top:50%;margin:-131px 0 0 -98px;transition:transform .5s cubic-bezier(.22,1,.36,1),opacity .4s ease;cursor:pointer;background:#e8e4d6;overflow:hidden}
-.arc-card-scrim{position:absolute;inset:0;pointer-events:none}
-.arc-card-info{position:absolute;left:0;right:0;bottom:0;padding:14px 15px;pointer-events:none;display:flex;flex-direction:column;gap:3px}
-.arc-card-kicker{font:600 9px Prompt,sans-serif;letter-spacing:.16em}
-.arc-card-name{font:600 17px/1.12 Prompt,sans-serif;letter-spacing:-.02em;color:#fff}
-.arc-card-place{font:400 10.5px Prompt,sans-serif;color:rgba(255,255,255,.82)}
-.arc-card-badge{position:absolute;top:12px;right:12px;padding:3px 8px;font:600 8.5px Prompt,sans-serif;letter-spacing:.1em;pointer-events:none;white-space:nowrap}
+.hero-event{padding:0 0 46px}
+.hero-media-wrap{padding:30px 26px 0}
+.hero-media{position:relative;width:56%;height:64vh;max-height:560px;margin:0 auto;border-radius:0;overflow:hidden;background:#e8e4d6;box-shadow:0 18px 40px rgba(23,21,15,.22);transition:width .08s linear,border-radius .08s linear}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.35);transition:transform .08s linear}
+.hero-media .img-placeholder{transition:none}
+.hero-media-scrim{position:absolute;inset:0;background:linear-gradient(to top,rgba(19,17,12,.75) 0%,rgba(19,17,12,.15) 55%,rgba(19,17,12,0) 100%);pointer-events:none}
+.hero-media-badge{position:absolute;top:14px;right:14px;padding:4px 11px;border-radius:99px;font:600 8.5px Prompt,sans-serif;letter-spacing:.1em;pointer-events:none;white-space:nowrap}
 
-.arc-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:4px}
-.arc-arrow{width:44px;height:44px;border:1px solid #c9c3b0;display:grid;place-items:center;font:400 17px Prompt,sans-serif;color:#5d5748;cursor:pointer}
-.arc-arrow:hover{border-color:#17150f;color:#17150f}
-.arc-dots{display:flex;gap:6px;align-items:center}
-.arc-dot{height:6px;background:#c9c3b0;cursor:pointer;transition:width .3s ease}
-.arc-dot.is-active{width:22px;background:#17150f}
-.arc-dot:not(.is-active){width:6px}
+.hero-info{padding:22px 26px 0;display:flex;flex-direction:column;gap:3px}
+.hero-kicker{font:600 9px Prompt,sans-serif;letter-spacing:.16em;color:#d8482b}
+.hero-name{font:600 26px/1.1 Prompt,sans-serif;letter-spacing:-.02em;margin-top:4px}
+.hero-place{font:400 12.5px Prompt,sans-serif;color:#7d7767;margin-top:2px}
+.hero-info .pick-facts{margin-top:16px}
+.hero-info .cta{margin-top:18px}
 
-.pick-details{padding:22px 26px 0;display:flex;flex-direction:column;gap:12px}
 .pick-facts{display:flex;flex-direction:column;gap:8px}
 .pick-fact{display:flex;justify-content:space-between;font:400 12.5px Prompt,sans-serif;border-bottom:1px solid #ddd7c4;padding-bottom:8px}
 .pick-fact .k{color:#7d7767}
