@@ -268,6 +268,8 @@
       }
       const img = wrap.querySelector(".hero-img");
       if (img) img.style.transform = `scale(${1.35 - p * 0.35})`;
+      const heroEvent = wrap.closest(".hero-event");
+      if (heroEvent) heroEvent.classList.toggle("is-full", p >= 0.96);
     });
   }
 
