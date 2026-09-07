@@ -256,20 +256,43 @@
     const wraps = document.querySelectorAll("[data-hero-media]");
     if (!wraps.length) return;
     const vh = window.innerHeight || document.documentElement.clientHeight;
+    // How far the user has actually scrolled since page load, 0..1 over
+    // one viewport height. Exactly 0 at scrollY=0 by construction.
+    const scrollP = Math.max(0, Math.min(1, window.scrollY / vh));
     wraps.forEach(wrap => {
       const rect = wrap.getBoundingClientRect();
-      const p = Math.max(0, Math.min(1, (vh - rect.top) / vh));
+      const rectP = Math.max(0, Math.min(1, (vh - rect.top) / vh));
+      // A section already visible without scrolling (typically the first
+      // one) gets a high rectP even at scrollY=0, because rectP alone
+      // assumes the section starts below the fold. Capping it with
+      // scrollP guarantees the rest state is reachable, without changing
+      // behavior for sections that genuinely start below the fold --
+      // there, scrollP saturates to 1 well before rectP does, so the
+      // minimum is just rectP, unchanged from before this fix.
+      const p = Math.min(scrollP, rectP);
       const media = wrap.querySelector(".hero-media");
       if (media) {
         const startW = wrap.clientWidth * 0.56;
-        media.style.width = heroWidthPx(p, startW, window.innerWidth) + "px";
+        media.style.width = heroWidthPx(p, startW, document.documentElement.clientWidth) + "px";
         media.style.height = heroHeightPx(p, vh) + "px";
         media.style.borderRadius = heroRadiusPx(p) + "px";
       }
       const img = wrap.querySelector(".hero-img");
       if (img) img.style.transform = `scale(${1.35 - p * 0.35})`;
       const heroEvent = wrap.closest(".hero-event");
-      if (heroEvent) heroEvent.classList.toggle("is-full", p >= 0.96);
+      const info = heroEvent ? heroEvent.querySelector(".hero-info") : null;
+      // Only stay "full" while the section is still at least partially in
+      // view -- a section scrolled fully past shouldn't keep overlaying.
+      const goingFull = p >= 0.96 && rect.bottom > 0;
+      if (heroEvent) {
+        if (goingFull && !heroEvent.classList.contains("is-full") && info) {
+          // Capture the info block's in-flow height right before it goes
+          // absolute, so the CSS below can reserve the same space and
+          // keep total document height stable across the toggle.
+          heroEvent.style.setProperty("--info-h", info.offsetHeight + "px");
+        }
+        heroEvent.classList.toggle("is-full", goingFull);
+      }
     });
   }
 
