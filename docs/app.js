@@ -203,7 +203,7 @@
       const badgeBg = e.open ? e.accent : "rgba(255,255,255,.85)";
       const badgeFg = e.open ? "#fff" : "#3a352a";
       return `<div class="arc-card" data-action="pick-card" data-idx="${i}" style="transform:${transform};z-index:${z};opacity:${opacity};box-shadow:${shadow}">
-        <div class="img-placeholder">${esc(c.hint)}</div>
+        ${e.image ? `<img class="arc-card-img" src="${esc(e.image)}" alt="">` : `<div class="img-placeholder">${esc(c.hint)}</div>`}
         <div class="arc-card-scrim" style="background:linear-gradient(to top, rgba(19,17,12,.9) 0%, rgba(19,17,12,.42) 42%, rgba(19,17,12,.08) 100%)"></div>
         <div class="arc-card-info">
           <div class="arc-card-kicker" style="color:${kicker}">${esc((e.date || "").toUpperCase())}</div>
@@ -279,7 +279,7 @@
 
     return `<div class="screen"><div class="screen-inner">
       <div class="ask-banner">
-        <div class="img-placeholder">${esc(t().pick.hint)}</div>
+        ${ev.image ? `<img class="ask-banner-img" src="${esc(ev.image)}" alt="">` : `<div class="img-placeholder">${esc(t().pick.hint)}</div>`}
         <div class="ask-banner-scrim"></div>
         <div class="ask-banner-info">
           <div class="ask-banner-meta">${esc((ev.date || "") + " · " + (ev.place || ""))}</div>
