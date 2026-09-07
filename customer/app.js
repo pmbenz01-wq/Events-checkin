@@ -208,10 +208,6 @@
 
     return `<div class="screen"><div class="screen-inner">
       <div class="pick-topbar"><div class="brandmark">TT / 26</div>${langToggleHtml()}</div>
-      <div class="pick-heading">
-        <div class="pick-title">${esc(c.title)}</div>
-        <div class="pick-sub">${esc(c.sub)}</div>
-      </div>
       ${sections}
       <div class="lookup-link-row" data-action="go-lookup">${esc(t().already)} <span class="accent">${esc(t().lookupLink)}</span></div>
     </div></div>`;
