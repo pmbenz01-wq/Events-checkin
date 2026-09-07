@@ -235,6 +235,23 @@
     heroRaf = requestAnimationFrame(() => { heroRaf = null; onHeroScroll(); });
   }
 
+  // Pure interpolation helpers for the hero reveal — no DOM access, so
+  // they're checkable with plain `node -e` (see Task 2's verification
+  // steps) without a browser or a test framework.
+  function heroWidthPx(p, startW, endW) {
+    return startW + p * (endW - startW);
+  }
+  function heroHeightPx(p, vh) {
+    const startH = vh * 0.64, endH = vh;
+    return startH + p * (endH - startH);
+  }
+  function heroRadiusPx(p) {
+    // Rises to 22px through the first 70% of the reveal, eases back to 0
+    // through the last 30% — a rounded corner at true full-bleed (p=1)
+    // would sit at the literal edge of the screen and read as a bug.
+    return p < 0.7 ? (p / 0.7) * 22 : 22 * (1 - (p - 0.7) / 0.3);
+  }
+
   function onHeroScroll() {
     const wraps = document.querySelectorAll("[data-hero-media]");
     if (!wraps.length) return;
@@ -244,8 +261,10 @@
       const p = Math.max(0, Math.min(1, (vh - rect.top) / vh));
       const media = wrap.querySelector(".hero-media");
       if (media) {
-        media.style.width = (56 + p * 44) + "%";
-        media.style.borderRadius = (p * 22) + "px";
+        const startW = wrap.clientWidth * 0.56;
+        media.style.width = heroWidthPx(p, startW, window.innerWidth) + "px";
+        media.style.height = heroHeightPx(p, vh) + "px";
+        media.style.borderRadius = heroRadiusPx(p) + "px";
       }
       const img = wrap.querySelector(".hero-img");
       if (img) img.style.transform = `scale(${1.35 - p * 0.35})`;
