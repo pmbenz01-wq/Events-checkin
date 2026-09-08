@@ -178,3 +178,38 @@ today's static, below-image, dark-on-cream block.
    opens the same registration flow (`hero-enter` action is untouched).
 5. Deploy: `sync-docs.sh`, commit, push, verify on the live Vercel URL same
    as every prior change this session.
+
+## Verification results (2026-09-08)
+
+Verified against the live deployment at 390x844 (a standard phone), not a
+local file or a shrunk viewport:
+
+1. `node --check customer/app.js` — passes.
+2. Rest state: image 246x468 inside the column, info block below it, no
+   overlay — identical to what shipped before this change.
+3. Full expansion reached at scrollY 228: image 486x731 (the full viewport),
+   flush to both screen edges, info and CTA rendered on the image in white.
+4. Content below the hero still reachable; state returns cleanly to rest on
+   scrolling back up.
+5. CTA opens the registration flow from both the resting and overlay states.
+6. No horizontal overflow at any scroll position; zero console errors.
+
+Two corrections were needed after the plan's tasks were individually
+reviewed clean, both recorded in the ledger and in git history:
+
+- Scroll progress was normalised against one viewport height, which this
+  short page never offers — the reveal stranded near p=0.3 and neither the
+  full-bleed nor the overlay ever happened. Progress is now normalised
+  against the page's real scroll runway.
+- The overlay rendered below the banner rather than on it, because the
+  section reserves the info block's height as padding while that block is
+  out of flow. The offset now clears that reserved space.
+
+### Known limitation
+
+At full expansion the banner covers roughly 79% of viewport height at its
+peak and slides upward as scrolling continues, rather than sitting exactly
+flush to the screen. This follows from events-checkin-0003: a growing
+in-flow element cannot stay aligned to the viewport without being held in
+place, and holding it in place is the pinned mechanism that ADR was written
+to reject. Revisiting it means revisiting that decision.
