@@ -16,3 +16,9 @@ now both need to slot into that same continuous progress value instead of
 a separately-timed pinned run — simpler, and avoids the jank/compatibility
 risk scroll-jacking carries on mobile, which is where this customer site is
 mostly used.
+
+> **Partly superseded by events-checkin-0004.** The banner is now held to the
+> viewport as a backdrop once expanded, because letting it pass through left
+> the page background exposed underneath it. The part of this decision that
+> still stands is the rejection of scroll-jacking: the page never stops
+> tracking the user's scroll.

@@ -176,42 +176,47 @@
 
     const evs = state.events;
 
+    const last = evs.length - 1;
     const sections = evs.map((e, i) => {
       const facts = [
         [c.facts[0], e.date], [c.facts[1], e.place], [c.facts[2], e.seats], [c.facts[3], e.price]
       ].map(([k, v]) => `<div class="pick-fact"><span class="k">${esc(k)}</span><span>${esc(v)}</span></div>`).join("");
       const badgeBg = e.open ? e.accent : "#ded8c6";
       const badgeFg = e.open ? "#fff" : "#57533f";
-      return `<section class="hero-event">
-        <div class="hero-media-wrap" data-hero-media>
+      return `<section class="hero-stage" data-hero-stage>
+        <div class="hero-frame">
           <div class="hero-media">
             ${e.image ? `<img class="hero-img" src="${esc(e.image)}" alt="">` : `<div class="img-placeholder">${esc(c.hint)}</div>`}
             <div class="hero-media-scrim"></div>
             <div class="hero-media-badge" style="background:${badgeBg};color:${badgeFg}">${esc(e.status)}</div>
           </div>
-        </div>
-        <div class="hero-info">
-          <div class="hero-kicker">${esc((e.date || "").toUpperCase())}</div>
-          <div class="hero-name">${esc(e.name)}</div>
-          <div class="hero-place">${esc(e.place)}</div>
-          <div class="pick-facts">${facts}</div>
-          <div class="cta ${e.open ? "is-open" : "is-closed"}" data-action="hero-enter" data-idx="${i}">${esc(e.open ? c.cta : c.soon)}</div>
+          <div class="hero-topshade"></div>
+          <div class="hero-content">
+            <div class="hero-kicker">${esc((e.date || "").toUpperCase())}</div>
+            <div class="hero-name">${esc(e.name)}</div>
+            <div class="hero-place">${esc(e.place)}</div>
+            <div class="pick-facts">${facts}</div>
+            <div class="cta ${e.open ? "is-open" : "is-closed"}" data-action="hero-enter" data-idx="${i}">${esc(e.open ? c.cta : c.soon)}</div>
+            ${i === last ? `<div class="lookup-link-row" data-action="go-lookup">${esc(t().already)} <span class="accent">${esc(t().lookupLink)}</span></div>` : ""}
+          </div>
         </div>
       </section>`;
     }).join("");
 
-    return `<div class="screen"><div class="screen-inner">
+    return `<div class="screen is-pick">
       <div class="pick-topbar"><div class="brandmark">TT / 26</div>${langToggleHtml()}</div>
       ${sections}
-      <div class="lookup-link-row" data-action="go-lookup">${esc(t().already)} <span class="accent">${esc(t().lookupLink)}</span></div>
-    </div></div>`;
+    </div>`;
   }
 
-  // Scroll-linked reveal for the hero picker: each event's image container
-  // grows from a narrow, zoomed-in square to full-width with rounded corners
-  // as its section crosses the viewport — same "start end" -> "start start"
-  // progress convention a scroll-linked library would use, just computed by
-  // hand off getBoundingClientRect() so no animation dependency is needed.
+  // Scroll-linked hero reveal. Each event owns a tall stage whose frame is
+  // held to the viewport (CSS position:sticky) while that stage's scroll
+  // length passes underneath. Scrolling stays 1:1 with the page the whole
+  // time; what the scroll drives is the geometry inside the frame — the
+  // banner growing from card to full screen, and the copy gliding up from
+  // below it to in front of it. Nothing toggles: every value below is a
+  // continuous function of the stage's own progress, which is what makes
+  // the motion read as smooth rather than as a switch being thrown.
   let heroRaf = null;
   let heroScrollBound = false;
 
@@ -229,84 +234,101 @@
     heroRaf = requestAnimationFrame(() => { heroRaf = null; onHeroScroll(); });
   }
 
-  // The scroll distance the page offers with the hero at rest -- the range
-  // the reveal has to complete within. The hero image is the only box on the
-  // page whose height animates, so its current height is subtracted and its
-  // rest height added back: the result is the same number at any scroll
-  // position, which keeps the pacing identical no matter where the user has
-  // already scrolled. Measuring raw scrollHeight instead would feed the
-  // image's own growth back into its progress.
-  function heroRunwayPx(vh, currentMediaH) {
-    const restH = vh * 0.64;
-    return Math.max(1, document.documentElement.scrollHeight - currentMediaH + restH - vh);
-  }
-
-  // Pure interpolation helpers for the hero reveal — no DOM access, so
-  // they're checkable with plain `node -e` (see Task 2's verification
-  // steps) without a browser or a test framework.
-  function heroWidthPx(p, startW, endW) {
-    return startW + p * (endW - startW);
-  }
-  function heroHeightPx(p, vh) {
-    const startH = vh * 0.64, endH = vh;
-    return startH + p * (endH - startH);
-  }
+  // Pure helpers — no DOM access, so they stay checkable with plain `node -e`.
+  function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+  function lerp(a, b, t) { return a + (b - a) * t; }
   function heroRadiusPx(p) {
     // Rises to 22px through the first 70% of the reveal, eases back to 0
-    // through the last 30% — a rounded corner at true full-bleed (p=1)
-    // would sit at the literal edge of the screen and read as a bug.
+    // through the last 30% — a rounded corner at true full-bleed would sit
+    // on the literal edge of the screen and read as a bug.
     return p < 0.7 ? (p / 0.7) * 22 : 22 * (1 - (p - 0.7) / 0.3);
   }
+  function mixRgb(c1, c2, t) {
+    return "rgb(" + Math.round(lerp(c1[0], c2[0], t)) + "," +
+                    Math.round(lerp(c1[1], c2[1], t)) + "," +
+                    Math.round(lerp(c1[2], c2[2], t)) + ")";
+  }
+
+  const HERO_INK = [23, 21, 15], HERO_WHITE = [255, 255, 255], HERO_MUTED = [125, 119, 103];
 
   function onHeroScroll() {
-    const wraps = document.querySelectorAll("[data-hero-media]");
-    if (!wraps.length) return;
+    const stages = document.querySelectorAll("[data-hero-stage]");
+    if (!stages.length) return;
+    const vw = document.documentElement.clientWidth;
     const vh = window.innerHeight || document.documentElement.clientHeight;
-    // How far the user has actually scrolled since page load, 0..1 over the
-    // scroll distance the page actually has. Exactly 0 at scrollY=0 by
-    // construction. Measured against the runway rather than one viewport
-    // height: a short page (this picker holds a single event) never offers a
-    // full viewport of scroll, which stranded the reveal near p=0.3 on a
-    // normal phone -- the image never reached full-bleed and the overlay
-    // never engaged. See heroRunwayPx.
-    const firstMedia = wraps[0].querySelector(".hero-media");
-    const runway = heroRunwayPx(vh, firstMedia ? firstMedia.getBoundingClientRect().height : vh * 0.64);
-    const scrollP = Math.max(0, Math.min(1, window.scrollY / runway));
-    wraps.forEach(wrap => {
-      const rect = wrap.getBoundingClientRect();
-      const rectP = Math.max(0, Math.min(1, (vh - rect.top) / vh));
-      // A section already visible without scrolling (typically the first
-      // one) gets a high rectP even at scrollY=0, because rectP alone
-      // assumes the section starts below the fold. Capping it with
-      // scrollP guarantees the rest state is reachable, without changing
-      // behavior for sections that genuinely start below the fold --
-      // there, scrollP saturates to 1 well before rectP does, so the
-      // minimum is just rectP, unchanged from before this fix.
-      const p = Math.min(scrollP, rectP);
-      const media = wrap.querySelector(".hero-media");
-      if (media) {
-        const startW = wrap.clientWidth * 0.56;
-        media.style.width = heroWidthPx(p, startW, document.documentElement.clientWidth) + "px";
-        media.style.height = heroHeightPx(p, vh) + "px";
-        media.style.borderRadius = heroRadiusPx(p) + "px";
-      }
-      const img = wrap.querySelector(".hero-img");
-      if (img) img.style.transform = `scale(${1.35 - p * 0.35})`;
-      const heroEvent = wrap.closest(".hero-event");
-      const info = heroEvent ? heroEvent.querySelector(".hero-info") : null;
-      // Only stay "full" while the section is still at least partially in
-      // view -- a section scrolled fully past shouldn't keep overlaying.
-      const goingFull = p >= 0.96 && rect.bottom > 0;
-      if (heroEvent) {
-        if (goingFull && !heroEvent.classList.contains("is-full") && info) {
-          // Capture the info block's in-flow height right before it goes
-          // absolute, so the CSS below can reserve the same space and
-          // keep total document height stable across the toggle.
-          heroEvent.style.setProperty("--info-h", info.offsetHeight + "px");
+    const topbar = document.querySelector(".is-pick .pick-topbar");
+    let topbarP = 0;
+
+    stages.forEach(stage => {
+      // Progress through this stage's own scroll length. 0 while the stage
+      // is still below the fold, 1 once it has been scrolled through, so
+      // each event reveals on its own as it comes up.
+      const runway = Math.max(1, stage.offsetHeight - vh);
+      const p = clamp01((window.scrollY - stage.offsetTop) / runway);
+
+      const media = stage.querySelector(".hero-media");
+      const content = stage.querySelector(".hero-content");
+      if (!media || !content) return;
+
+      // The banner: a centred card at rest, the whole viewport at the end.
+      const restW = Math.min(440, vw) * 0.56;
+      const restH = vh * 0.64;
+      // frame-relative: at rest the frame already begins below the sticky
+      // topbar, and once it sticks it owns the whole viewport
+      const restTop = 30;
+      const w = lerp(restW, vw, p);
+      const h = lerp(restH, vh, p);
+      const top = lerp(restTop, 0, p);
+      media.style.width = w + "px";
+      media.style.height = h + "px";
+      media.style.left = ((vw - w) / 2) + "px";
+      media.style.top = top + "px";
+      media.style.borderRadius = Math.max(0, heroRadiusPx(p)) + "px";
+      media.style.boxShadow = p > 0.92 ? "none" : "0 18px 40px rgba(23,21,15,.22)";
+
+      const img = stage.querySelector(".hero-img");
+      if (img) img.style.transform = "scale(" + (1.35 - p * 0.35) + ")";
+
+      // The copy travels as one block: resting just below the card, ending
+      // against the bottom of the full-screen banner.
+      const blockH = content.offsetHeight;
+      const copyTop = lerp(restTop + restH + 22, vh - 26 - blockH, p);
+      content.style.top = copyTop + "px";
+
+      // Colour follows how far the banner has actually covered the copy,
+      // not the raw scroll position — so the text turns light exactly as it
+      // crosses onto the photo rather than on a guessed cue.
+      const over = clamp01(((top + h) - copyTop) / Math.max(1, blockH * 0.55));
+      content.style.color = mixRgb(HERO_INK, HERO_WHITE, over);
+      const place = content.querySelector(".hero-place");
+      if (place) place.style.color = mixRgb(HERO_MUTED, HERO_WHITE, over);
+      const lookup = content.querySelector(".lookup-link-row");
+      if (lookup) lookup.style.color = mixRgb(HERO_MUTED, HERO_WHITE, over);
+      content.querySelectorAll(".pick-fact").forEach(f => {
+        f.style.borderBottomColor = over > 0
+          ? "rgba(255,255,255," + lerp(0.08, 0.22, over) + ")"
+          : "#ddd7c4";
+        const k = f.firstElementChild;
+        if (k) {
+          k.style.color = mixRgb(HERO_MUTED, HERO_WHITE, over);
+          k.style.opacity = lerp(1, 0.72, over);
         }
-        heroEvent.classList.toggle("is-full", goingFull);
-      }
+      });
+
+      const shade = stage.querySelector(".hero-topshade");
+      if (shade) shade.style.opacity = clamp01((p - 0.25) / 0.35);
+
+      // The status pill sits at the banner's top-right, which becomes the
+      // screen's top-right — where the language toggle already lives.
+      const badge = stage.querySelector(".hero-media-badge");
+      if (badge) badge.style.opacity = 1 - clamp01((p - 0.45) / 0.35);
+
+      // The topbar reads against whichever stage currently fills the screen.
+      const rect = stage.getBoundingClientRect();
+      if (rect.top <= 0 && rect.bottom > 0) topbarP = p;
     });
+
+    if (topbar) topbar.style.color = mixRgb(HERO_INK, HERO_WHITE, clamp01(topbarP * 2));
   }
 
   // ---------------------------------------------------------------------
