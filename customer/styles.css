@@ -46,7 +46,12 @@ input::placeholder{color:#a9a290}
 .hero-info .pick-facts{margin-top:16px}
 .hero-info .cta{margin-top:18px}
 .hero-event.is-full{padding-bottom:calc(46px + var(--info-h,0px))}
-.hero-event.is-full .hero-info{position:absolute;left:0;right:0;bottom:46px;padding:0 26px 26px;color:#fff}
+/* Anchored to the image's bottom edge, not the section's: .hero-event
+   reserves the info block's own height as padding while it is out of flow
+   (--info-h, so document height stays stable across the toggle), and that
+   reserved space sits below the image -- so the offset has to clear it or
+   the "overlay" renders under the banner instead of on it. */
+.hero-event.is-full .hero-info{position:absolute;left:0;right:0;bottom:calc(46px + var(--info-h,0px));padding:0 26px 26px;color:#fff}
 .hero-event.is-full .hero-kicker{color:#ffb3a2}
 .hero-event.is-full .hero-place{color:rgba(255,255,255,.82)}
 .hero-event.is-full .pick-fact{border-bottom-color:rgba(255,255,255,.22)}
