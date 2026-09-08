@@ -115,12 +115,6 @@
 
     if (state.pass) state.screen = "pass";
     render();
-
-    window.addEventListener("keydown", e => {
-      if (state.screen !== "pick") return;
-      if (e.key === "ArrowRight") moveEv(1);
-      if (e.key === "ArrowLeft") moveEv(-1);
-    });
   }
 
   async function loadEvents() {
