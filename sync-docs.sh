@@ -8,8 +8,13 @@
 set -e
 cd "$(dirname "$0")"
 
-rm -rf docs
+# docs/ also holds hand-written design docs (docs/adr, docs/superpowers) that
+# have no customer/ counterpart, so clear only the mirrored entries — a blanket
+# `rm -rf docs` deletes them, and they are not recoverable from customer/.
 mkdir -p docs
+(cd customer && ls -A) | while IFS= read -r name; do
+  rm -rf "docs/$name"
+done
 cp -r customer/. docs/
 
 echo "docs/ rebuilt from customer/"

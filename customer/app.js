@@ -220,11 +220,12 @@
   // hand off getBoundingClientRect() so no animation dependency is needed.
   let heroRaf = null;
   let heroScrollBound = false;
+  let heroRunway = 0;
 
   function ensureHeroScroll() {
     if (!heroScrollBound) {
       window.addEventListener("scroll", onHeroScrollRaw, { passive: true });
-      window.addEventListener("resize", onHeroScrollRaw, { passive: true });
+      window.addEventListener("resize", onHeroResize, { passive: true });
       heroScrollBound = true;
     }
     onHeroScroll();
@@ -233,6 +234,23 @@
   function onHeroScrollRaw() {
     if (heroRaf) return;
     heroRaf = requestAnimationFrame(() => { heroRaf = null; onHeroScroll(); });
+  }
+
+  function onHeroResize() {
+    heroRunway = 0;
+    onHeroScrollRaw();
+  }
+
+  // The scroll distance the page offers while the hero is still at rest.
+  // Only meaningful measured at rest: the hero image's own expansion inflates
+  // scrollHeight as it grows, so normalising progress against the inflated
+  // number puts p=1 past the end of the page. Document height only ever grows
+  // from the rest value, so this is a lower bound and p=1 stays reachable.
+  function heroRunwayPx(vh) {
+    if (window.scrollY === 0 || !heroRunway) {
+      heroRunway = Math.max(1, document.documentElement.scrollHeight - vh);
+    }
+    return heroRunway;
   }
 
   // Pure interpolation helpers for the hero reveal — no DOM access, so
@@ -256,9 +274,14 @@
     const wraps = document.querySelectorAll("[data-hero-media]");
     if (!wraps.length) return;
     const vh = window.innerHeight || document.documentElement.clientHeight;
-    // How far the user has actually scrolled since page load, 0..1 over
-    // one viewport height. Exactly 0 at scrollY=0 by construction.
-    const scrollP = Math.max(0, Math.min(1, window.scrollY / vh));
+    // How far the user has actually scrolled since page load, 0..1 over the
+    // scroll distance the page actually has. Exactly 0 at scrollY=0 by
+    // construction. Measured against the runway rather than one viewport
+    // height: a short page (this picker holds a single event) never offers a
+    // full viewport of scroll, which stranded the reveal near p=0.3 on a
+    // normal phone -- the image never reached full-bleed and the overlay
+    // never engaged.
+    const scrollP = Math.max(0, Math.min(1, window.scrollY / heroRunwayPx(vh)));
     wraps.forEach(wrap => {
       const rect = wrap.getBoundingClientRect();
       const rectP = Math.max(0, Math.min(1, (vh - rect.top) / vh));
