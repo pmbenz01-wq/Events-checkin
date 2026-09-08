@@ -213,3 +213,40 @@ flush to the screen. This follows from events-checkin-0003: a growing
 in-flow element cannot stay aligned to the viewport without being held in
 place, and holding it in place is the pinned mechanism that ADR was written
 to reject. Revisiting it means revisiting that decision.
+
+---
+
+## Superseded (2026-09-08)
+
+The mechanism described above — a banner that passes through the viewport
+while growing, and an info block that switches to an overlay at a progress
+threshold — was shipped, reviewed, and then rejected on sight. Two faults
+were visible on a phone that no numeric check caught:
+
+- Once full size, the banner drifted up out of the viewport, exposing 420px
+  of page background beneath it. 372px of that was space `.hero-event`
+  reserved for the info block while it sat out of flow and never filled.
+- The info block arrived by a class toggle at 96% progress, so the name,
+  facts and CTA jumped into place instead of moving.
+
+The replacement is recorded in **events-checkin-0004** (the banner is held
+to the viewport as a backdrop while the copy scrolls over it) and
+**events-checkin-0005** (the page ends on the banner, with the lookup link
+in front of it rather than on the background below).
+
+Mechanism now in `customer/app.js` (`onHeroScroll`) and `customer/styles.css`:
+each event owns a `.hero-stage` 260vh tall whose `.hero-frame` is held by
+`position: sticky`. Scrolling stays 1:1 with the page; the stage's own
+progress drives the banner's size and position and the copy block's
+position, all as continuous functions — nothing toggles. Text colour is
+driven by how far the banner has actually covered the copy, not by a scroll
+threshold, so it turns light exactly as it crosses onto the photo.
+
+The motion was confirmed against a scrollable prototype before any code was
+written: https://claude.ai/code/artifact/a6e8c8da-66e1-4788-bbcf-9480b0d6f328
+
+### Still open
+
+`.hero-stage` is a fixed 260vh per event. With several events visible at
+once the page becomes 260vh × N; only one event is currently visible, so
+this has not been tuned.
