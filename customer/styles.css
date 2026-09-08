@@ -94,40 +94,36 @@ input::placeholder{color:#a9a290}
 .tick{width:15px;height:2px;background:#c9c3b0}
 .tick.is-done{background:#17150f}
 
-.ask-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px;padding:34px 26px}
-.step-num{font:600 76px/.82 Prompt,sans-serif;color:#d8482b;letter-spacing:-.045em}
-.question{font:600 34px/1.08 Prompt,sans-serif;letter-spacing:-.025em;text-wrap:pretty}
-.helper{font:400 13px/1.55 Prompt,sans-serif;color:#7d7767;margin-top:12px;max-width:22em}
+.ask-body{flex:1;display:flex;flex-direction:column;gap:26px;padding:28px 26px 0}
+.ask-head .ask-eyebrow{font:600 9px Prompt,sans-serif;letter-spacing:.16em;color:#d8482b}
+.ask-title{font:600 30px/1.08 Prompt,sans-serif;letter-spacing:-.028em;margin-top:7px;text-wrap:balance}
+.ask-sub{font:400 12.5px/1.55 Prompt,sans-serif;color:#7d7767;margin-top:9px;max-width:26em}
 
-.input-block{display:flex;flex-direction:column;gap:13px;animation:stepIn .3s ease}
-.input-underline{border-bottom:2px solid #c9c3b0;padding-bottom:9px}
-.text-input{width:100%;background:transparent;border:0;outline:none;font:400 21px Prompt,sans-serif}
-.field-error{font:400 12px Prompt,sans-serif;color:#c1391f;min-height:17px}
+.ask-fields{display:flex;flex-direction:column;gap:20px}
+/* a section marker, not decoration: what follows was written by the event's
+   organiser rather than asked by the site */
+.ask-divider{font:600 8.5px Prompt,sans-serif;letter-spacing:.14em;color:#7d7767;
+  display:flex;align-items:center;gap:9px;margin-top:6px}
+.ask-divider::after{content:"";flex:1;height:1px;background:#ddd7c4}
+
+.ff-label{display:block;font:500 11px Prompt,sans-serif;letter-spacing:.04em;color:#7d7767}
+.ff-req{color:#d8482b}
+.ff-line{border-bottom:2px solid #c9c3b0;padding-bottom:8px;margin-top:7px}
+.ff-line:focus-within{border-bottom-color:#17150f}
+.ff-input{width:100%;background:transparent;border:0;outline:none;padding:0;
+  font:400 18px Prompt,sans-serif;color:#17150f}
+.ff-input::placeholder{color:#a9a290;font-weight:300}
+.ff-msg{font:400 11.5px Prompt,sans-serif;color:#c1391f;min-height:16px;margin-top:5px}
+.ff.is-bad .ff-line{border-bottom-color:#c1391f}
+.ff .chips{margin-top:2px}
+
 .chips{display:flex;flex-wrap:wrap;gap:7px}
 .chip{border:1px solid #c9c3b0;padding:7px 13px;font:400 12px Prompt,sans-serif;color:#5d5748;cursor:pointer}
 .chip:hover{border-color:#17150f;color:#17150f}
 
-.choice-block{display:flex;flex-direction:column;gap:20px;animation:stepIn .3s ease}
-.type-list{display:flex;flex-direction:column;gap:8px}
-.type-row{display:flex;align-items:center;gap:13px;border:1px solid #c9c3b0;background:transparent;padding:14px 16px;cursor:pointer}
-.type-row.is-active{border-color:#17150f;background:#ece7d7}
-.type-radio{width:15px;height:15px;border:1px solid #c9c3b0;border-radius:99px;display:grid;place-items:center;flex:none}
-.type-row.is-active .type-radio{border-color:#d8482b}
-.type-radio-dot{width:7px;height:7px;border-radius:99px;background:transparent}
-.type-row.is-active .type-radio-dot{background:#d8482b}
-.type-label{font:400 15px Prompt,sans-serif;color:#5d5748}
-.type-row.is-active .type-label{color:#17150f}
+/* consent is the act of tapping the button, so the wording sits with it */
+.pdpa-note{font:300 11px/1.45 Prompt,sans-serif;color:#7d7767;text-align:center;padding:12px 26px 0}
 
-.consent-block{display:flex;flex-direction:column;gap:7px}
-.consent-row{display:flex;gap:11px;align-items:flex-start;cursor:pointer}
-.consent-box{width:17px;height:17px;flex:none;border:1px solid #c9c3b0;background:transparent;display:grid;place-items:center;margin-top:2px}
-.consent-box.is-checked{border-color:#d8482b;background:#d8482b}
-.consent-box.is-error{border-color:#c1391f}
-.consent-box-dot{width:7px;height:7px;background:transparent}
-.consent-box.is-checked .consent-box-dot{background:#fff5ef}
-.consent-text{font:400 12px/1.55 Prompt,sans-serif;color:#5d5748}
-.consent-text.is-error{color:#c1391f}
-.consent-error{font:400 12px Prompt,sans-serif;color:#c1391f;padding-left:28px;min-height:15px}
 
 .ask-actions{display:flex;align-items:center;gap:13px;padding:0 26px}
 .back-btn{width:52px;height:52px;border:1px solid #c9c3b0;display:grid;place-items:center;font:400 19px Prompt,sans-serif;color:#7d7767;cursor:pointer;flex:none}
@@ -183,7 +179,6 @@ input::placeholder{color:#a9a290}
 .pass-buttons{display:flex;gap:9px}
 .save-btn{flex:1;border:1.5px solid rgba(255,245,239,.55);background:transparent;color:inherit;text-align:center;padding:14px 0;font:600 12.5px Prompt,sans-serif;cursor:pointer}
 .save-btn:hover{border-color:#fff5ef}
-.wallet-btn{flex:1;background:#17150f;color:#f4f1e6;text-align:center;padding:14px 0;font:600 12.5px Prompt,sans-serif;cursor:pointer}
 
 .new-reg{text-align:center;font:500 12px Prompt,sans-serif;color:#fff5ef;cursor:pointer;padding:6px 0 0;text-decoration:underline;text-underline-offset:3px}
 

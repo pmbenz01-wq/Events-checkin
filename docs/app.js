@@ -13,12 +13,14 @@
         hint: "วางรูปงานที่นี่", loading: "กำลังโหลดรายการงาน…",
         error: "โหลดรายการงานไม่สำเร็จ ลองใหม่อีกครั้ง", retry: "ลองใหม่"
       },
-      steps: [
-        { key: "name", q: "คุณชื่อ\nอะไร?", helper: "ชื่อนี้จะพิมพ์บนบัตรแขวนคอของคุณ", ph: "ชื่อ–นามสกุล", mode: "text" },
-        { key: "email", q: "อีเมล\nของคุณ", helper: "เราจะส่ง QR สำหรับเข้างานไปที่อีเมลนี้ และเปิดดูซ้ำได้ทุกเมื่อ", ph: "name@company.com", mode: "email", chips: ["@gmail.com", "@corp.co.th"] },
-        { key: "phone", q: "เบอร์ติดต่อ\nหน้างาน", helper: "ใช้เฉพาะกรณีติดต่อเรื่องงานนี้เท่านั้น", ph: "08X XXX XXXX", mode: "tel" },
-        { key: "org", q: "ทำงานที่\nไหน?", helper: "ไม่บังคับ — ข้ามได้ถ้าไม่ต้องการระบุ แล้วยืนยันการเก็บข้อมูล", ph: "ชื่อบริษัทหรือองค์กร", mode: "text" }
-      ],
+      fieldLabels: { name: "ชื่อ–นามสกุล", email: "อีเมล", phone: "เบอร์โทรศัพท์", org: "บริษัท / องค์กร" },
+      fieldPh: { name: "เช่น สมชาย ใจดี", email: "name@company.com", phone: "08X XXX XXXX", org: "เช่น Qudsun" },
+      emailChips: ["@gmail.com", "@corp.co.th"],
+      askP1: { eyebrow: "ขั้นที่ 1 · จำเป็น", title: "ข้อมูลผู้เข้าร่วม", sub: "ใช้พิมพ์บัตรแขวนคอและส่ง QR เข้างานให้คุณ" },
+      askP2: { eyebrow: "ขั้นที่ 2 · ไม่บังคับ", title: "อีกนิดเดียว ถ้าสะดวก", sub: "ข้ามได้ทั้งหน้า — ไม่กระทบการเข้างานของคุณ" },
+      eventQuestions: "คำถามของงานนี้",
+      pdpaNotice: "การกดยืนยันถือว่าคุณยอมรับนโยบาย PDPA ของผู้จัดงาน",
+      formLoading: "กำลังเปิดฟอร์ม…",
       types: ["ทั่วไป", "VIP", "สื่อ"],
       consent: "ยินยอมให้ผู้จัดงานเก็บและใช้ข้อมูลตามนโยบาย PDPA",
       next: "ถัดไป", skip: "ข้าม", finish: "ยืนยันและรับ QR",
@@ -28,8 +30,8 @@
       done: "เรียบร้อย\nแล้ว!", passNote: "ยื่น QR นี้ที่ประตู เจ้าหน้าที่จะพิมพ์บัตรแขวนคอให้ทันที · เปิดซ้ำได้จากลิงก์ในอีเมล",
       kicker: "ENTRY PASS", gate: "จุดลงทะเบียน", gateVal: "ฮอลล์ 2 · ประตู A", doors: "เวลาเปิดประตู", contact: "เบอร์ติดต่อ",
       saveImg: "บันทึกรูป", newReg: "ลงทะเบียนคนใหม่",
-      err: { name: "กรุณากรอกชื่อ", email: "รูปแบบอีเมลไม่ถูกต้อง", phone: "กรอกเบอร์ 9–10 หลัก", consent: "กรุณายอมรับนโยบาย PDPA ก่อนดำเนินการต่อ", notfound: "ไม่พบการลงทะเบียนของอีเมลนี้", eventClosed: "งานนี้ยังไม่เปิดรับลงทะเบียน", network: "เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง" },
-      toastSaved: "บันทึกลง Google Sheet แล้ว", toastImg: "บันทึกรูป QR ลงเครื่องแล้ว", toastWallet: "เพิ่มบัตรใน Wallet แล้ว"
+      err: { name: "กรุณากรอกชื่อ", email: "รูปแบบอีเมลไม่ถูกต้อง", phone: "กรอกเบอร์ 9–10 หลัก", requiredField: "กรุณากรอกข้อมูลนี้", saveImg: "บันทึกรูปไม่สำเร็จ ลองใหม่อีกครั้ง", notfound: "ไม่พบการลงทะเบียนของอีเมลนี้", eventClosed: "งานนี้ยังไม่เปิดรับลงทะเบียน", network: "เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง" },
+      toastSaved: "บันทึกลง Google Sheet แล้ว", toastImg: "บันทึกรูปบัตรลงเครื่องแล้ว"
     },
     en: {
       pick: {
@@ -40,12 +42,14 @@
         hint: "Drop the event photo", loading: "Loading events…",
         error: "Couldn't load events. Please try again.", retry: "Retry"
       },
-      steps: [
-        { key: "name", q: "What's\nyour name?", helper: "This is the name printed on your lanyard badge.", ph: "Full name", mode: "text" },
-        { key: "email", q: "Your\nemail", helper: "We'll send your entry QR here — reopen it any time.", ph: "name@company.com", mode: "email", chips: ["@gmail.com", "@corp.co.th"] },
-        { key: "phone", q: "Contact\nnumber", helper: "Used only if we need to reach you about this event.", ph: "08X XXX XXXX", mode: "tel" },
-        { key: "org", q: "Where do\nyou work?", helper: "Optional — skip if you'd rather not say. Then confirm data consent.", ph: "Company or organisation", mode: "text" }
-      ],
+      fieldLabels: { name: "Full name", email: "Email", phone: "Phone number", org: "Company or organisation" },
+      fieldPh: { name: "e.g. Alex Chen", email: "name@company.com", phone: "08X XXX XXXX", org: "e.g. Qudsun" },
+      emailChips: ["@gmail.com", "@corp.co.th"],
+      askP1: { eyebrow: "STEP 1 · REQUIRED", title: "Your details", sub: "Used to print your lanyard badge and send your entry QR." },
+      askP2: { eyebrow: "STEP 2 · OPTIONAL", title: "A little more, if you like", sub: "Skip the whole page — it won't affect your entry." },
+      eventQuestions: "About this event",
+      pdpaNotice: "By confirming you accept the organiser's PDPA policy.",
+      formLoading: "Opening the form…",
       types: ["General", "VIP", "Press"],
       consent: "I consent to the organiser storing my data under its PDPA policy.",
       next: "NEXT", skip: "SKIP", finish: "CONFIRM & GET QR",
@@ -55,8 +59,8 @@
       done: "You're\nin!", passNote: "Show this QR at the door — staff print your lanyard badge on the spot. Reopen it any time from the email link.",
       kicker: "ENTRY PASS", gate: "Check-in point", gateVal: "Hall 2 · Gate A", doors: "Doors open", contact: "Contact",
       saveImg: "SAVE IMAGE", newReg: "Register someone else",
-      err: { name: "Please enter your name", email: "Invalid email format", phone: "Enter a 9–10 digit number", consent: "Please accept the PDPA policy to continue.", notfound: "No registration found for that email.", eventClosed: "Registration opens later — check back soon.", network: "Couldn't reach the server. Please try again." },
-      toastSaved: "Saved to Google Sheet", toastImg: "QR image saved", toastWallet: "Pass added to Wallet"
+      err: { name: "Please enter your name", email: "Invalid email format", phone: "Enter a 9–10 digit number", requiredField: "This field is required", saveImg: "Couldn't save the image. Please try again.", notfound: "No registration found for that email.", eventClosed: "Registration opens later — check back soon.", network: "Couldn't reach the server. Please try again." },
+      toastSaved: "Saved to Google Sheet", toastImg: "Badge image saved"
     }
   };
 
@@ -65,10 +69,10 @@
     screen: "pick", // pick | ask | sending | lookup | pass
     events: [], eventsLoading: true, eventsError: "",
     evIdx: 0,
-    step: 0,
-    vals: { name: "", email: "", phone: "", org: "" },
-    consent: false,
-    error: "", consentError: "",
+    page: 1,
+    fields: [], fieldsLoading: false, fieldsError: "",
+    vals: {},
+    errors: {},
     lookupEmail: "", lookupError: "", lookupBusy: false,
     pass: null, toast: "",
     submitError: ""
@@ -337,46 +341,75 @@
   function renderAsk() {
     const c = t();
     const ev = state.events[state.evIdx];
-    const steps = c.steps, i = state.step, cur = steps[i];
-    const isLast = i === steps.length - 1;
-    const val = state.vals[cur.key];
-    const filled = (val || "").length > 0;
-    const optional = cur.key === "org";
-    const inputBorder = state.error ? "#c1391f" : filled ? "#17150f" : "#c9c3b0";
-
-    const ticks = steps.map((_, k) => `<div class="tick ${k <= i ? "is-done" : ""}"></div>`).join("");
-
-    const chips = (cur.chips || []).map(label => `<div class="chip" data-action="chip" data-label="${esc(label)}">${esc(label)}</div>`).join("");
-    let body = `<div class="input-block">
-        <div class="input-underline" style="border-bottom-color:${inputBorder}">
-          <input class="text-input" id="step-input" type="${cur.mode === "email" ? "email" : cur.mode === "tel" ? "tel" : "text"}" value="${esc(val)}" placeholder="${esc(cur.ph || "")}" autocomplete="off" />
-        </div>
-        <div class="field-error">${esc(state.error)}</div>
-        ${chips ? `<div class="chips">${chips}</div>` : ""}
-      </div>`;
-    if (isLast) {
-      body = `<div class="choice-block">${body}
-        <div class="consent-block">
-          <div class="consent-row" data-action="toggle-consent">
-            <div class="consent-box ${state.consent ? "is-checked" : ""} ${state.consentError ? "is-error" : ""}"><div class="consent-box-dot"></div></div>
-            <div class="consent-text ${state.consentError ? "is-error" : ""}">${esc(c.consent)}</div>
-          </div>
-          <div class="consent-error">${esc(state.consentError)}</div>
-        </div>
-      </div>`;
-    }
-
-    const nextLabel = isLast ? c.finish : (optional && !filled ? c.skip : c.next);
-
-    return `<div class="screen"><div class="screen-inner">
-      <div class="ask-banner">
-        ${ev.image ? `<img class="ask-banner-img" src="${esc(ev.image)}" alt="">` : `<div class="img-placeholder">${esc(t().pick.hint)}</div>`}
+    const banner = `<div class="ask-banner">
+        ${ev.image ? `<img class="ask-banner-img" src="${esc(ev.image)}" alt="">` : `<div class="img-placeholder">${esc(c.pick.hint)}</div>`}
         <div class="ask-banner-scrim"></div>
         <div class="ask-banner-info">
           <div class="ask-banner-meta">${esc((ev.date || "") + " · " + (ev.place || ""))}</div>
           <div class="ask-banner-name">${esc(ev.name)}</div>
         </div>
-      </div>
+      </div>`;
+
+    if (state.fieldsLoading || state.fieldsError) {
+      return `<div class="screen"><div class="screen-inner">
+        ${banner}
+        <div class="ask-topbar">
+          <div class="change-event" data-action="go-pick">← ${state.lang === "en" ? "Change event" : "เปลี่ยนงาน"}</div>
+          ${langToggleHtml()}
+        </div>
+        <div class="ask-body">
+          <div class="ask-title">${esc(state.fieldsError || c.formLoading)}</div>
+          ${state.fieldsError ? `<div class="cta is-open" data-action="retry-form" style="max-width:160px">${esc(c.pick.retry)}</div>` : ""}
+        </div>
+      </div></div>`;
+    }
+
+    // The event's own Fields sheet decides both the questions and the split:
+    // ticked rows make the first page, un-ticked rows the second.
+    const required = state.fields.filter(f => f.required);
+    const optional = state.fields.filter(f => !f.required);
+    const hasOptional = optional.length > 0;
+    const onFirst = state.page === 1;
+    const list = onFirst ? required : optional;
+    const submits = !onFirst || !hasOptional;
+    const meta = onFirst ? c.askP1 : c.askP2;
+    const pageCount = hasOptional ? 2 : 1;
+
+    const ticks = Array.from({ length: pageCount }, (_, k) =>
+      `<div class="tick ${k < state.page ? "is-done" : ""}"></div>`).join("");
+
+    const core = { name: 1, email: 1, phone: 1, org: 1 };
+    let sawEventQuestion = false;
+    const fieldsHtml = list.map(f => {
+      // On the optional page the event's own questions are marked off from
+      // the fields the site itself asks for, so it reads as the organiser
+      // asking rather than more of the same form.
+      let divider = "";
+      if (!onFirst && !core[f.key] && !sawEventQuestion) {
+        sawEventQuestion = true;
+        divider = `<div class="ask-divider">${esc(c.eventQuestions)}</div>`;
+      }
+      const label = (c.fieldLabels && c.fieldLabels[f.key]) || f.label || f.key;
+      const ph = (c.fieldPh && c.fieldPh[f.key]) || "";
+      const mode = f.type === "EMAIL" ? "email" : f.type === "PHONE" ? "tel" : "text";
+      const err = state.errors[f.key] || "";
+      const chips = f.key === "email"
+        ? `<div class="chips">${(c.emailChips || []).map(l =>
+            `<div class="chip" data-action="chip" data-label="${esc(l)}">${esc(l)}</div>`).join("")}</div>`
+        : "";
+      return `${divider}<div class="ff ${err ? "is-bad" : ""}">
+        <label class="ff-label">${esc(label)}${f.required ? ` <span class="ff-req">*</span>` : ""}</label>
+        <div class="ff-line"><input class="ff-input" data-field="${esc(f.key)}" type="${mode}" value="${esc(state.vals[f.key] || "")}" placeholder="${esc(ph)}" autocomplete="${f.key === "name" ? "name" : f.key === "email" ? "email" : f.key === "phone" ? "tel" : "off"}"></div>
+        <div class="ff-msg">${esc(err)}</div>
+        ${chips}
+      </div>`;
+    }).join("");
+
+    const pdpa = (submits && ev.pdpa)
+      ? `<div class="pdpa-note">${esc(c.pdpaNotice)}</div>` : "";
+
+    return `<div class="screen"><div class="screen-inner">
+      ${banner}
       <div class="ask-topbar">
         <div class="change-event" data-action="go-pick">← ${state.lang === "en" ? "Change event" : "เปลี่ยนงาน"}</div>
         <div class="ask-topbar-right">
@@ -385,19 +418,34 @@
         </div>
       </div>
       <div class="ask-body">
-        <div class="step-num">${String(i + 1).padStart(2, "0")}</div>
-        <div>
-          <div class="question">${esc(nl2sp(cur.q))}</div>
-          <div class="helper">${esc(cur.helper)}</div>
+        <div class="ask-head">
+          <div class="ask-eyebrow">${esc(meta.eyebrow)}</div>
+          <div class="ask-title">${esc(meta.title)}</div>
+          <div class="ask-sub">${esc(meta.sub)}</div>
         </div>
-        ${body}
+        <div class="ask-fields">${fieldsHtml}</div>
       </div>
       <div class="ask-actions">
         <div class="back-btn" data-action="back">←</div>
-        <div class="next-btn" data-action="next">${esc(nextLabel)}</div>
+        <div class="next-btn" data-action="next">${esc(submits ? c.finish : c.next)}</div>
       </div>
+      ${pdpa}
       <div class="already-row">${esc(c.already)} <span class="accent" data-action="go-lookup">${esc(c.lookupLink)}</span></div>
     </div></div>`;
+  }
+
+  async function loadForm(eventId) {
+    try {
+      const res = await window.Api.getEventForm(eventId);
+      if (!res.ok) throw new Error(res.error || "form_failed");
+      const fields = (res.data || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+      if (!fields.length) throw new Error("empty_form");
+      const vals = {};
+      fields.forEach(f => { vals[f.key] = ""; });
+      setState({ fields, vals, fieldsLoading: false, fieldsError: "" });
+    } catch (e) {
+      setState({ fieldsLoading: false, fieldsError: t().err.network });
+    }
   }
 
   function renderSending() {
@@ -467,7 +515,6 @@
       </div>
       <div class="pass-buttons">
         <div class="save-btn" data-action="save-img">${esc(c.saveImg)}</div>
-        <div class="wallet-btn" data-action="add-wallet">WALLET</div>
       </div>
       <div class="new-reg" data-action="reset">${esc(c.newReg)}</div>
     </div></div>`;
@@ -482,21 +529,24 @@
       el.addEventListener("click", () => handleAction(action, el));
     });
 
-    const stepInput = document.getElementById("step-input");
-    if (stepInput) {
-      stepInput.focus();
-      try { const val = stepInput.value; stepInput.setSelectionRange(val.length, val.length); } catch (e) { /* email/tel inputs don't support selection ranges */ }
-      const underline = app.querySelector(".input-underline");
-      const errorEl = app.querySelector(".field-error");
-      const c = t(), cur = c.steps[state.step];
-      stepInput.addEventListener("input", e => {
-        state.vals[cur.key] = e.target.value;
-        state.error = "";
-        if (errorEl) errorEl.textContent = "";
-        if (underline) underline.style.borderBottomColor = e.target.value ? "#17150f" : "#c9c3b0";
+    app.querySelectorAll("[data-field]").forEach(input => {
+      const key = input.dataset.field;
+      input.addEventListener("input", e => {
+        // written straight to state, never through setState — re-rendering
+        // mid-keystroke would tear the focus out of the field being typed in
+        state.vals[key] = e.target.value;
+        if (state.errors[key]) {
+          state.errors[key] = "";
+          const ff = input.closest(".ff");
+          if (ff) {
+            ff.classList.remove("is-bad");
+            const msg = ff.querySelector(".ff-msg");
+            if (msg) msg.textContent = "";
+          }
+        }
       });
-      stepInput.addEventListener("keydown", e => { if (e.key === "Enter") next(); });
-    }
+      input.addEventListener("keydown", e => { if (e.key === "Enter") next(); });
+    });
 
     const lookupInput = document.getElementById("lookup-input");
     if (lookupInput) {
@@ -513,69 +563,96 @@
 
   function handleAction(action, el) {
     switch (action) {
-      case "lang": setState({ lang: el.dataset.lang, error: "", consentError: "" }); break;
+      case "lang": setState({ lang: el.dataset.lang, errors: {} }); break;
       case "retry-events": loadEvents(); break;
+      case "retry-form": {
+        const ev = state.events[state.evIdx];
+        if (!ev) break;
+        setState({ fieldsLoading: true, fieldsError: "" });
+        loadForm(ev.id);
+        break;
+      }
       case "hero-enter": {
         const idx = Number(el.dataset.idx);
         const ev = state.events[idx];
         if (!ev) break;
         if (!ev.open) { flash(t().err.eventClosed); break; }
-        setState({ screen: "ask", evIdx: idx, step: 0, error: "", consentError: "" });
+        setState({ screen: "ask", evIdx: idx, page: 1, errors: {}, vals: {}, fields: [], fieldsLoading: true, fieldsError: "" });
+        loadForm(ev.id);
         break;
       }
       case "go-lookup": setState({ screen: "lookup", lookupError: "" }); break;
       case "go-pick": setState({ screen: "pick" }); break;
       case "chip": {
-        const cur = t().steps[state.step];
-        const base = (state.vals[cur.key] || "").split("@")[0];
-        state.vals[cur.key] = base + el.dataset.label;
-        state.error = "";
+        const base = (state.vals.email || "").split("@")[0];
+        state.vals.email = base + el.dataset.label;
+        state.errors.email = "";
         render();
         break;
       }
-      case "toggle-consent": setState({ consent: !state.consent, consentError: "" }); break;
       case "back": back(); break;
       case "next": next(); break;
       case "do-lookup": doLookup(); break;
-      case "save-img": flash(t().toastImg); break;
-      case "add-wallet": flash(t().toastWallet); break;
+      case "save-img": saveBadgeImage(); break;
       case "reset": resetAll(); break;
     }
   }
 
-  function stepError(key) {
-    const c = t(), v = state.vals;
-    if (key === "name" && !v.name.trim()) return c.err.name;
-    if (key === "email" && !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(v.email.trim())) return c.err.email;
-    if (key === "phone" && v.phone.replace(/\D/g, "").length < 9) return c.err.phone;
+  // One field's verdict. Format rules only bite once something is typed, so
+  // an optional email left blank is fine while a malformed one is not.
+  function fieldError(f) {
+    const c = t(), v = (state.vals[f.key] || "").trim();
+    if (!v) return f.required ? (c.err[f.key] || c.err.requiredField) : "";
+    if (f.type === "EMAIL" && !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(v)) return c.err.email;
+    if (f.type === "PHONE" && v.replace(/\D/g, "").length < 9) return c.err.phone;
     return "";
   }
 
+  // Every field on the page is judged at once, so the customer sees
+  // everything that needs fixing in one pass rather than one screen at a time.
+  function pageErrors(list) {
+    const errors = {};
+    list.forEach(f => { const e = fieldError(f); if (e) errors[f.key] = e; });
+    return errors;
+  }
+
   function next() {
-    const c = t(), steps = c.steps, cur = steps[state.step];
-    const isLast = state.step === steps.length - 1;
-    const err = cur.key === "org" ? "" : stepError(cur.key);
-    if (err) { setState({ error: err }); return; }
-    if (isLast) { submit(); return; }
-    setState({ step: state.step + 1, error: "" });
+    const required = state.fields.filter(f => f.required);
+    const optional = state.fields.filter(f => !f.required);
+    const list = state.page === 1 ? required : optional;
+    const errors = pageErrors(list);
+    if (Object.keys(errors).length) { setState({ errors }); return; }
+    if (state.page === 1 && optional.length) { setState({ page: 2, errors: {} }); return; }
+    submit();
   }
 
   function back() {
-    if (state.step === 0) { setState({ screen: "pick" }); return; }
-    setState({ step: state.step - 1, error: "" });
+    if (state.page === 2) { setState({ page: 1, errors: {} }); return; }
+    setState({ screen: "pick", errors: {} });
   }
 
   async function submit() {
     const c = t();
-    if (!state.consent) { setState({ consentError: c.err.consent }); return; }
     setState({ screen: "sending" });
     const ev = state.events[state.evIdx];
+    // Anything beyond the four the Registrations sheet has columns for goes
+    // into answers, which the backend stores as answers_json.
+    const core = { name: 1, email: 1, phone: 1, org: 1 };
+    const answers = {};
+    state.fields.forEach(f => {
+      if (core[f.key]) return;
+      answers[f.key] = (state.vals[f.key] || "").trim();
+    });
+    const val = k => (state.vals[k] || "").trim();
     try {
       const res = await window.Api.register({
         eventId: ev.id,
-        name: state.vals.name.trim(), email: state.vals.email.trim(),
-        phone: state.vals.phone.trim(), org: state.vals.org.trim(),
-        consent: true
+        name: val("name"), email: val("email"),
+        phone: val("phone"), org: val("org"),
+        // Tapping the confirm button is the consenting act, and it is only
+        // asked for where the event actually shows the notice.
+        consent: !!ev.pdpa,
+        answers
       });
       if (!res.ok) throw new Error(res.error || "register_failed");
       const d = res.data;
@@ -591,8 +668,129 @@
       render();
       flash(c.toastSaved);
     } catch (e) {
-      setState({ screen: "ask", step: state.step });
+      setState({ screen: "ask" });
       flash(c.err.network);
+    }
+  }
+
+  // Draws the badge onto a canvas rather than rasterising the DOM: no
+  // library, and the page's own font is available to fillText once
+  // document.fonts has settled.
+  async function badgeBlob(pass) {
+    if (document.fonts && document.fonts.ready) {
+      try { await document.fonts.ready; } catch (e) { /* font API is optional */ }
+    }
+    const qr = qrcode(0, "M");
+    qr.addData(String(pass.qrPayload));
+    qr.make();
+    const n = qr.getModuleCount();
+
+    const SCALE = 3, W = 440, PAD = 22, HEAD = 104, FOOT = 56;
+    const qrSize = W - PAD * 2;
+    const H = PAD + HEAD + qrSize + FOOT + PAD;
+    const cv = document.createElement("canvas");
+    cv.width = W * SCALE;
+    cv.height = H * SCALE;
+    const x = cv.getContext("2d");
+    x.scale(SCALE, SCALE);
+
+    x.fillStyle = "#f4f1e6";
+    x.fillRect(0, 0, W, H);
+
+    const type = typeLabelFor(pass).toUpperCase();
+    x.textBaseline = "alphabetic";
+    x.fillStyle = "#d8482b";
+    x.font = "600 11px Prompt, sans-serif";
+    x.textAlign = "right";
+    x.fillText(type, W - PAD, PAD + 14);
+
+    x.textAlign = "left";
+    x.fillStyle = "#8a8474";
+    x.font = "500 9.5px Prompt, sans-serif";
+    x.fillText((t().kicker + " · " + (pass.eventName || "")).toUpperCase(), PAD, PAD + 14);
+
+    x.fillStyle = "#17150f";
+    x.font = "600 22px Prompt, sans-serif";
+    x.fillText(pass.name || "", PAD, PAD + 46);
+
+    x.fillStyle = "#7d7767";
+    x.font = "400 12px Prompt, sans-serif";
+    x.fillText(pass.org || "", PAD, PAD + 68);
+
+    const qrTop = PAD + HEAD;
+    const cell = qrSize / n;
+    x.fillStyle = "#17150f";
+    for (let r = 0; r < n; r++) {
+      for (let col = 0; col < n; col++) {
+        if (qr.isDark(r, col)) {
+          // ceil the cell so neighbouring modules meet with no seam
+          x.fillRect(PAD + col * cell, qrTop + r * cell, Math.ceil(cell), Math.ceil(cell));
+        }
+      }
+    }
+
+    const footTop = qrTop + qrSize + 18;
+    x.strokeStyle = "#d6d0bd";
+    x.lineWidth = 1;
+    x.beginPath();
+    x.moveTo(PAD, footTop);
+    x.lineTo(W - PAD, footTop);
+    x.stroke();
+
+    x.fillStyle = "#17150f";
+    x.font = "600 14px Prompt, sans-serif";
+    x.fillText(pass.code || "", PAD, footTop + 24);
+
+    x.fillStyle = "#6f6a5a";
+    x.font = "500 10px Prompt, sans-serif";
+    x.textAlign = "right";
+    x.fillText("18.12.2026 · H2", W - PAD, footTop + 24);
+
+    return new Promise((resolve, reject) => {
+      cv.toBlob(b => b ? resolve(b) : reject(new Error("toBlob_failed")), "image/png");
+    });
+  }
+
+  async function saveBadgeImage() {
+    const c = t(), pass = state.pass;
+    if (!pass) return;
+
+    let blob;
+    try {
+      blob = await badgeBlob(pass);
+    } catch (e) {
+      flash(c.err.saveImg);
+      return;
+    }
+    const name = "entry-pass-" + (pass.code || "badge") + ".png";
+
+    // iOS Safari ignores a programmatic download click, and the share sheet is
+    // the path that offers Save to Photos there. Only the customer dismissing
+    // it counts as done — every other failure falls through to the download
+    // below rather than leaving them with nothing and no message.
+    try {
+      const file = new File([blob], name, { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file] });
+        flash(c.toastImg);
+        return;
+      }
+    } catch (e) {
+      if (e && e.name === "AbortError") return;
+    }
+
+    try {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      flash(c.toastImg);
+    } catch (e) {
+      flash(c.err.saveImg);
     }
   }
 
@@ -625,8 +823,8 @@
   function resetAll() {
     try { localStorage.removeItem(PASS_KEY); } catch (e) { /* ignore */ }
     setState({
-      screen: "pick", step: 0, vals: { name: "", email: "", phone: "", org: "" },
-      consent: false, error: "", consentError: "", pass: null
+      screen: "pick", page: 1, vals: {}, errors: {},
+      fields: [], fieldsLoading: false, fieldsError: "", pass: null
     });
   }
 
