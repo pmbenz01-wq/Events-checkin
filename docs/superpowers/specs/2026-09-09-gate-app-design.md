@@ -95,10 +95,13 @@ rather than assumed, and it is worse than expected: the sign-in button
 renders perfectly normally and pressing it simply achieves nothing. The only
 evidence is a line in the browser console —
 `[GSI_LOGGER]: The given origin is not allowed for the given client ID` —
-which nobody standing at a door is going to see. The app therefore passes an
-`error_callback` to `google.accounts.id.initialize` and shows the
-`unregistered_origin` case on screen, naming the exact origin to add, so a
-missing setting reads as a missing setting rather than a broken app.
+which nobody standing at a door is going to see.
+
+An `error_callback` on `google.accounts.id.initialize` was tried first and
+does not help: Google routes an unregistered origin through it only for One
+Tap, and with a rendered button just logs. So the sign-in screen states the
+possibility in plain text instead, naming the exact origin to add. Less
+clever than detection, and it actually works.
 
 ## Signing in and picking an event
 
