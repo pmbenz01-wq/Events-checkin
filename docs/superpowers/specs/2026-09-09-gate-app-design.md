@@ -87,10 +87,18 @@ staff-console/
 
 **Prerequisite that blocks sign-in entirely:** the new domain has to be added
 to the OAuth client's *Authorized JavaScript origins* in Google Cloud
-Console → APIs & Services → Credentials. Google Identity Services refuses to
-initialise on an origin it does not know, and the failure is quiet — the
-sign-in button simply never appears. This cannot be done from code and has
-to happen before the app is testable.
+Console → APIs & Services → Credentials. This cannot be done from code and
+has to happen before anyone can sign in.
+
+What it looks like when it has not been done was checked on the deployed app
+rather than assumed, and it is worse than expected: the sign-in button
+renders perfectly normally and pressing it simply achieves nothing. The only
+evidence is a line in the browser console —
+`[GSI_LOGGER]: The given origin is not allowed for the given client ID` —
+which nobody standing at a door is going to see. The app therefore passes an
+`error_callback` to `google.accounts.id.initialize` and shows the
+`unregistered_origin` case on screen, naming the exact origin to add, so a
+missing setting reads as a missing setting rather than a broken app.
 
 ## Signing in and picking an event
 
