@@ -169,9 +169,15 @@ withholds them from anyone below ADMIN. The app shows what it is given and
 does not pretend otherwise: this is the door's copy of the list, not the
 desk's.
 
-Each row that is not yet in shows a check-in button calling `setCheckedIn`,
-which is how someone gets in when their QR will not scan — a cracked screen,
-a phone with no battery, a printed badge that smudged.
+Each row carries one button, and which one follows from where the person is.
+Not in yet: a check-in calling `setCheckedIn`, which is how someone gets in
+when their QR will not scan — a cracked screen, a phone with no battery, a
+printed badge that smudged. Already in: a print, opening the same badge page
+the verdict does. A row that has just been checked in from the list swaps one
+for the other, so the desk-less path — find them, admit them, print their
+badge — is three taps in one place. Printing stays behind the check-in
+because a badge handed out earlier belongs to someone the system has no
+record of admitting.
 
 ## The recent tab
 
