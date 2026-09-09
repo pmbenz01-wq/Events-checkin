@@ -30,7 +30,7 @@
       done: "เรียบร้อย\nแล้ว!", passNote: "ยื่น QR นี้ที่ประตู เจ้าหน้าที่จะพิมพ์บัตรแขวนคอให้ทันที · เปิดซ้ำได้จากลิงก์ในอีเมล",
       kicker: "ENTRY PASS", gate: "จุดลงทะเบียน", gateVal: "ฮอลล์ 2 · ประตู A", doors: "เวลาเปิดประตู", contact: "เบอร์ติดต่อ",
       saveImg: "บันทึกรูป", newReg: "ลงทะเบียนคนใหม่",
-      err: { name: "กรุณากรอกชื่อ", email: "รูปแบบอีเมลไม่ถูกต้อง", phone: "กรอกเบอร์ 9–10 หลัก", requiredField: "กรุณากรอกข้อมูลนี้", saveImg: "บันทึกรูปไม่สำเร็จ ลองใหม่อีกครั้ง", notfound: "ไม่พบการลงทะเบียนของอีเมลนี้", eventClosed: "งานนี้ยังไม่เปิดรับลงทะเบียน", network: "เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง" },
+      err: { name: "กรุณากรอกชื่อ", email: "รูปแบบอีเมลไม่ถูกต้อง", phone: "กรอกเบอร์ 9–10 หลัก", requiredField: "กรุณากรอกข้อมูลนี้", missingField: "ยังกรอกข้อมูลไม่ครบ กรุณาตรวจอีกครั้ง", busy: "ระบบกำลังบันทึกรายการอื่น รอสักครู่แล้วลองใหม่", failed: "บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", saveImg: "บันทึกรูปไม่สำเร็จ ลองใหม่อีกครั้ง", notfound: "ไม่พบการลงทะเบียนของอีเมลนี้", eventClosed: "งานนี้ยังไม่เปิดรับลงทะเบียน", network: "เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง" },
       toastSaved: "บันทึกลง Google Sheet แล้ว", toastImg: "บันทึกรูปบัตรลงเครื่องแล้ว"
     },
     en: {
@@ -59,7 +59,7 @@
       done: "You're\nin!", passNote: "Show this QR at the door — staff print your lanyard badge on the spot. Reopen it any time from the email link.",
       kicker: "ENTRY PASS", gate: "Check-in point", gateVal: "Hall 2 · Gate A", doors: "Doors open", contact: "Contact",
       saveImg: "SAVE IMAGE", newReg: "Register someone else",
-      err: { name: "Please enter your name", email: "Invalid email format", phone: "Enter a 9–10 digit number", requiredField: "This field is required", saveImg: "Couldn't save the image. Please try again.", notfound: "No registration found for that email.", eventClosed: "Registration opens later — check back soon.", network: "Couldn't reach the server. Please try again." },
+      err: { name: "Please enter your name", email: "Invalid email format", phone: "Enter a 9–10 digit number", requiredField: "This field is required", missingField: "Some required details are missing — please check the form.", busy: "The system is saving another registration. Please try again in a moment.", failed: "Couldn't save your registration. Please try again.", saveImg: "Couldn't save the image. Please try again.", notfound: "No registration found for that email.", eventClosed: "Registration opens later — check back soon.", network: "Couldn't reach the server. Please try again." },
       toastSaved: "Saved to Google Sheet", toastImg: "Badge image saved"
     }
   };
@@ -437,6 +437,9 @@
   async function loadForm(eventId) {
     try {
       const res = await window.Api.getEventForm(eventId);
+      // A slow answer for an event the customer has since navigated away from
+      // would otherwise paint that event's questions onto this one's form.
+      if (currentEventId() !== eventId) return;
       if (!res.ok) throw new Error(res.error || "form_failed");
       const fields = (res.data || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0));
       if (!fields.length) throw new Error("empty_form");
@@ -444,8 +447,14 @@
       fields.forEach(f => { vals[f.key] = ""; });
       setState({ fields, vals, fieldsLoading: false, fieldsError: "" });
     } catch (e) {
+      if (currentEventId() !== eventId) return;
       setState({ fieldsLoading: false, fieldsError: t().err.network });
     }
+  }
+
+  function currentEventId() {
+    const ev = state.events[state.evIdx];
+    return ev ? ev.id : null;
   }
 
   function renderSending() {
@@ -669,8 +678,26 @@
       flash(c.toastSaved);
     } catch (e) {
       setState({ screen: "ask" });
-      flash(c.err.network);
+      flash(registerErrorMessage(e, c));
     }
+  }
+
+  // Everything the server can refuse a registration for used to surface as
+  // "couldn't reach the server", so a customer whose email the server dislikes
+  // was told to check their connection and retried forever.
+  function registerErrorMessage(e, c) {
+    var code = String((e && e.message) || "");
+    if (code === "invalid_email") return c.err.email;
+    if (code === "invalid_phone") return c.err.phone;
+    if (code === "invalid_name") return c.err.name;
+    if (code === "event_closed") return c.err.eventClosed;
+    if (code === "consent_required") return c.err.missingField;
+    if (code.indexOf("missing_") === 0) return c.err.missingField;
+    if (code === "busy") return c.err.busy;
+    if (code === "register_failed") return c.err.failed;
+    // A genuine transport failure has no server code to read — TypeError from
+    // fetch, or an empty body.
+    return c.err.network;
   }
 
   // Draws the badge onto a canvas rather than rasterising the DOM: no

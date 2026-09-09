@@ -31,5 +31,12 @@ Same database, same backend, same Google sign-in: this is a second front end
 over the existing API, not a second system.
 
 Cost, accepted: two front ends to keep in step, and anyone used to scanning
-from the console has to switch. The console will not keep a copy of these
-screens — a second, worse scanner is how people end up using the worse one.
+from the console has to switch.
+
+**Sequencing.** The console keeps its three screens until the gate app has
+carried one real event, then loses them. Removing them on the day the new app
+ships would leave a door with no way to check anyone in if the app meets
+something the testing did not — a phone whose camera it cannot open, a token
+that expires mid-event. Running both is a known cost, deliberately paid once:
+a second, worse scanner is how people end up using the worse one, so this is
+an overlap with an end, not a permanent pair.

@@ -1,3 +1,8 @@
+> **Superseded by events-checkin-0017.** Written before it was established
+> that the QR signature can only be verified server-side, so an offline
+> queue means admitting people on unverified badges. The gate app blocks
+> check-in while offline instead, and there is no queue.
+
 # Scans survive the network: queued on the device, sent when it returns
 
 ```mermaid
