@@ -24,8 +24,28 @@ distinguishes success from failure, which a noisy hall takes away too.
 
 Rather than bolt a mobile layout onto a desktop console, the three things
 the door actually needs — scan, look someone up by name, see what has been
-scanned — become their own app, built for a phone held one-handed. The
-console keeps what a desk does: overview, fields, badge design, team.
+scanned — become their own app, built for a phone held one-handed.
+
+**Only scanning leaves the console.** The first draft of this decision had the
+console dropping all three screens. That was written without looking at what
+the attendee screen carries: walk-in registration, changing a pass type,
+manual check-in, deleting an attendee and the CSV export all hang off it, and
+an ADMIN sees the email and phone a STAFF caller never receives. Those are
+desk jobs; moving them to a phone at a door would be worse for everyone.
+
+So the split is by shape, not by subject:
+
+| | console | gate app |
+|---|---|---|
+| scan | removed | the whole point of it |
+| attendees | kept — manage, export, full contact details | search and check in, no PII |
+| history | kept — the audit surface, on a big screen | a short "just scanned" strip |
+
+Scanning is the one that genuinely has to go: it is measurably bad there, and
+two scanners is how people end up using the worse one without knowing which
+they used when they report a problem. The other two are not duplicates — they
+are different tools over the same data, and the API already hands each caller
+a different amount of it.
 
 Same database, same backend, same Google sign-in: this is a second front end
 over the existing API, not a second system.
