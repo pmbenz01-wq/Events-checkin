@@ -2,6 +2,9 @@
   "use strict";
 
   const PASS_KEY = "tt26-pass";
+  // It used to read "TT / 26" on every screen, so a pass for any other event
+  // was stamped with ThinkTech's initials.
+  const BRAND = "1NEVE";
 
   const COPY = {
     th: {
@@ -11,7 +14,9 @@
         cta: "ลงทะเบียนงานนี้", soon: "ยังไม่เปิดรับลงทะเบียน",
         facts: ["วันที่จัด", "สถานที่", "ที่นั่ง", "ค่าเข้าร่วม"],
         hint: "วางรูปงานที่นี่", loading: "กำลังโหลดรายการงาน…",
-        error: "โหลดรายการงานไม่สำเร็จ ลองใหม่อีกครั้ง", retry: "ลองใหม่"
+        error: "โหลดรายการงานไม่สำเร็จ ลองใหม่อีกครั้ง", retry: "ลองใหม่",
+        empty: "ยังไม่มีงานที่เปิดให้ลงทะเบียนตอนนี้",
+        emptySub: "ผู้จัดงานยังไม่ได้เปิดงานใด หรือเพิ่งปิดรับไป ลองกลับมาดูใหม่อีกครั้ง"
       },
       fieldLabels: { name: "ชื่อ–นามสกุล", email: "อีเมล", phone: "เบอร์โทรศัพท์", org: "บริษัท / องค์กร" },
       fieldPh: { name: "เช่น สมชาย ใจดี", email: "name@company.com", phone: "08X XXX XXXX", org: "เช่น Qudsun" },
@@ -28,8 +33,13 @@
       saving: "กำลังบันทึกลง Google Sheet…",
       lookupTitle: "เปิดดู\nบัตรของฉัน", lookupSub: "กรอกอีเมลที่ใช้ลงทะเบียน ระบบจะเปิด QR ใบเดิมให้", lookupBtn: "ค้นหาบัตร",
       done: "เรียบร้อย\nแล้ว!", passNote: "ยื่น QR นี้ที่ประตู เจ้าหน้าที่จะพิมพ์บัตรแขวนคอให้ทันที · เปิดซ้ำได้จากลิงก์ในอีเมล",
-      kicker: "ENTRY PASS", gate: "จุดลงทะเบียน", gateVal: "ฮอลล์ 2 · ประตู A", doors: "เวลาเปิดประตู", contact: "เบอร์ติดต่อ",
+      kicker: "ENTRY PASS", eventDate: "วันที่จัดงาน", gate: "จุดลงทะเบียน",
+      doors: "เวลาเปิดประตู", contact: "เบอร์ที่ลงทะเบียนไว้",
       saveImg: "บันทึกรูป", newReg: "ลงทะเบียนคนใหม่",
+      // A blank field and a malformed one are different problems and deserve
+      // different words. Telling somebody their email is badly formatted when
+      // they simply have not typed one sends them hunting for a typo.
+      blank: { name: "กรุณากรอกชื่อ", email: "กรุณากรอกอีเมล", phone: "กรุณากรอกเบอร์โทรศัพท์" },
       err: { name: "กรุณากรอกชื่อ", email: "รูปแบบอีเมลไม่ถูกต้อง", phone: "กรอกเบอร์ 9–10 หลัก", requiredField: "กรุณากรอกข้อมูลนี้", missingField: "ยังกรอกข้อมูลไม่ครบ กรุณาตรวจอีกครั้ง", busy: "ระบบกำลังบันทึกรายการอื่น รอสักครู่แล้วลองใหม่", failed: "บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", saveImg: "บันทึกรูปไม่สำเร็จ ลองใหม่อีกครั้ง", notfound: "ไม่พบการลงทะเบียนของอีเมลนี้", eventClosed: "งานนี้ยังไม่เปิดรับลงทะเบียน", network: "เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง" },
       toastSaved: "บันทึกลง Google Sheet แล้ว", toastImg: "บันทึกรูปบัตรลงเครื่องแล้ว"
     },
@@ -40,7 +50,9 @@
         cta: "Register for this event", soon: "Registration not open yet",
         facts: ["Date", "Venue", "Availability", "Fee"],
         hint: "Drop the event photo", loading: "Loading events…",
-        error: "Couldn't load events. Please try again.", retry: "Retry"
+        error: "Couldn't load events. Please try again.", retry: "Retry",
+        empty: "No events are open for registration right now",
+        emptySub: "The organiser hasn't opened one yet, or registration has just closed. Please check back."
       },
       fieldLabels: { name: "Full name", email: "Email", phone: "Phone number", org: "Company or organisation" },
       fieldPh: { name: "e.g. Alex Chen", email: "name@company.com", phone: "08X XXX XXXX", org: "e.g. Qudsun" },
@@ -57,8 +69,10 @@
       saving: "Saving to Google Sheet…",
       lookupTitle: "Find\nmy pass", lookupSub: "Enter the email you registered with and we'll reopen the same QR.", lookupBtn: "FIND MY PASS",
       done: "You're\nin!", passNote: "Show this QR at the door — staff print your lanyard badge on the spot. Reopen it any time from the email link.",
-      kicker: "ENTRY PASS", gate: "Check-in point", gateVal: "Hall 2 · Gate A", doors: "Doors open", contact: "Contact",
+      kicker: "ENTRY PASS", eventDate: "Event date", gate: "Check-in point",
+      doors: "Doors open", contact: "Registered phone",
       saveImg: "SAVE IMAGE", newReg: "Register someone else",
+      blank: { name: "Please enter your name", email: "Please enter your email", phone: "Please enter your phone number" },
       err: { name: "Please enter your name", email: "Invalid email format", phone: "Enter a 9–10 digit number", requiredField: "This field is required", missingField: "Some required details are missing — please check the form.", busy: "The system is saving another registration. Please try again in a moment.", failed: "Couldn't save your registration. Please try again.", saveImg: "Couldn't save the image. Please try again.", notfound: "No registration found for that email.", eventClosed: "Registration opens later — check back soon.", network: "Couldn't reach the server. Please try again." },
       toastSaved: "Saved to Google Sheet", toastImg: "Badge image saved"
     }
@@ -67,13 +81,16 @@
   const state = {
     lang: "th",
     screen: "pick", // pick | ask | sending | lookup | pass
-    events: [], eventsLoading: true, eventsError: "",
+    events: [], eventsLoading: true,
+    // Codes, not sentences. Storing the translated text meant an error raised
+    // in Thai stayed Thai after the customer pressed EN.
+    eventsError: "",
     evIdx: 0,
     page: 1,
-    fields: [], fieldsLoading: false, fieldsError: "",
+    fields: [], fieldsLoading: false, fieldsError: "",   // "" | "network"
     vals: {},
     errors: {},
-    lookupEmail: "", lookupError: "", lookupBusy: false,
+    lookupEmail: "", lookupError: "", lookupBusy: false,   // lookupError: "" | "notfound"
     pass: null, toast: "",
     submitError: ""
   };
@@ -86,6 +103,16 @@
     return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
   function nl2sp(s) { return String(s || "").replace(/\n/g, " "); }
+
+  // Error codes become sentences at the moment of drawing, so the words always
+  // match the language button as it stands now.
+  function errText(code) {
+    if (!code) return "";
+    const c = t();
+    if (code === "events") return c.pick.error;
+    if (code === "notfound") return c.err.notfound;
+    return c.err[code] || c.err.network;
+  }
 
   function setState(patch) { Object.assign(state, patch); render(); }
   function flash(msg) {
@@ -132,7 +159,7 @@
       state.eventsLoading = false;
     } catch (e) {
       state.eventsLoading = false;
-      state.eventsError = t().pick.error;
+      state.eventsError = "events";
     }
     render();
   }
@@ -168,12 +195,19 @@
   function renderPick() {
     const c = t().pick;
     if (state.eventsLoading || state.eventsError || !state.events.length) {
-      const msg = state.eventsError || (state.eventsLoading ? c.loading : c.loading);
+      // Three situations that used to look identical: still loading, the
+      // request failed, and the organiser has nothing open. The last one sat on
+      // "loading…" for ever, because the request had in fact succeeded and
+      // nothing was ever going to change the message.
+      const failed = !!state.eventsError;
+      const empty = !state.eventsLoading && !failed;
+      const msg = failed ? errText(state.eventsError) : empty ? c.empty : c.loading;
       return `<div class="screen"><div class="screen-inner">
-        <div class="pick-topbar"><div class="brandmark">TT / 26</div>${langToggleHtml()}</div>
+        <div class="pick-topbar"><div class="brandmark">${esc(BRAND)}</div>${langToggleHtml()}</div>
         <div class="pick-heading">
           <div class="pick-title">${esc(msg)}</div>
-          ${state.eventsError ? `<div class="cta is-open" data-action="retry-events" style="margin-top:16px;max-width:160px">${esc(c.retry)}</div>` : ""}
+          ${empty ? `<div class="pick-sub">${esc(c.emptySub)}</div>` : ""}
+          ${failed || empty ? `<div class="cta is-open" data-action="retry-events" style="margin-top:16px;max-width:160px">${esc(c.retry)}</div>` : ""}
         </div>
       </div></div>`;
     }
@@ -185,7 +219,8 @@
       const facts = [
         [c.facts[0], e.date], [c.facts[1], e.place], [c.facts[2], e.seats], [c.facts[3], e.price]
       ].map(([k, v]) => `<div class="pick-fact"><span class="k">${esc(k)}</span><span>${esc(v)}</span></div>`).join("");
-      const badgeBg = e.open ? e.accent : "#ded8c6";
+      // Goes straight into a style attribute, so it is quoted like the rest.
+      const badgeBg = esc(e.open ? e.accent : "#ded8c6");
       const badgeFg = e.open ? "#fff" : "#57533f";
       return `<section class="hero-stage" data-hero-stage>
         <div class="hero-frame">
@@ -208,7 +243,7 @@
     }).join("");
 
     return `<div class="screen is-pick">
-      <div class="pick-topbar"><div class="brandmark">TT / 26</div>${langToggleHtml()}</div>
+      <div class="pick-topbar"><div class="brandmark">${esc(BRAND)}</div>${langToggleHtml()}</div>
       ${sections}
     </div>`;
   }
@@ -358,7 +393,7 @@
           ${langToggleHtml()}
         </div>
         <div class="ask-body">
-          <div class="ask-title">${esc(state.fieldsError || c.formLoading)}</div>
+          <div class="ask-title">${esc(state.fieldsError ? errText(state.fieldsError) : c.formLoading)}</div>
           ${state.fieldsError ? `<div class="cta is-open" data-action="retry-form" style="max-width:160px">${esc(c.pick.retry)}</div>` : ""}
         </div>
       </div></div>`;
@@ -448,7 +483,7 @@
       setState({ fields, vals, fieldsLoading: false, fieldsError: "" });
     } catch (e) {
       if (currentEventId() !== eventId) return;
-      setState({ fieldsLoading: false, fieldsError: t().err.network });
+      setState({ fieldsLoading: false, fieldsError: "network" });
     }
   }
 
@@ -467,14 +502,14 @@
   function renderLookup() {
     const c = t();
     return `<div class="lookup-screen"><div class="lookup-inner">
-      <div class="brandmark">TT / 26</div>
+      <div class="brandmark">${esc(BRAND)}</div>
       <div class="lookup-body">
         <div class="lookup-title">${esc(nl2sp(c.lookupTitle))}</div>
         <div class="lookup-sub">${esc(c.lookupSub)}</div>
         <div class="lookup-underline">
           <input class="lookup-input" id="lookup-input" type="email" value="${esc(state.lookupEmail)}" placeholder="name@company.com" autocomplete="off" />
         </div>
-        <div class="lookup-error">${esc(state.lookupError)}</div>
+        <div class="lookup-error">${esc(errText(state.lookupError))}</div>
       </div>
       <div class="lookup-actions">
         <div class="back-btn" data-action="go-pick">←</div>
@@ -483,21 +518,46 @@
     </div></div>`;
   }
 
+  // The three standard types are translated; anything else the organiser has
+  // typed is shown as they wrote it. Falling back to index 0 printed "ทั่วไป"
+  // on a speaker's badge and said nothing about it.
   function typeLabelFor(pass) {
-    let idx = 0;
     for (const l of ["th", "en"]) {
       const i = COPY[l].types.indexOf(pass.type);
-      if (i >= 0) { idx = i; break; }
+      if (i >= 0) return t().types[i];
     }
-    return t().types[idx];
+    return pass.type || t().types[0];
+  }
+
+  // What a pass knows about its own event. Registration and lookup now send
+  // these along, so a pass keeps working after its event is hidden from the
+  // customer list — but a pass saved before that change carries none of them,
+  // and the live event list is the fallback.
+  function passEvent(p) {
+    const live = state.events.find(e => e.id === p.eventId);
+    return {
+      name: p.eventName || (live && live.name) || "",
+      date: p.eventDate || (live && live.date) || "",
+      place: p.eventPlace || (live && live.place) || "",
+      doors: p.eventDoors || (live && live.doors) || ""
+    };
   }
 
   function renderPass() {
     const c = t();
     const p = state.pass;
+    const ev = passEvent(p);
     const typeLabel = typeLabelFor(p).toUpperCase();
+    // Only rows there is an answer for. A heading with nothing under it tells
+    // the customer nothing and reads as something that failed to load.
+    const facts = [
+      [c.eventDate, ev.date], [c.gate, ev.place],
+      [c.doors, ev.doors], [c.contact, p.phone]
+    ].filter(pair => pair[1])
+     .map(pair => `<div class="pass-fact"><span class="k">${esc(pair[0])}</span><span>${esc(pair[1])}</span></div>`)
+     .join("");
     return `<div class="pass-screen"><div class="pass-inner">
-      <div class="pass-topbar"><div class="pass-brandmark">TT / 26</div>${langToggleHtml()}</div>
+      <div class="pass-topbar"><div class="pass-brandmark">${esc(BRAND)}</div>${langToggleHtml()}</div>
       <div>
         <div class="done-title">${esc(nl2sp(c.done))}</div>
         <div class="pass-note">${esc(c.passNote)}</div>
@@ -505,7 +565,7 @@
       <div class="badge-card">
         <div class="badge-top">
           <div style="min-width:0">
-            <div class="badge-kicker">${esc(c.kicker)} · ${esc(p.eventName || "")}</div>
+            <div class="badge-kicker">${esc(c.kicker)} · ${esc(ev.name)}</div>
             <div class="badge-name">${esc(p.name)}</div>
             <div class="badge-org">${esc(p.org)}</div>
           </div>
@@ -514,14 +574,10 @@
         <div class="badge-qr">${window.renderQrSvg(p.qrPayload)}</div>
         <div class="badge-bottom">
           <div class="badge-code">${esc(p.code)}</div>
-          <div class="badge-date">18.12.2026 · H2</div>
+          <div class="badge-date">${esc(ev.date)}</div>
         </div>
       </div>
-      <div class="pass-facts">
-        <div class="pass-fact"><span class="k">${esc(c.gate)}</span><span>${esc(c.gateVal)}</span></div>
-        <div class="pass-fact"><span class="k">${esc(c.doors)}</span><span>08:15</span></div>
-        <div class="pass-fact"><span class="k">${esc(c.contact)}</span><span>${esc(p.phone)}</span></div>
-      </div>
+      <div class="pass-facts">${facts}</div>
       <div class="pass-buttons">
         <div class="save-btn" data-action="save-img">${esc(c.saveImg)}</div>
       </div>
@@ -611,7 +667,7 @@
   // an optional email left blank is fine while a malformed one is not.
   function fieldError(f) {
     const c = t(), v = (state.vals[f.key] || "").trim();
-    if (!v) return f.required ? (c.err[f.key] || c.err.requiredField) : "";
+    if (!v) return f.required ? ((c.blank && c.blank[f.key]) || c.err.requiredField) : "";
     if (f.type === "EMAIL" && !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(v)) return c.err.email;
     if (f.type === "PHONE" && v.replace(/\D/g, "").length < 9) return c.err.phone;
     return "";
@@ -669,7 +725,8 @@
         name: d.name, email: d.email, phone: d.phone,
         org: d.org || (state.lang === "en" ? "Individual" : "ผู้เข้าร่วมทั่วไป"),
         type: d.type, code: d.badgeCode, qrPayload: d.qrPayload,
-        eventId: d.eventId, eventName: d.eventName
+        eventId: d.eventId, eventName: d.eventName,
+        eventDate: d.eventDate, eventPlace: d.eventPlace, eventDoors: d.eventDoors
       };
       try { localStorage.setItem(PASS_KEY, JSON.stringify(pass)); } catch (e) { /* ignore */ }
       state.pass = pass;
@@ -704,6 +761,7 @@
   // library, and the page's own font is available to fillText once
   // document.fonts has settled.
   async function badgeBlob(pass) {
+    const ev = passEvent(pass);
     if (document.fonts && document.fonts.ready) {
       try { await document.fonts.ready; } catch (e) { /* font API is optional */ }
     }
@@ -734,7 +792,7 @@
     x.textAlign = "left";
     x.fillStyle = "#8a8474";
     x.font = "500 9.5px Prompt, sans-serif";
-    x.fillText((t().kicker + " · " + (pass.eventName || "")).toUpperCase(), PAD, PAD + 14);
+    x.fillText((t().kicker + " · " + ev.name).toUpperCase(), PAD, PAD + 14);
 
     x.fillStyle = "#17150f";
     x.font = "600 22px Prompt, sans-serif";
@@ -771,7 +829,7 @@
     x.fillStyle = "#6f6a5a";
     x.font = "500 10px Prompt, sans-serif";
     x.textAlign = "right";
-    x.fillText("18.12.2026 · H2", W - PAD, footTop + 24);
+    x.fillText(ev.date, W - PAD, footTop + 24);
 
     return new Promise((resolve, reject) => {
       cv.toBlob(b => b ? resolve(b) : reject(new Error("toBlob_failed")), "image/png");
@@ -824,7 +882,7 @@
   async function doLookup() {
     const c = t();
     const em = state.lookupEmail.trim().toLowerCase();
-    if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(em)) { setState({ lookupError: c.err.notfound }); return; }
+    if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(em)) { setState({ lookupError: "notfound" }); return; }
     state.lookupBusy = true;
     render();
     try {
@@ -834,7 +892,8 @@
       const pass = {
         name: d.name, email: d.email, phone: d.phone, org: d.org,
         type: d.type, code: d.badgeCode, qrPayload: d.qrPayload,
-        eventId: d.eventId, eventName: d.eventName
+        eventId: d.eventId, eventName: d.eventName,
+        eventDate: d.eventDate, eventPlace: d.eventPlace, eventDoors: d.eventDoors
       };
       try { localStorage.setItem(PASS_KEY, JSON.stringify(pass)); } catch (e) { /* ignore */ }
       state.pass = pass;
@@ -843,7 +902,7 @@
       render();
     } catch (e) {
       state.lookupBusy = false;
-      setState({ lookupError: c.err.notfound });
+      setState({ lookupError: "notfound" });
     }
   }
 
