@@ -60,3 +60,22 @@ something the testing did not — a phone whose camera it cannot open, a token
 that expires mid-event. Running both is a known cost, deliberately paid once:
 a second, worse scanner is how people end up using the worse one, so this is
 an overlap with an end, not a permanent pair.
+
+## Amendment, 2026-09-10 — the sequencing condition was waived
+
+The scan screen is removed from the console today, before the gate app has
+carried a real event. The owner made the call, and the reasoning that replaces
+the condition above is theirs: **if something goes wrong at the door, staff
+check people in from the attendee list instead.**
+
+That fallback is real and already tested. Both apps list attendees and both
+can check someone in from a row — that is precisely the path a guest with a
+cracked screen or a dead battery already takes. It needs no camera, no
+decoder, and no QR, which are the three things a scanner can fail at. The
+console's scan screen was never the better fallback for those cases; the list
+was, and the list stays in both places.
+
+What went with it: the camera, `jsQR`, the scan result card, the recent-scans
+strip and the typed-code box — about 250 lines of `staff.js`, 37 of CSS, and
+55 KB of decoder off every console page load. The console no longer opens a
+camera at all.
