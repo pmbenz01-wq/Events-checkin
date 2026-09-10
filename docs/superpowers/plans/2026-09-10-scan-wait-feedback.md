@@ -594,12 +594,17 @@ async () => {
   const cx = cv.getContext("2d");
   setInterval(() => { cx.fillStyle = "#fff"; cx.fillRect(0, 0, 480, 480); }, 60);
   navigator.mediaDevices.getUserMedia = async () => cv.captureStream(30);
+  document.querySelector('[data-act="camon"]').click();
+  // ensureDecoder() fetches vendor/jsQR.js on demand, so the library does not
+  // exist until the camera has been asked for. Wrapping it any earlier gets
+  // silently overwritten when the real one lands, and the probe then counts
+  // zero for the wrong reason.
+  for (let i = 0; i < 60 && !window.jsQR; i++) await sleep(100);
+  if (!window.jsQR) return { error: "decoder never loaded" };
   let calls = 0;
   const realJsQR = window.jsQR;
   window.jsQR = function () { calls++; return realJsQR.apply(this, arguments); };
-
-  document.querySelector('[data-act="camon"]').click();
-  await sleep(1500);
+  await sleep(1200);
   const before = calls;
   await sleep(1000);
   const idleRate = calls - before;              // frames read while idle
@@ -730,15 +735,12 @@ async () => {
   await scan("TT-1A2B-901");
   out.duplicate = v().className;
   v().click(); await sleep(300);
-  out.printOpens = (() => {
-    let u = null; const ow = window.open; window.open = x => { u = x; return null; };
-    return { restore: () => { window.open = ow; }, get url() { return u; } };
-  })();
+  out.dismissed = !v().classList.contains("up");
   return out;
 }
 ```
 
-Expected: `pass.cls` is `"verdict v-ok up"` with `rgb(47, 107, 79)`; `passCleared` is `true`; `duplicate` is `"verdict v-dup up"`.
+Expected: `pass.cls` is `"verdict v-ok up"` with `rgb(47, 107, 79)`; `passCleared` is `true`; `duplicate` is `"verdict v-dup up"`; `dismissed` is `true`.
 
 - [ ] **Step 3: Confirm offline still blocks entry**
 
