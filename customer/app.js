@@ -31,8 +31,9 @@
       next: "ถัดไป", skip: "ข้าม", finish: "ยืนยันและรับ QR",
       already: "ลงทะเบียนไว้แล้ว?", lookupLink: "เปิดดู QR ของฉัน",
       saving: "กำลังบันทึกลง Google Sheet…",
-      lookupTitle: "เปิดดู\nบัตรของฉัน", lookupSub: "กรอกอีเมลที่ใช้ลงทะเบียน ระบบจะเปิด QR ใบเดิมให้", lookupBtn: "ค้นหาบัตร",
-      done: "เรียบร้อย\nแล้ว!", passNote: "ยื่น QR นี้ที่ประตู เจ้าหน้าที่จะพิมพ์บัตรแขวนคอให้ทันที · เปิดซ้ำได้จากลิงก์ในอีเมล",
+      lookupTitle: "เปิดดู\nบัตรของฉัน", lookupSub: "กรอกเบอร์โทรศัพท์ที่ใช้ลงทะเบียน (หรืออีเมลก็ได้) ระบบจะเปิด QR ใบเดิมให้", lookupBtn: "ค้นหาบัตร",
+      lookupPh: "08X XXX XXXX",
+      done: "เรียบร้อย\nแล้ว!", passNote: "ยื่น QR นี้ที่ประตู เจ้าหน้าที่จะพิมพ์บัตรแขวนคอให้ทันที · ปิดหน้านี้ไปแล้วเปิดใหม่ได้ตลอด ด้วยเบอร์โทรที่ลงทะเบียนไว้",
       kicker: "ENTRY PASS", eventDate: "วันที่จัดงาน", gate: "จุดลงทะเบียน",
       doors: "เวลาเปิดประตู", contact: "เบอร์ที่ลงทะเบียนไว้",
       saveImg: "บันทึกรูป", newReg: "ลงทะเบียนคนใหม่",
@@ -40,7 +41,7 @@
       // different words. Telling somebody their email is badly formatted when
       // they simply have not typed one sends them hunting for a typo.
       blank: { name: "กรุณากรอกชื่อ", email: "กรุณากรอกอีเมล", phone: "กรุณากรอกเบอร์โทรศัพท์" },
-      err: { name: "กรุณากรอกชื่อ", email: "รูปแบบอีเมลไม่ถูกต้อง", phone: "กรอกเบอร์ 9–10 หลัก", requiredField: "กรุณากรอกข้อมูลนี้", missingField: "ยังกรอกข้อมูลไม่ครบ กรุณาตรวจอีกครั้ง", busy: "ระบบกำลังบันทึกรายการอื่น รอสักครู่แล้วลองใหม่", failed: "บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", saveImg: "บันทึกรูปไม่สำเร็จ ลองใหม่อีกครั้ง", notfound: "ไม่พบการลงทะเบียนของอีเมลนี้", eventClosed: "งานนี้ยังไม่เปิดรับลงทะเบียน", network: "เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง" },
+      err: { name: "กรุณากรอกชื่อ", email: "รูปแบบอีเมลไม่ถูกต้อง", phone: "กรอกเบอร์ 9–10 หลัก", requiredField: "กรุณากรอกข้อมูลนี้", missingField: "ยังกรอกข้อมูลไม่ครบ กรุณาตรวจอีกครั้ง", busy: "ระบบกำลังบันทึกรายการอื่น รอสักครู่แล้วลองใหม่", failed: "บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", saveImg: "บันทึกรูปไม่สำเร็จ ลองใหม่อีกครั้ง", notfound: "ไม่พบการลงทะเบียนของเบอร์หรืออีเมลนี้", eventClosed: "งานนี้ยังไม่เปิดรับลงทะเบียน", network: "เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง" },
       toastSaved: "บันทึกลง Google Sheet แล้ว", toastImg: "บันทึกรูปบัตรลงเครื่องแล้ว"
     },
     en: {
@@ -67,13 +68,14 @@
       next: "NEXT", skip: "SKIP", finish: "CONFIRM & GET QR",
       already: "Already registered?", lookupLink: "Open my QR",
       saving: "Saving to Google Sheet…",
-      lookupTitle: "Find\nmy pass", lookupSub: "Enter the email you registered with and we'll reopen the same QR.", lookupBtn: "FIND MY PASS",
-      done: "You're\nin!", passNote: "Show this QR at the door — staff print your lanyard badge on the spot. Reopen it any time from the email link.",
+      lookupTitle: "Find\nmy pass", lookupSub: "Enter the phone number you registered with — or your email — and we'll reopen the same QR.", lookupBtn: "FIND MY PASS",
+      lookupPh: "08X XXX XXXX",
+      done: "You're\nin!", passNote: "Show this QR at the door — staff print your lanyard badge on the spot. Close this page and you can reopen it any time with the phone number you registered.",
       kicker: "ENTRY PASS", eventDate: "Event date", gate: "Check-in point",
       doors: "Doors open", contact: "Registered phone",
       saveImg: "SAVE IMAGE", newReg: "Register someone else",
       blank: { name: "Please enter your name", email: "Please enter your email", phone: "Please enter your phone number" },
-      err: { name: "Please enter your name", email: "Invalid email format", phone: "Enter a 9–10 digit number", requiredField: "This field is required", missingField: "Some required details are missing — please check the form.", busy: "The system is saving another registration. Please try again in a moment.", failed: "Couldn't save your registration. Please try again.", saveImg: "Couldn't save the image. Please try again.", notfound: "No registration found for that email.", eventClosed: "Registration opens later — check back soon.", network: "Couldn't reach the server. Please try again." },
+      err: { name: "Please enter your name", email: "Invalid email format", phone: "Enter a 9–10 digit number", requiredField: "This field is required", missingField: "Some required details are missing — please check the form.", busy: "The system is saving another registration. Please try again in a moment.", failed: "Couldn't save your registration. Please try again.", saveImg: "Couldn't save the image. Please try again.", notfound: "No registration found for that phone number or email.", eventClosed: "Registration opens later — check back soon.", network: "Couldn't reach the server. Please try again." },
       toastSaved: "Saved to Google Sheet", toastImg: "Badge image saved"
     }
   };
@@ -90,7 +92,7 @@
     fields: [], fieldsLoading: false, fieldsError: "",   // "" | "network"
     vals: {},
     errors: {},
-    lookupEmail: "", lookupError: "", lookupBusy: false,   // lookupError: "" | "notfound"
+    lookupTerm: "", lookupError: "", lookupBusy: false,   // lookupError: "" | "notfound"
     pass: null, toast: "",
     submitError: ""
   };
@@ -132,12 +134,13 @@
     } catch (e) { /* ignore */ }
 
     const urlParams = new URLSearchParams(location.search);
-    const lookupEmail = urlParams.get("lookup");
+    // Old links mailed out before the pass email was dropped carry ?lookup=<email>.
+    const lookupTerm = urlParams.get("lookup");
 
     await loadEvents();
 
-    if (lookupEmail) {
-      state.lookupEmail = lookupEmail;
+    if (lookupTerm) {
+      state.lookupTerm = lookupTerm;
       state.screen = "lookup";
       render();
       doLookup();
@@ -507,7 +510,7 @@
         <div class="lookup-title">${esc(nl2sp(c.lookupTitle))}</div>
         <div class="lookup-sub">${esc(c.lookupSub)}</div>
         <div class="lookup-underline">
-          <input class="lookup-input" id="lookup-input" type="email" value="${esc(state.lookupEmail)}" placeholder="name@company.com" autocomplete="off" />
+          <input class="lookup-input" id="lookup-input" type="text" inputmode="tel" value="${esc(state.lookupTerm)}" placeholder="${esc(c.lookupPh)}" autocomplete="off" />
         </div>
         <div class="lookup-error">${esc(errText(state.lookupError))}</div>
       </div>
@@ -617,7 +620,7 @@
     if (lookupInput) {
       lookupInput.focus();
       lookupInput.addEventListener("input", e => {
-        state.lookupEmail = e.target.value;
+        state.lookupTerm = e.target.value;
         state.lookupError = "";
         const errorEl = app.querySelector(".lookup-error");
         if (errorEl) errorEl.textContent = "";
@@ -879,14 +882,20 @@
     }
   }
 
+  function looksLikeLookup(v) {
+    const s = String(v || "").trim();
+    if (/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(s)) return s.toLowerCase();
+    return s.replace(/\D/g, "").length >= 9 ? s : "";
+  }
+
   async function doLookup() {
     const c = t();
-    const em = state.lookupEmail.trim().toLowerCase();
-    if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(em)) { setState({ lookupError: "notfound" }); return; }
+    const term = looksLikeLookup(state.lookupTerm);
+    if (!term) { setState({ lookupError: "notfound" }); return; }
     state.lookupBusy = true;
     render();
     try {
-      const res = await window.Api.getMyPass(em);
+      const res = await window.Api.getMyPass(term);
       if (!res.ok) throw new Error(res.error || "not_found");
       const d = res.data;
       const pass = {

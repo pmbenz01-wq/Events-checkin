@@ -27,6 +27,7 @@ window.Api = (function () {
     listEvents: () => get({ action: "listEvents" }),
     getEventForm: eventId => get({ action: "getEventForm", eventId }),
     register: p => post(Object.assign({ action: "register" }, p)),
-    getMyPass: email => get({ action: "getMyPass", email })
+    // Phone or email — the server decides which it is looking at.
+    getMyPass: term => get({ action: "getMyPass", q: term })
   };
 })();
