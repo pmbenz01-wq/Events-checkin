@@ -41,7 +41,9 @@
       // different words. Telling somebody their email is badly formatted when
       // they simply have not typed one sends them hunting for a typo.
       blank: { name: "กรุณากรอกชื่อ", email: "กรุณากรอกอีเมล", phone: "กรุณากรอกเบอร์โทรศัพท์" },
-      err: { name: "กรุณากรอกชื่อ", email: "รูปแบบอีเมลไม่ถูกต้อง", phone: "กรอกเบอร์ 9–10 หลัก", requiredField: "กรุณากรอกข้อมูลนี้", missingField: "ยังกรอกข้อมูลไม่ครบ กรุณาตรวจอีกครั้ง", busy: "ระบบกำลังบันทึกรายการอื่น รอสักครู่แล้วลองใหม่", failed: "บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", saveImg: "บันทึกรูปไม่สำเร็จ ลองใหม่อีกครั้ง", notfound: "ไม่พบการลงทะเบียนของเบอร์หรืออีเมลนี้", eventClosed: "งานนี้ยังไม่เปิดรับลงทะเบียน", network: "เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง" },
+      err: { name: "กรุณากรอกชื่อ", email: "รูปแบบอีเมลไม่ถูกต้อง", phone: "กรอกเบอร์ 9–10 หลัก", requiredField: "กรุณากรอกข้อมูลนี้", missingField: "ยังกรอกข้อมูลไม่ครบ กรุณาตรวจอีกครั้ง", busy: "ระบบกำลังบันทึกรายการอื่น รอสักครู่แล้วลองใหม่", failed: "บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", saveImg: "บันทึกรูปไม่สำเร็จ ลองใหม่อีกครั้ง", notfound: "ไม่พบการลงทะเบียนของเบอร์หรืออีเมลนี้",
+        dupPhone: "เบอร์นี้ลงทะเบียนงานนี้ไว้แล้ว — กด “เปิดดู QR ของฉัน” ด้านล่างเพื่อเปิดบัตรใบเดิม",
+        dupEmail: "อีเมลนี้ลงทะเบียนงานนี้ไว้แล้ว — กด “เปิดดู QR ของฉัน” ด้านล่างเพื่อเปิดบัตรใบเดิม", eventClosed: "งานนี้ยังไม่เปิดรับลงทะเบียน", network: "เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง" },
       toastSaved: "บันทึกลง Google Sheet แล้ว", toastImg: "บันทึกรูปบัตรลงเครื่องแล้ว"
     },
     en: {
@@ -75,7 +77,9 @@
       doors: "Doors open", contact: "Registered phone",
       saveImg: "SAVE IMAGE", newReg: "Register someone else",
       blank: { name: "Please enter your name", email: "Please enter your email", phone: "Please enter your phone number" },
-      err: { name: "Please enter your name", email: "Invalid email format", phone: "Enter a 9–10 digit number", requiredField: "This field is required", missingField: "Some required details are missing — please check the form.", busy: "The system is saving another registration. Please try again in a moment.", failed: "Couldn't save your registration. Please try again.", saveImg: "Couldn't save the image. Please try again.", notfound: "No registration found for that phone number or email.", eventClosed: "Registration opens later — check back soon.", network: "Couldn't reach the server. Please try again." },
+      err: { name: "Please enter your name", email: "Invalid email format", phone: "Enter a 9–10 digit number", requiredField: "This field is required", missingField: "Some required details are missing — please check the form.", busy: "The system is saving another registration. Please try again in a moment.", failed: "Couldn't save your registration. Please try again.", saveImg: "Couldn't save the image. Please try again.", notfound: "No registration found for that phone number or email.",
+        dupPhone: "That phone number is already registered for this event — use “Open my QR” below to reopen the same pass.",
+        dupEmail: "That email is already registered for this event — use “Open my QR” below to reopen the same pass.", eventClosed: "Registration opens later — check back soon.", network: "Couldn't reach the server. Please try again." },
       toastSaved: "Saved to Google Sheet", toastImg: "Badge image saved"
     }
   };
@@ -750,6 +754,8 @@
     if (code === "invalid_email") return c.err.email;
     if (code === "invalid_phone") return c.err.phone;
     if (code === "invalid_name") return c.err.name;
+    if (code === "phone_already_registered") return c.err.dupPhone;
+    if (code === "email_already_registered") return c.err.dupEmail;
     if (code === "event_closed") return c.err.eventClosed;
     if (code === "consent_required") return c.err.missingField;
     if (code.indexOf("missing_") === 0) return c.err.missingField;
