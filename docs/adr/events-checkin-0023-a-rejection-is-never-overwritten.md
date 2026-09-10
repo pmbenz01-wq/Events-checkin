@@ -33,6 +33,10 @@ Scope, so this does not become a queue nobody can clear:
   stacking behind it. Nobody at a door wants to tap through four stale verdicts
   to reach the person in front of them, and the older one has already been
   recorded and is visible in เพิ่งสแกน.
-- **The neutral checking phase never waits.** It is not a result and blocks
-  nothing; it goes up the instant a code is read, which is the whole point of
-  [[events-checkin-0019]].
+- **The neutral checking phase is skipped, not queued.** Found while planning:
+  if it were painted like any other panel it would destroy an unacknowledged
+  rejection before the answer even arrived — worse than the bug this ADR
+  exists to fix. So when the screen is held by a rejection, the neutral phase
+  simply does not appear. The receipt sound and vibration still fire, and are
+  then the only thing telling the operator the badge was read at all; the
+  verdict for it waits its turn like any other.
