@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>ขั้นตอนการใช้งาน 1NEVE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@200;300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Single-theme on purpose: this document is printed and handed to somebody.
+   Three palettes appear because the system genuinely has three — the customer
+   site is vermilion on paper, the console is brass on warm white, the door app
+   is near-black because it is read in a dim room. Every value below is the
+   real one from the product's own stylesheets, not an approximation. */
+:root{
+  --paper:#f4f1e6; --ink:#17150f; --accent:#d8482b; --muted:#7d7767;
+  --rule:#ddd7c4; --well:#e8e4d6; --line:#bdb6a1;
+  /* console */
+  --c-bg:#f6f4ee; --c-surface:#fff; --c-sunken:#f1eee5; --c-ink:#211d17;
+  --c-soft:#5c564a; --c-muted:#968f7e; --c-line:#e5e0d2; --c-accent:#9c7a2e;
+  --c-accsoft:#f2e9d1; --c-ok:#3f7a4c; --c-okbg:#eaf6ec; --c-dup:#b3483c;
+  /* gate */
+  --g-well:#13110c; --ok:#2f6b4f; --dup:#8a6512; --no:#c13920; --blue:#2f4d8c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font:300 15px/1.7 Prompt,system-ui,sans-serif;-webkit-font-smoothing:antialiased;padding:0 22px}
+.sheet{max-width:1000px;margin:0 auto;padding-block:46px 60px}
+
+.mast{display:flex;flex-direction:column;gap:9px;padding-bottom:22px;border-bottom:2px solid var(--ink)}
+.brand{font:600 11px/1 "IBM Plex Mono",monospace;letter-spacing:.34em;color:var(--accent)}
+h1{font:200 34px/1.14 Prompt,sans-serif;letter-spacing:-.02em;margin:0;text-wrap:balance}
+.lede{margin:0;color:var(--muted);max-width:62ch;font-size:14.5px}
+
+/* ---- section headers ---- */
+.sec{margin-top:44px;break-after:avoid;page-break-after:avoid}
+.sec-k{font:500 10px/1 "IBM Plex Mono",monospace;letter-spacing:.22em;color:var(--accent)}
+.sec h2{font:400 23px/1.25 Prompt,sans-serif;margin:8px 0 4px}
+.sec p{margin:0;color:var(--muted);font-size:13.5px;max-width:64ch}
+
+.walk{display:grid;grid-template-columns:repeat(3,1fr);gap:30px 26px;margin-top:24px}
+.walk.wide{grid-template-columns:repeat(2,1fr)}
+@media (max-width:860px){.walk{grid-template-columns:repeat(2,1fr)}.walk.wide{grid-template-columns:1fr}}
+@media (max-width:560px){.walk,.walk.wide{grid-template-columns:1fr}}
+.step{display:flex;flex-direction:column;gap:10px;break-inside:avoid;page-break-inside:avoid}
+.cap{display:flex;align-items:baseline;gap:9px}
+.cap .n{font:500 11px/1 "IBM Plex Mono",monospace;color:var(--accent);flex:0 0 auto}
+.cap .t{font:400 14px/1.4 Prompt,sans-serif;text-wrap:balance}
+.cap .t em{font-style:normal;color:var(--muted);font-size:12px;display:block;margin-top:3px}
+
+/* ---- phone frame ---- */
+.phone{width:100%;max-width:250px;margin:0 auto;border:1.4px solid var(--ink);
+  border-radius:19px;overflow:hidden;background:var(--paper);
+  aspect-ratio:250/455;display:flex;flex-direction:column}
+.phone.dark{background:var(--g-well)}
+
+/* customer hero */
+.hero{position:relative;flex:1;display:flex;flex-direction:column}
+.hero-img{position:absolute;inset:0;background:linear-gradient(148deg,#d8482b 0%,#8e3524 34%,#17150f 82%)}
+.hero-img .ghost{position:absolute;top:11%;right:-6%;font:600 78px/1 Prompt,sans-serif;
+  letter-spacing:-.05em;color:rgba(244,241,230,.09)}
+.hero-img .mk{position:absolute;top:41%;left:15px;font:600 7.5px/1 "IBM Plex Mono",monospace;
+  letter-spacing:.3em;color:rgba(244,241,230,.7)}
+.hero-scrim{position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(19,17,12,.9),rgba(19,17,12,.35) 40%,rgba(19,17,12,0))}
+.hero-pill{position:absolute;top:11px;right:11px;padding:3px 9px;border-radius:99px;
+  background:#d8482b;color:#fff;font:600 7px/1 Prompt,sans-serif;letter-spacing:.1em}
+.hero-txt{position:relative;margin-top:auto;padding:0 15px 14px;color:#f4f1e6}
+.k-date{font:600 7.5px/1 Prompt,sans-serif;letter-spacing:.16em;color:#e4593d}
+.k-name{font:600 18px/1.12 Prompt,sans-serif;letter-spacing:-.02em;margin-top:4px}
+.k-place{font:400 10px/1.4 Prompt,sans-serif;margin-top:2px;opacity:.85}
+.facts{margin-top:10px;display:flex;flex-direction:column;gap:4px}
+.fact{display:flex;justify-content:space-between;font:400 9.5px/1.4 Prompt,sans-serif;
+  border-bottom:1px solid rgba(244,241,230,.22);padding-bottom:4px}
+.fact .fk{opacity:.6}
+.cta{margin-top:12px;border-radius:99px;text-align:center;padding:10px 0;
+  font:600 10.5px Prompt,sans-serif;background:#d8482b;color:#fff}
+
+/* customer screens */
+.scr{flex:1;display:flex;flex-direction:column;padding:12px 15px 14px;min-height:0}
+.topbar{display:flex;justify-content:space-between;align-items:center;
+  font:400 8px/1 Prompt,sans-serif;color:var(--muted);margin-bottom:13px}
+.ticks{display:flex;gap:3px}
+.ticks i{width:12px;height:2px;background:var(--line);display:block}
+.ticks i.on{background:var(--accent)}
+.eyebrow{font:600 7.5px/1 "IBM Plex Mono",monospace;letter-spacing:.24em;color:var(--accent)}
+.title{font:200 18px/1.2 Prompt,sans-serif;margin-top:7px}
+.sub{font:300 9.5px/1.5 Prompt,sans-serif;color:var(--muted);margin-top:4px}
+.fields{margin-top:13px;display:flex;flex-direction:column;gap:11px}
+.ff{display:flex;flex-direction:column;gap:3px}
+.ff-l{font:400 8.5px/1 Prompt,sans-serif;color:var(--muted)}
+.ff-l b{color:var(--accent);font-weight:400}
+.ff-i{border-bottom:1px solid var(--line);padding-bottom:5px;font:300 11px/1 Prompt,sans-serif}
+.ff-i.ph{color:#a9a290}
+.consent{display:flex;gap:8px;align-items:flex-start;margin-top:13px;font:300 9px/1.45 Prompt,sans-serif}
+.box{flex:0 0 auto;width:13px;height:13px;border:1px solid var(--line);background:#fff;
+  position:relative;border-radius:2px}
+.box.on{background:var(--accent);border-color:var(--accent)}
+.box.on::after{content:"";position:absolute;left:4px;top:1px;width:3.5px;height:7px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.consent u{color:var(--accent);text-decoration-color:var(--accent)}
+.nextbtn{margin-top:auto;border-radius:99px;text-align:center;padding:10px 0;
+  font:600 10.5px Prompt,sans-serif;background:var(--accent);color:#fff}
+.nextbtn.off{background:#ded8c6;color:#8a8474}
+.pass{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;text-align:center}
+.qr{width:104px;height:104px;background:#fff;padding:6px;display:grid;
+  grid-template-columns:repeat(21,1fr);grid-auto-rows:1fr}
+.qr i{background:#17150f}.qr i.o{background:transparent}
+.code{font:500 12.5px/1 "IBM Plex Mono",monospace;letter-spacing:.05em}
+.passname{font:400 11.5px/1.3 Prompt,sans-serif}
+.passev{font:300 9px/1.4 Prompt,sans-serif;color:var(--muted)}
+.doc{flex:1;padding:12px 15px;overflow:hidden}
+.doc h4{font:400 12px/1.3 Prompt,sans-serif;margin:11px 0 4px}
+.doc h4:first-of-type{margin-top:9px}
+.doc p{margin:0;font:300 8.5px/1.55 Prompt,sans-serif;color:var(--muted)}
+
+/* gate */
+.gate{flex:1;display:flex;flex-direction:column;position:relative;color:#f4f1e6;min-height:0}
+.gate-bar{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;
+  font:400 7.5px/1 Prompt,sans-serif;color:rgba(244,241,230,.62);
+  border-bottom:1px solid rgba(244,241,230,.12)}
+.gate-bar .dot{display:inline-block;width:4px;height:4px;border-radius:99px;
+  background:#2f6b4f;margin-right:4px}
+.cam{flex:1;position:relative;background:repeating-linear-gradient(115deg,#1d1a13 0 2px,#16130d 2px 7px)}
+.cam .frame{position:absolute;inset:20% 16%;border:2px solid rgba(244,241,230,.5);border-radius:5px}
+.panel{position:absolute;left:0;right:0;bottom:0;padding:14px 13px 15px;
+  display:flex;flex-direction:column;gap:4px}
+.p-kicker{font:600 7px/1 Prompt,sans-serif;letter-spacing:.18em;opacity:.75}
+.p-main{font:600 14.5px/1.2 Prompt,sans-serif}
+.p-sub{font:300 9px/1.4 Prompt,sans-serif;opacity:.85}
+.p-code{font:500 9.5px/1 "IBM Plex Mono",monospace;letter-spacing:.05em;margin-top:3px;opacity:.9}
+.p-neutral{background:#13110c;border-top:1px solid rgba(244,241,230,.14)}
+.p-ok{background:var(--ok)}.p-dup{background:var(--dup)}.p-no{background:var(--no)}
+.p-off{background:var(--blue)}
+.p-btn{margin-top:9px;text-align:center;padding:7px 0;border:1px solid rgba(244,241,230,.45);
+  font:600 9px Prompt,sans-serif;border-radius:99px}
+.gtabs{display:flex;border-top:1px solid rgba(244,241,230,.14)}
+.gtabs div{flex:1;text-align:center;padding:9px 0;font:500 8px/1 Prompt,sans-serif;
+  color:rgba(244,241,230,.45)}
+.gtabs div.on{color:#f4f1e6;box-shadow:inset 0 2px 0 #d8482b}
+.glist{flex:1;padding:11px 12px;display:flex;flex-direction:column;gap:8px;min-height:0}
+.grow{display:flex;justify-content:space-between;align-items:center;gap:8px;
+  padding-bottom:7px;border-bottom:1px solid rgba(244,241,230,.12)}
+.grow .gn{font:400 10px/1.3 Prompt,sans-serif}
+.grow .gs{font:300 7.5px/1.3 Prompt,sans-serif;color:rgba(244,241,230,.5)}
+.grow .gt{font:500 8.5px/1 "IBM Plex Mono",monospace;color:rgba(244,241,230,.75);flex:0 0 auto}
+.gpill{font:600 7px/1 Prompt,sans-serif;padding:3px 7px;border-radius:99px;flex:0 0 auto}
+.gsearch{margin:0 0 10px;border:1px solid rgba(244,241,230,.28);border-radius:4px;
+  padding:8px 9px;font:300 9px/1 Prompt,sans-serif;color:rgba(244,241,230,.8)}
+.gsign{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:11px;padding:22px;text-align:center;color:#f4f1e6}
+.gsign .gb{font:600 8px/1 "IBM Plex Mono",monospace;letter-spacing:.3em;color:#d8482b}
+.gsign .gh{font:200 19px/1.2 Prompt,sans-serif}
+.gsign .gp{font:300 9px/1.5 Prompt,sans-serif;color:rgba(244,241,230,.55)}
+.gsign .gbtn{margin-top:5px;padding:9px 20px;border-radius:99px;background:#f4f1e6;
+  color:#17150f;font:600 9.5px Prompt,sans-serif}
+
+/* ---- console (a desk screen, not a phone) ---- */
+.laptop{width:100%;border:1.4px solid var(--c-ink);border-radius:7px;overflow:hidden;
+  background:var(--c-bg);aspect-ratio:16/10;display:flex;font-family:Prompt,sans-serif}
+.cside{width:30%;background:var(--c-surface);border-right:1px solid var(--c-line);
+  padding:9px 8px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.cbrand{font:600 7px/1 "IBM Plex Mono",monospace;letter-spacing:.26em;color:var(--c-accent)}
+.cev{background:var(--c-sunken);padding:5px 6px;border-radius:3px}
+.cev .cn{font:500 7.5px/1.2 Prompt,sans-serif;color:var(--c-ink)}
+.cev .cm{font:300 6px/1.2 Prompt,sans-serif;color:var(--c-muted);margin-top:1px}
+.cnav{display:flex;flex-direction:column;gap:1px;margin-top:2px}
+.cnav div{font:400 7px/1 Prompt,sans-serif;color:var(--c-soft);padding:5px 6px;border-radius:3px}
+.cnav div.on{background:var(--c-accsoft);color:var(--c-accent);font-weight:500}
+.cmain{flex:1;display:flex;flex-direction:column;min-width:0}
+.ctop{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;
+  border-bottom:1px solid var(--c-line);background:var(--c-surface)}
+.ctop .ct{font:400 9.5px/1.2 Prompt,sans-serif;color:var(--c-ink)}
+.ctop .cs{font:300 6px/1.2 Prompt,sans-serif;color:var(--c-muted);margin-top:1px}
+.cchips{display:flex;gap:4px;align-items:center}
+.cchip{font:500 5.5px/1 "IBM Plex Mono",monospace;letter-spacing:.1em;color:var(--c-muted);
+  border:1px solid var(--c-line);padding:4px 6px;border-radius:3px;white-space:nowrap}
+.cbody{flex:1;padding:9px 10px;display:flex;flex-direction:column;gap:8px;min-height:0;overflow:hidden}
+.cstats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.cstat{background:var(--c-surface);border:1px solid var(--c-line);border-radius:3px;padding:6px}
+.cstat.gold{background:var(--c-accsoft);border-color:#e3d6ae}
+.cstat .sl{font:400 5.5px/1.2 Prompt,sans-serif;color:var(--c-muted)}
+.cstat .sv{font:500 14px/1 Prompt,sans-serif;color:var(--c-ink);margin-top:3px}
+.cpanel{background:var(--c-surface);border:1px solid var(--c-line);border-radius:3px;
+  padding:8px;flex:1;min-height:0;display:flex;flex-direction:column;gap:6px}
+.cph{display:flex;justify-content:space-between;align-items:baseline}
+.cph .pt{font:400 8px/1 Prompt,sans-serif;color:var(--c-ink)}
+.cph .pk{font:500 5.5px/1 "IBM Plex Mono",monospace;letter-spacing:.14em;color:var(--c-muted)}
+.bars{display:flex;align-items:flex-end;gap:4px;flex:1;min-height:0}
+.bars .bc{flex:1;display:flex;flex-direction:column;justify-content:flex-end;
+  align-items:center;gap:2px;height:100%}
+.bars .bf{width:100%;background:var(--c-accsoft);border-bottom:2px solid var(--c-accent)}
+.bars .bf.peak{background:var(--c-accent)}
+.bars .bh{font:400 5px/1 "IBM Plex Mono",monospace;color:var(--c-muted)}
+.ctable{display:flex;flex-direction:column;gap:0;flex:1;min-height:0}
+.ctr{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--c-line)}
+.ctr .cgrow{flex:1;min-width:0}
+.ctr .nm{font:400 7.5px/1.2 Prompt,sans-serif;color:var(--c-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctr .sb{font:300 6px/1.2 Prompt,sans-serif;color:var(--c-muted)}
+.ctr .mn{font:400 6.5px/1 "IBM Plex Mono",monospace;color:var(--c-soft);flex:0 0 auto}
+.tag{display:inline-flex;align-items:center;gap:3px;border:1px solid var(--c-line);
+  border-radius:99px;padding:2px 6px;font:400 5.5px/1 Prompt,sans-serif;color:var(--c-muted)}
+.tag.in{background:var(--c-okbg);border-color:#c8e4cd;color:var(--c-ok)}
+.tag i{width:3px;height:3px;border-radius:99px;background:currentColor;display:block}
+.cbtn{border:1px solid var(--c-line);border-radius:3px;padding:3px 6px;
+  font:400 5.5px/1 Prompt,sans-serif;color:var(--c-soft);flex:0 0 auto}
+.cbtn.gold{border-color:var(--c-accent);color:var(--c-accent)}
+.cfield{display:flex;flex-direction:column;gap:2px}
+.cfield .fl{font:400 6px/1 Prompt,sans-serif;color:var(--c-muted)}
+.cfield .fi{border:1px solid var(--c-line);background:var(--c-surface);border-radius:3px;
+  padding:5px 6px;font:300 7px/1 Prompt,sans-serif;color:var(--c-ink)}
+.crow2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.cswitch{display:flex;justify-content:space-between;align-items:center;
+  background:var(--c-surface);border:1px solid var(--c-line);border-radius:3px;padding:6px 8px}
+.cswitch .sw-l{font:400 7px/1.2 Prompt,sans-serif;color:var(--c-ink)}
+.cswitch .sw-s{font:300 5.5px/1.2 Prompt,sans-serif;color:var(--c-muted);margin-top:1px}
+.badgeprev{background:#fff;border:1px solid var(--c-line);border-radius:2px;
+  padding:7px;display:flex;flex-direction:column;gap:4px;width:74px}
+.badgeprev .bp-top{height:4px;background:var(--c-accent)}
+.badgeprev .bp-n{font:200 9px/1.1 Prompt,sans-serif;color:var(--c-ink)}
+.badgeprev .bp-l{font:400 4.5px/1 "IBM Plex Mono",monospace;color:var(--c-muted);letter-spacing:.1em}
+.badgeprev .bp-q{width:26px;height:26px;background:#211d17;margin-top:2px}
+
+.close{margin-top:44px;padding-top:22px;border-top:2px solid var(--ink);
+  display:flex;flex-direction:column;gap:7px;break-inside:avoid;page-break-inside:avoid}
+.close h2{font:400 16px/1.3 Prompt,sans-serif;margin:0}
+.close p{margin:0;color:var(--muted);max-width:72ch;font-size:13.5px}
+.close strong{color:var(--ink);font-weight:400}
+
+@page{size:A4;margin:13mm 12mm}
+@media print{
+  body{background:#fff;padding:0;font-size:10pt}
+  .sheet{max-width:none;padding-block:0}
+  h1{font-size:24pt}
+  .sec{margin-top:26px}
+  .walk{gap:20px 18px}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<style>
+html,body{margin:0}img{max-width:100%}
+.printhint{max-width:1000px;margin:0 auto 22px;padding:11px 14px;background:var(--well);
+  border-left:3px solid var(--accent);font:300 13px/1.5 Prompt,system-ui,sans-serif;color:var(--muted)}
+.printhint b{color:var(--ink);font-weight:500}
+@media print{.printhint{display:none}}
+</style>
+</head>
+<body>
+<div class="sheet">
+<div class="printhint">กด <b>Ctrl + P</b> (หรือ <b>⌘ + P</b>) แล้วเลือก <b>บันทึกเป็น PDF</b> · ขนาด A4</div>
+
+  <header class="mast">
+    <div class="brand">1NEVE</div>
+    <h1>ทุกหน้าจอของระบบ ตั้งแต่ผู้เข้างานกดลงทะเบียน จนส่งข้อมูลคืนผู้จัดงาน</h1>
+    <p class="lede">ระบบมีสามส่วน — เว็บที่ผู้เข้างานใช้เอง แอปหน้าประตูที่เจ้าหน้าที่ถือ
+      และคอนโซลที่ทีมงานนั่งดู ทุกหน้าจอในเอกสารนี้คือของจริง สีและตัวอักษรตรงตามระบบ</p>
+  </header>
+
+  <!-- ============ 1. CUSTOMER ============ -->
+  <div class="sec">
+    <div class="sec-k">ส่วนที่ 1 · มือถือของผู้เข้างาน</div>
+    <h2>เว็บลงทะเบียน</h2>
+    <p>เปิดจากลิงก์เดียว ไม่ต้องติดตั้งแอป ไม่ต้องสมัครสมาชิก รองรับไทยและอังกฤษ</p>
+  </div>
+
+  <div class="walk">
+
+    <div class="step">
+      <div class="cap"><span class="n">01</span><span class="t">เลือกงาน
+        <em>เลื่อนดูได้ถ้ามีหลายงานพร้อมกัน</em></span></div>
+      <div class="phone"><div class="hero">
+        <div class="hero-img"><span class="ghost">1N</span><span class="mk">1NEVE</span></div>
+        <div class="hero-scrim"></div><div class="hero-pill">เปิดรับ</div>
+        <div class="hero-txt">
+          <div class="k-date">15 มี.ค. 70</div>
+          <div class="k-name">G-FEST 2026</div>
+          <div class="k-place">ไอคอนสยาม</div>
+          <div class="facts">
+            <div class="fact"><span class="fk">วันที่</span><span>15 มี.ค. 70</span></div>
+            <div class="fact"><span class="fk">สถานที่</span><span>ไอคอนสยาม</span></div>
+            <div class="fact"><span class="fk">ค่าเข้างาน</span><span>ไม่มีค่าใช้จ่าย</span></div>
+          </div>
+          <div class="cta">ลงทะเบียน</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="step">
+      <div class="cap"><span class="n">02</span><span class="t">ช่องที่จำเป็น
+        <em>สามช่อง อยู่หน้าแรกทั้งหมด</em></span></div>
+      <div class="phone"><div class="scr">
+        <div class="topbar"><span>← เปลี่ยนงาน</span><span class="ticks"><i class="on"></i><i></i></span></div>
+        <div class="eyebrow">G-FEST 2026</div>
+        <div class="title">กรอกข้อมูล<br>เพื่อรับ QR</div>
+        <div class="sub">ใช้เวลาไม่ถึงหนึ่งนาที</div>
+        <div class="fields">
+          <div class="ff"><div class="ff-l">ชื่อ–นามสกุล <b>*</b></div><div class="ff-i">ณัฐพงษ์ สุวรรณเลิศ</div></div>
+          <div class="ff"><div class="ff-l">อีเมล <b>*</b></div><div class="ff-i">nattapong@example.com</div></div>
+          <div class="ff"><div class="ff-l">เบอร์โทรศัพท์ <b>*</b></div><div class="ff-i ph">08X XXX XXXX</div></div>
+        </div>
+        <div class="nextbtn">ถัดไป</div>
+      </div></div>
+    </div>
+
+    <div class="step">
+      <div class="cap"><span class="n">03</span><span class="t">คำถามของผู้จัดงาน และการยินยอม
+        <em>ไม่ติ๊ก ปุ่มยืนยันกดไม่ได้ · ระบบบันทึกเวลาที่ยินยอม</em></span></div>
+      <div class="phone"><div class="scr">
+        <div class="topbar"><span>← ย้อนกลับ</span><span class="ticks"><i class="on"></i><i class="on"></i></span></div>
+        <div class="eyebrow">คำถามจากผู้จัดงาน</div>
+        <div class="title">อีกนิดเดียว<br>ข้ามได้</div>
+        <div class="fields">
+          <div class="ff"><div class="ff-l">บริษัท / องค์กร</div><div class="ff-i">ธิงค์เทค จำกัด</div></div>
+          <div class="ff"><div class="ff-l">ตำแหน่งงาน</div><div class="ff-i ph">…</div></div>
+        </div>
+        <div class="consent"><span class="box on"></span><span>ยอมรับ <u>นโยบายข้อมูลส่วนบุคคล</u></span></div>
+        <div class="nextbtn">ยืนยันการลงทะเบียน</div>
+      </div></div>
+    </div>
+
+    <div class="step">
+      <div class="cap"><span class="n">04</span><span class="t">ได้บัตรทันที
+        <em>ไม่ต้องรออีเมล · รหัสใต้ QR ใช้แทนกันได้</em></span></div>
+      <div class="phone"><div class="scr">
+        <div class="topbar"><span class="eyebrow">บัตรเข้างาน</span><span>ไทย / EN</span></div>
+        <div class="pass">
+          <div class="qr" id="qr"></div>
+          <div class="code">TT-4F2A-901</div>
+          <div class="passname">ณัฐพงษ์ สุวรรณเลิศ</div>
+          <div class="passev">G-FEST 2026 · 15 มี.ค. 70<br>ไอคอนสยาม · เปิดประตู 17:00</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="step">
+      <div class="cap"><span class="n">05</span><span class="t">บัตรหาย ค้นด้วยเบอร์โทร
+        <em>ไม่ต้องค้นอีเมล ไม่ต้องติดต่อเจ้าหน้าที่</em></span></div>
+      <div class="phone"><div class="scr">
+        <div class="topbar"><span>← กลับ</span><span>ไทย / EN</span></div>
+        <div class="eyebrow">มีบัตรอยู่แล้ว</div>
+        <div class="title">ค้นบัตร<br>ของคุณ</div>
+        <div class="sub">กรอกเบอร์ที่ใช้ตอนลงทะเบียน</div>
+        <div class="fields">
+          <div class="ff"><div class="ff-l">เบอร์โทรศัพท์</div><div class="ff-i">081 234 5678</div></div>
+        </div>
+        <div class="nextbtn">ค้นหาบัตรของฉัน</div>
+      </div></div>
+    </div>
+
+    <div class="step">
+      <div class="cap"><span class="n">06</span><span class="t">นโยบายข้อมูลส่วนบุคคล
+        <em>เปิดอ่านได้ก่อนกดยืนยัน ข้อมูลที่กรอกไว้ไม่หาย</em></span></div>
+      <div class="phone"><div class="doc">
+        <div class="eyebrow">1NEVE</div>
+        <div class="title" style="font-size:15px">นโยบายข้อมูล<br>ส่วนบุคคล</div>
+        <h4>1. ใครเป็นผู้ควบคุมข้อมูล</h4>
+        <p>ผู้จัดงานเป็นผู้กำหนดว่าเก็บอะไรและใช้อย่างไร 1NEVE ให้บริการระบบในนามของผู้จัดงาน</p>
+        <h4>2. เราเก็บอะไรบ้าง</h4>
+        <p>ชื่อ อีเมล เบอร์โทรศัพท์ คำถามเพิ่มเติมของผู้จัดงาน เวลาลงทะเบียน เวลาและประตูที่เช็คอิน</p>
+        <h4>5. เก็บไว้นานแค่ไหน</h4>
+        <p>จนกว่าคุณหรือผู้จัดงานจะแจ้งให้ลบ</p>
+        <h4>6. สิทธิของคุณ</h4>
+        <p>ขอดู ขอแก้ ขอลบ หรือถอนความยินยอมได้</p>
+      </div></div>
+    </div>
+
+  </div>
+
+  <!-- ============ 2. GATE ============ -->
+  <div class="sec">
+    <div class="sec-k">ส่วนที่ 2 · มือถือของเจ้าหน้าที่หน้าประตู</div>
+    <h2>แอปหน้าประตู</h2>
+    <p>พื้นหลังเข้มเพราะต้องอ่านในที่แสงน้อย · ใช้มือถือธรรมดา ไม่ต้องมีเครื่องสแกนเฉพาะทาง
+      · เปิดพร้อมกันกี่ประตูก็ได้ ทุกเครื่องเห็นยอดเดียวกัน</p>
+  </div>
+
+  <div class="walk">
+
+    <div class="step">
+      <div class="cap"><span class="n">07</span><span class="t">เข้าสู่ระบบ
+        <em>เจ้าหน้าที่ที่ได้รับสิทธิ์เท่านั้น</em></span></div>
+      <div class="phone dark"><div class="gate"><div class="gsign">
+        <div class="gb">1NEVE</div>
+        <div class="gh">ประตูเข้างาน</div>
+        <div class="gp">เข้าสู่ระบบด้วยบัญชีเจ้าหน้าที่<br>เพื่อเริ่มสแกนบัตร</div>
+        <div class="gbtn">เข้าสู่ระบบ</div>
+      </div></div></div>
+    </div>
+
+    <div class="step">
+      <div class="cap"><span class="n">08</span><span class="t">ส่อง QR แล้วมีเสียงตอบทันที
+        <em>แผงขึ้นทันทีที่อ่านได้ ลดมือถือลงได้เลย ไม่ต้องคาไว้</em></span></div>
+      <div class="phone dark"><div class="gate">
+        <div class="gate-bar"><span><span class="dot"></span>ออนไลน์ · ประตู 1</span><span>G-FEST 2026</span></div>
+        <div class="cam"><div class="frame"></div>
+          <div class="panel p-neutral">
+            <div class="p-kicker">รับรหัสแล้ว</div>
+            <div class="p-main">กำลังตรวจ…</div>
+            <div class="p-code">TT-4F2A-901</div>
+          </div></div>
+        <div class="gtabs"><div class="on">สแกน</div><div>ค้นหาคน</div><div>เพิ่งสแกน</div></div>
+      </div></div>
+    </div>
+
+    <div class="step">
+      <div class="cap"><span class="n">09</span><span class="t">ผ่าน
+        <em>เขียว ชื่อขึ้นบนจอ แล้วหายเองใน 2 วินาที คิวเดินต่อ</em></span></div>
+      <div class="phone dark"><div class="gate">
+        <div class="gate-bar"><span><span class="dot"></span>ออนไลน์ · ประตู 1</span><span>เช็คอินแล้ว 248</span></div>
+        <div class="cam"><div class="frame"></div>
+          <div class="panel p-ok">
+            <div class="p-kicker">ผ่าน</div>
+            <div class="p-main">ณัฐพงษ์ สุวรรณเลิศ</div>
+            <div class="p-sub">ธิงค์เทค จำกัด · บัตรทั่วไป</div>
+            <div class="p-code">TT-4F2A-901</div>
+          </div></div>
+        <div class="gtabs"><div class="on">สแกน</div><div>ค้นหาคน</div><div>เพิ่งสแกน</div></div>
+      </div></div>
+    </div>
+
+    <div class="step">
+      <div class="cap"><span class="n">10</span><span class="t">บัตรนี้เข้าไปแล้ว
+        <em>ทองค้างบนจอจนกดปิด บอกเวลาและประตูที่เข้าครั้งก่อน</em></span></div>
+      <div class="phone dark"><div class="gate">
+        <div class="gate-bar"><span><span class="dot"></span>ออนไลน์ · ประตู 1</span><span>เช็คอินแล้ว 248</span></div>
+        <div class="cam"><div class="frame"></div>
+          <div class="panel p-dup">
+            <div class="p-kicker">บัตรนี้เข้าไปแล้ว</div>
+            <div class="p-main">ณัฐพงษ์ สุวรรณเลิศ</div>
+            <div class="p-sub">ครั้งก่อน 17:04 · ประตู 2</div>
+            <div class="p-btn">ปิด</div>
+          </div></div>
+        <div class="gtabs"><div class="on">สแกน</div><div>ค้นหาคน</div><div>เพิ่งสแกน</div></div>
+      </div></div>
+    </div>
+
+    <div class="step">
+      <div class="cap"><span class="n">11</span><span class="t">ไม่ผ่าน และ ออฟไลน์
+        <em>แดงคือบัตรผิดงานหรือบัตรปลอม · น้ำเงินคือเน็ตหลุด ระบบหยุดรับ ไม่ปล่อยผ่านมั่ว</em></span></div>
+      <div class="phone dark"><div class="gate">
+        <div class="gate-bar"><span><span class="dot" style="background:#c13920"></span>ประตู 1</span><span>G-FEST 2026</span></div>
+        <div class="cam" style="flex:0 0 46%"><div class="frame" style="inset:14% 18%"></div>
+          <div class="panel p-no">
+            <div class="p-kicker">ไม่ผ่าน</div>
+            <div class="p-main">บัตรของงานอื่น</div>
+            <div class="p-btn">ปิด</div>
+          </div></div>
+        <div class="cam" style="flex:1"><div class="frame" style="inset:14% 18%"></div>
+          <div class="panel p-off">
+            <div class="p-kicker">ออฟไลน์ · หยุดรับ</div>
+            <div class="p-main">รอสัญญาณกลับมา</div>
+            <div class="p-sub">ยังไม่อนุญาตให้ใครเข้า</div>
+          </div></div>
+      </div></div>
+    </div>
+
+    <div class="step">
+      <div class="cap"><span class="n">12</span><span class="t">ค้นหาคน และ เพิ่งสแกน
+        <em>QR อ่านไม่ขึ้นก็ค้นด้วยชื่อแล้วกดเช็คอินมือ · ดูย้อนหลังได้ว่าใครเข้าไปแล้วบ้าง</em></span></div>
+      <div class="phone dark"><div class="gate">
+        <div class="gate-bar"><span><span class="dot"></span>ออนไลน์ · ประตู 1</span><span>เช็คอินแล้ว 248</span></div>
+        <div class="glist">
+          <div class="gsearch">ค้นชื่อ หรือรหัสบัตร…</div>
+          <div class="grow"><div><div class="gn">ณัฐพงษ์ สุวรรณเลิศ</div>
+            <div class="gs">ธิงค์เทค จำกัด</div></div>
+            <div class="gpill" style="background:#2f6b4f;color:#fff">เข้าแล้ว</div></div>
+          <div class="grow"><div><div class="gn">ศิริพร วัฒนกุล</div>
+            <div class="gs">TT-9B7C-900</div></div>
+            <div class="gpill" style="background:rgba(244,241,230,.16);color:#f4f1e6">เช็คอิน</div></div>
+          <div class="grow"><div><div class="gn">ธนกฤต อินทโชติ</div>
+            <div class="gs">TT-A51E-964</div></div>
+            <div class="gpill" style="background:rgba(244,241,230,.16);color:#f4f1e6">เช็คอิน</div></div>
+          <div class="grow"><div><div class="gn">พิมพ์ชนก ศรีสุข</div>
+            <div class="gs">17:21 · ประตู 1</div></div><div class="gt">17:21</div></div>
+        </div>
+        <div class="gtabs"><div>สแกน</div><div class="on">ค้นหาคน</div><div>เพิ่งสแกน</div></div>
+      </div></div>
+    </div>
+
+  </div>
+
+  <!-- ============ 3. CONSOLE ============ -->
+  <div class="sec">
+    <div class="sec-k">ส่วนที่ 3 · จอคอมของทีมงาน</div>
+    <h2>คอนโซล</h2>
+    <p>ใช้สีทองเหลืองแยกจากเว็บลูกค้า เพื่อไม่ให้เจ้าหน้าที่สับสนว่ากำลังอยู่หน้าจอไหน
+      · ทุกหน้าอ่านและเขียนลง Google Sheet ชุดเดียวกับที่หน้าประตูใช้</p>
+  </div>
+
+  <div class="walk wide">
+
+    <div class="step">
+      <div class="cap"><span class="n">13</span><span class="t">ภาพรวมสด
+        <em>ยอดลงทะเบียน ยอดเข้างาน อัตราเข้างาน และกราฟรายชั่วโมง ขยับตามเวลาจริง</em></span></div>
+      <div class="laptop">
+        <div class="cside">
+          <div class="cbrand">1NEVE CONSOLE</div>
+          <div class="cev"><div class="cn">G-FEST 2026</div><div class="cm">15 มี.ค. 70</div></div>
+          <div class="cnav"><div class="on">ภาพรวมสด</div><div>ตั้งค่างาน</div><div>ผู้ลงทะเบียน</div>
+            <div>ประวัติย้อนหลัง</div><div>ฟิลด์ฟอร์ม</div><div>บัตรเข้างาน</div><div>ทีมและสิทธิ์</div></div>
+        </div>
+        <div class="cmain">
+          <div class="ctop"><div><div class="ct">G-FEST 2026</div><div class="cs">15 มี.ค. 70 · ไอคอนสยาม</div></div>
+            <div class="cchips"><span class="cchip">SYNCED · 17:32</span><span class="cchip">REFRESH</span><span class="cchip">EXPORT CSV</span></div></div>
+          <div class="cbody">
+            <div class="cstats">
+              <div class="cstat"><div class="sl">ลงทะเบียนล่วงหน้า</div><div class="sv">412</div></div>
+              <div class="cstat gold"><div class="sl">เข้างานแล้ว</div><div class="sv">248</div></div>
+              <div class="cstat"><div class="sl">อัตราเข้างาน</div><div class="sv">60%</div></div>
+              <div class="cstat"><div class="sl">Walk-in หน้างาน</div><div class="sv">31</div></div>
+            </div>
+            <div class="cpanel">
+              <div class="cph"><span class="pt">การเช็คอินรายชั่วโมง</span><span class="pk">TODAY · LIVE</span></div>
+              <div class="bars">
+                <div class="bc"><div class="bf" style="height:18%"></div><div class="bh">15</div></div>
+                <div class="bc"><div class="bf" style="height:34%"></div><div class="bh">16</div></div>
+                <div class="bc"><div class="bf peak" style="height:100%"></div><div class="bh">17</div></div>
+                <div class="bc"><div class="bf" style="height:62%"></div><div class="bh">18</div></div>
+                <div class="bc"><div class="bf" style="height:28%"></div><div class="bh">19</div></div>
+                <div class="bc"><div class="bf" style="height:9%"></div><div class="bh">20</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="cap"><span class="n">14</span><span class="t">ตั้งค่างาน
+        <em>ชื่อ วันที่ สถานที่ แบนเนอร์ ค่าเข้างาน และสวิตช์เปิด/ปิดรับลงทะเบียน</em></span></div>
+      <div class="laptop">
+        <div class="cside">
+          <div class="cbrand">1NEVE CONSOLE</div>
+          <div class="cev"><div class="cn">G-FEST 2026</div><div class="cm">15 มี.ค. 70</div></div>
+          <div class="cnav"><div>ภาพรวมสด</div><div class="on">ตั้งค่างาน</div><div>ผู้ลงทะเบียน</div>
+            <div>ประวัติย้อนหลัง</div><div>ฟิลด์ฟอร์ม</div><div>บัตรเข้างาน</div><div>ทีมและสิทธิ์</div></div>
+        </div>
+        <div class="cmain">
+          <div class="ctop"><div><div class="ct">ตั้งค่างาน</div><div class="cs">ค่าทั้งหมดของงานนี้อยู่ที่เดียว</div></div>
+            <div class="cchips"><span class="cchip">SYNCED · 17:32</span></div></div>
+          <div class="cbody">
+            <div class="crow2">
+              <div class="cfield"><div class="fl">ชื่องาน</div><div class="fi">G-FEST 2026</div></div>
+              <div class="cfield"><div class="fl">วันที่จัด</div><div class="fi">15 มี.ค. 70</div></div>
+              <div class="cfield"><div class="fl">สถานที่</div><div class="fi">ไอคอนสยาม</div></div>
+              <div class="cfield"><div class="fl">เวลาเปิดประตู</div><div class="fi">17:00</div></div>
+            </div>
+            <div class="cswitch"><div><div class="sw-l">เปิดรับลงทะเบียน</div>
+              <div class="sw-s">หน้าลูกค้าเปิดให้ลงทะเบียนได้</div></div>
+              <span class="cbtn gold">เปิดอยู่</span></div>
+            <div class="cswitch"><div><div class="sw-l">ค่าเข้างาน</div>
+              <div class="sw-s">ไม่แสดงบรรทัดค่าเข้างานเลย</div></div>
+              <span class="cbtn">ปิดอยู่</span></div>
+            <div class="cswitch"><div><div class="sw-l">ภาพแบนเนอร์</div>
+              <div class="sw-s">ระบบย่อให้กว้างสุด 1600px ก่อนส่ง</div></div>
+              <span class="cbtn gold">อัพโหลดภาพ</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="cap"><span class="n">15</span><span class="t">ผู้ลงทะเบียน
+        <em>ค้น เช็คอินมือ พิมพ์บัตร เปลี่ยนประเภทบัตร · อีเมลกับเบอร์เห็นเฉพาะ ADMIN</em></span></div>
+      <div class="laptop">
+        <div class="cside">
+          <div class="cbrand">1NEVE CONSOLE</div>
+          <div class="cev"><div class="cn">G-FEST 2026</div><div class="cm">15 มี.ค. 70</div></div>
+          <div class="cnav"><div>ภาพรวมสด</div><div>ตั้งค่างาน</div><div class="on">ผู้ลงทะเบียน</div>
+            <div>ประวัติย้อนหลัง</div><div>ฟิลด์ฟอร์ม</div><div>บัตรเข้างาน</div><div>ทีมและสิทธิ์</div></div>
+        </div>
+        <div class="cmain">
+          <div class="ctop"><div><div class="ct">ผู้ลงทะเบียน · 412</div><div class="cs">ค้นด้วยชื่อ อีเมล หรือรหัสบัตร</div></div>
+            <div class="cchips"><span class="cchip">EXPORT CSV</span></div></div>
+          <div class="cbody">
+            <div class="ctable">
+              <div class="ctr"><div class="cgrow"><div class="nm">ณัฐพงษ์ สุวรรณเลิศ</div><div class="sb">ธิงค์เทค จำกัด</div></div>
+                <div class="mn">TT-4F2A-901</div><span class="tag in"><i></i>เข้างานแล้ว</span>
+                <span class="cbtn">พิมพ์</span></div>
+              <div class="ctr"><div class="cgrow"><div class="nm">ศิริพร วัฒนกุล</div><div class="sb">— · WALK-IN</div></div>
+                <div class="mn">TT-9B7C-900</div><span class="tag in"><i></i>เข้างานแล้ว</span>
+                <span class="cbtn">พิมพ์</span></div>
+              <div class="ctr"><div class="cgrow"><div class="nm">ธนกฤต อินทโชติ</div><div class="sb">บริษัท สยามดิจิทัล</div></div>
+                <div class="mn">TT-A51E-964</div><span class="tag"><i></i>ลงทะเบียน</span>
+                <span class="cbtn">เช็คอิน</span></div>
+              <div class="ctr"><div class="cgrow"><div class="nm">พิมพ์ชนก ศรีสุข</div><div class="sb">ฟรีแลนซ์</div></div>
+                <div class="mn">TT-067B-951</div><span class="tag"><i></i>ลงทะเบียน</span>
+                <span class="cbtn">เช็คอิน</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="cap"><span class="n">16</span><span class="t">ฟิลด์ฟอร์ม
+        <em>เลือกว่าจะถามอะไร ช่องไหนบังคับ · พรีวิวข้างขวาคือหน้าที่ลูกค้าจะเห็นจริง</em></span></div>
+      <div class="laptop">
+        <div class="cside">
+          <div class="cbrand">1NEVE CONSOLE</div>
+          <div class="cev"><div class="cn">G-FEST 2026</div><div class="cm">15 มี.ค. 70</div></div>
+          <div class="cnav"><div>ภาพรวมสด</div><div>ตั้งค่างาน</div><div>ผู้ลงทะเบียน</div>
+            <div>ประวัติย้อนหลัง</div><div class="on">ฟิลด์ฟอร์ม</div><div>บัตรเข้างาน</div><div>ทีมและสิทธิ์</div></div>
+        </div>
+        <div class="cmain">
+          <div class="ctop"><div><div class="ct">ฟิลด์ในฟอร์มลงทะเบียน</div><div class="cs">ตั้งค่าแยกตามแต่ละงาน</div></div></div>
+          <div class="cbody" style="flex-direction:row;gap:8px">
+            <div style="flex:1.4;display:flex;flex-direction:column;gap:5px;min-width:0">
+              <div class="ctr"><div class="mn">1</div><div class="cgrow"><div class="nm">ชื่อ–นามสกุล</div>
+                <div class="sb">TEXT</div></div><span class="cbtn gold">จำเป็น</span></div>
+              <div class="ctr"><div class="mn">2</div><div class="cgrow"><div class="nm">อีเมล</div>
+                <div class="sb">EMAIL</div></div><span class="cbtn gold">จำเป็น</span></div>
+              <div class="ctr"><div class="mn">3</div><div class="cgrow"><div class="nm">เบอร์โทรศัพท์</div>
+                <div class="sb">PHONE</div></div><span class="cbtn gold">จำเป็น</span></div>
+              <div class="ctr"><div class="mn">4</div><div class="cgrow"><div class="nm">บริษัท / องค์กร</div>
+                <div class="sb">TEXT</div></div><span class="cbtn">ไม่บังคับ</span></div>
+              <div class="cswitch" style="margin-top:3px"><div><div class="sw-l">ข้อความยินยอม PDPA</div>
+                <div class="sw-s">แสดงใต้ปุ่มยืนยัน และบันทึกเวลายินยอม</div></div>
+                <span class="cbtn gold">เปิดอยู่</span></div>
+            </div>
+            <div style="flex:1;background:var(--c-surface);border:1px solid var(--c-line);
+              border-radius:3px;padding:8px;display:flex;flex-direction:column;gap:5px;min-width:0">
+              <div class="cph"><span class="pk">พรีวิวหน้าลูกค้า</span></div>
+              <div style="font:400 5.5px/1 'IBM Plex Mono',monospace;letter-spacing:.2em;color:var(--c-accent)">G-FEST 2026</div>
+              <div style="font:200 11px/1.2 Prompt,sans-serif">กรอกข้อมูล<br>เพื่อรับ QR</div>
+              <div class="cfield"><div class="fl">ชื่อ–นามสกุล *</div><div class="fi" style="color:var(--c-muted)">…</div></div>
+              <div class="cfield"><div class="fl">อีเมล *</div><div class="fi" style="color:var(--c-muted)">name@company.com</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="cap"><span class="n">17</span><span class="t">บัตรเข้างาน
+        <em>เลือกขนาดและสิ่งที่พิมพ์ลงบัตร · พรีวิวคือหน้าตาจริงที่ออกจากเครื่องพิมพ์</em></span></div>
+      <div class="laptop">
+        <div class="cside">
+          <div class="cbrand">1NEVE CONSOLE</div>
+          <div class="cev"><div class="cn">G-FEST 2026</div><div class="cm">15 มี.ค. 70</div></div>
+          <div class="cnav"><div>ภาพรวมสด</div><div>ตั้งค่างาน</div><div>ผู้ลงทะเบียน</div>
+            <div>ประวัติย้อนหลัง</div><div>ฟิลด์ฟอร์ม</div><div class="on">บัตรเข้างาน</div><div>ทีมและสิทธิ์</div></div>
+        </div>
+        <div class="cmain">
+          <div class="ctop"><div><div class="ct">รูปแบบการพิมพ์บัตรเข้างาน</div><div class="cs">A6 · 4x6in · 80mm</div></div></div>
+          <div class="cbody" style="flex-direction:row;gap:10px">
+            <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;gap:4px">
+                <span class="cbtn gold">A6</span><span class="cbtn">4x6in</span><span class="cbtn">80mm</span></div>
+              <div class="cswitch"><div class="sw-l">ชื่องานและเส้นแบรนด์</div><span class="cbtn gold">เปิด</span></div>
+              <div class="cswitch"><div class="sw-l">บริษัท / องค์กร</div><span class="cbtn gold">เปิด</span></div>
+              <div class="cswitch"><div class="sw-l">QR และรหัสบัตร</div><span class="cbtn gold">เปิด</span></div>
+              <div class="cswitch"><div class="sw-l">แถบสีท้ายบัตร</div><span class="cbtn">ปิด</span></div>
+            </div>
+            <div style="flex:0 0 auto;display:flex;align-items:center">
+              <div class="badgeprev">
+                <div class="bp-top"></div>
+                <div class="bp-l">ATTENDEE</div>
+                <div class="bp-n">ณัฐพงษ์<br>สุวรรณเลิศ</div>
+                <div class="bp-l">ธิงค์เทค จำกัด</div>
+                <div class="bp-q"></div>
+                <div class="bp-l">TT-4F2A-901</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="cap"><span class="n">18</span><span class="t">ทีมและสิทธิ์
+        <em>ใครเข้าได้ เห็นงานไหน ประจำประตูไหน · STAFF ไม่เห็นอีเมลและเบอร์ของผู้เข้างาน</em></span></div>
+      <div class="laptop">
+        <div class="cside">
+          <div class="cbrand">1NEVE CONSOLE</div>
+          <div class="cev"><div class="cn">G-FEST 2026</div><div class="cm">15 มี.ค. 70</div></div>
+          <div class="cnav"><div>ภาพรวมสด</div><div>ตั้งค่างาน</div><div>ผู้ลงทะเบียน</div>
+            <div>ประวัติย้อนหลัง</div><div>ฟิลด์ฟอร์ม</div><div>บัตรเข้างาน</div><div class="on">ทีมและสิทธิ์</div></div>
+        </div>
+        <div class="cmain">
+          <div class="ctop"><div><div class="ct">ทีมและสิทธิ์</div><div class="cs">เฉพาะ ADMIN เท่านั้นที่แก้ได้</div></div></div>
+          <div class="cbody">
+            <div class="ctable">
+              <div class="ctr"><div class="cgrow"><div class="nm">เบญจมาศ ธีรพงศ์</div>
+                <div class="sb">benjamas@1neve.co.th</div></div>
+                <span class="cbtn gold">ADMIN</span><div class="mn">ทุกงาน</div></div>
+              <div class="ctr"><div class="cgrow"><div class="nm">กิตติพงษ์ แสงทอง</div>
+                <div class="sb">kittipong@1neve.co.th</div></div>
+                <span class="cbtn">STAFF</span><div class="mn">ประตู 1</div></div>
+              <div class="ctr"><div class="cgrow"><div class="nm">อรวรรณ ชูเกียรติ</div>
+                <div class="sb">orawan@1neve.co.th</div></div>
+                <span class="cbtn">STAFF</span><div class="mn">ประตู 2</div></div>
+              <div class="ctr"><div class="cgrow"><div class="nm">ผู้ประสานงานฝ่ายผู้จัดงาน</div>
+                <div class="sb">เห็นเฉพาะงานนี้งานเดียว</div></div>
+                <span class="cbtn">STAFF</span><div class="mn">G-FEST</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <section class="close">
+    <h2>จบงานแล้วได้อะไร</h2>
+    <p>ข้อมูลผู้ลงทะเบียนทั้งชุดเป็นตาราง CSV เปิดด้วย Excel ได้ทันที
+      พร้อมเวลาลงทะเบียน เวลาและประตูที่เช็คอิน และสถานะการยินยอม
+      · <strong>แต่ละงานเก็บอยู่ในไฟล์ของตัวเอง แยกจากงานอื่น</strong> จึงส่งมอบเฉพาะข้อมูลของงานท่านได้จริง</p>
+    <p>ผู้จัดงานเป็นผู้กำหนดว่าจะเก็บอะไรและใช้อย่างไร 1NEVE เป็นผู้ให้บริการระบบในนามของผู้จัดงาน
+      และไม่นำข้อมูลไปใช้เพื่อวัตถุประสงค์ของเราเอง · หากผู้เข้างานขอให้ลบข้อมูลภายหลัง
+      <strong>ระบบลบชื่อ อีเมล เบอร์โทรศัพท์ และคำตอบในแบบฟอร์มออกจริง และบัตรใบนั้นใช้เข้างานไม่ได้อีก</strong></p>
+  </section>
+
+</div>
+
+<script>
+// The QR is a specimen, not a scannable code — drawn so the three finder
+// squares read correctly at a glance, which is what a reader recognises.
+// Deterministic, so the printed page never changes between runs.
+(function () {
+  var N = 21, host = document.getElementById("qr");
+  if (!host) return;
+  var seed = 20260315;
+  function rnd() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
+  function finder(r, c) {
+    var eyes = [[0, 0], [0, N - 7], [N - 7, 0]];
+    for (var i = 0; i < eyes.length; i++) {
+      var dr = r - eyes[i][0], dc = c - eyes[i][1];
+      if (dr < 0 || dc < 0 || dr > 6 || dc > 6) continue;
+      var ring = Math.max(Math.abs(dr - 3), Math.abs(dc - 3));
+      return ring === 3 || ring <= 1;
+    }
+    return null;
+  }
+  var frag = document.createDocumentFragment();
+  for (var r = 0; r < N; r++) {
+    for (var c = 0; c < N; c++) {
+      var cell = document.createElement("i");
+      var f = finder(r, c);
+      if (!(f === null ? rnd() > 0.52 : f)) cell.className = "o";
+      frag.appendChild(cell);
+    }
+  }
+  host.appendChild(frag);
+})();
+</script>
+</body>
+</html>
