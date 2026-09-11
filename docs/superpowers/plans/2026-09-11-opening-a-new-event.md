@@ -1399,45 +1399,131 @@ look up their own pass by phone number."
 - Consumes: everything from Tasks 1–8.
 - Produces: a pass/fail record for each of the spec's 14 steps.
 
-- [ ] **Step 1: Push both sites**
+- [ ] **Step 0: The blocking gate — refuse to deploy with the contact placeholder in place**
+
+`customer/privacy.html` ships section 7 with the literal `CONTACT_PENDING_1NEVE`
+standing in for 1NEVE's real contact channel, which nobody has supplied yet. The
+policy page is linked from the consent checkbox on every registration form, so
+that marker must never reach a customer.
+
+Run this **before** anything is pushed. Vercel deploys on push, so a check placed
+after Step 1 would run when the marker is already live:
 
 ```bash
-cd ~/dev/staff-console && git push origin main
-cd ~/dev/events-checkin && git push origin main
+cd ~/dev/events-checkin
+if grep -rn "CONTACT_PENDING_1NEVE" customer/; then
+  echo "BLOCKED: the privacy policy still has the contact placeholder. Get the"
+  echo "real address from the human partner and replace it before deploying."
+  exit 1
+fi
 ```
 
-Vercel deploys on push. **Check the deploy once and do not poll** — a wait loop against Vercel got this user's home IP challenged by the firewall once already.
+Expected: no output and no exit. If it prints, **stop** — this is not a step to
+work around.
 
-- [ ] **Step 2: Push the backend**
+- [ ] **Step 1: Push the customer site first**
+
+The three surfaces deploy independently, and the order is not a preference. All
+three call one pinned Apps Script deployment, so a partial deploy is a real state
+the system can sit in for minutes.
+
+**Customer site first, because it is the only one that is safe in every
+direction.** It reads nothing the old backend does not already send: the brand
+surface, the empty-fact-row filter and the honest status pill are all pure
+front-end, and the consent checkbox sends `consent: true` exactly where the old
+backend would have inferred it.
 
 ```bash
-cd ~/dev/staff-console-clasp && clasp push && clasp create-version && clasp redeploy
+cd ~/dev/events-checkin && git push origin open-new-event
 ```
 
-Redeploy **both** deployments — the public "Anyone" one and the legacy staff one. A green `clasp push` with no redeploy serves the old code.
+Then merge to `main` (or push `main` directly if that is how this project
+deploys) — Vercel builds the production branch. **Check once and do not poll:** a
+wait loop against Vercel got this user's home IP challenged by the firewall, and
+the same class of mitigation has since been seen on `script.google.com`.
 
-- [ ] **Step 3: Confirm the deploy actually landed**
+- [ ] **Step 2: Push and redeploy the backend second**
 
-Fetch one changed file from the live origin and grep it, rather than trusting the deploy dashboard. Two commits were silently swallowed on this project before, and the only thing that caught it was a stale page title.
+This must land **before** the console, not after. The console's new settings
+screen sends `organizerName`, `organizerContact` and `price` to `setEventProp`.
+The old backend reads only `theme, open, hidden, pdpa, doors, image, name, date,
+place` — it **silently ignores** unknown properties and returns `{ok:true}`. So a
+console deployed ahead of the backend would flash บันทึกแล้ว, update its own
+local copy, and store nothing. A staff member would record the Organizer's
+contact — the single reason those fields exist under ADR 0028 — and lose it
+without any error. `uploadBanner` at least fails loudly with
+`unknown_action:uploadBanner`; the settings fields do not.
+
+```bash
+cp ~/dev/staff-console/backend/Code.gs ~/dev/staff-console-clasp/CODE.js
+cd ~/dev/staff-console-clasp && clasp push -f && clasp create-version && clasp redeploy
+```
+
+`clasp push` moves HEAD only. The live deployments are **pinned to a version**, so
+nothing changes for customers until `clasp redeploy` runs. Redeploy **both**
+deployments — the "customer api" one that all three sites actually call, and the
+legacy "staff console" one. A green `clasp push` with no redeploy serves the old
+code, which is exactly how two commits were silently swallowed on this project
+before.
+
+Note the window this step opens in the other direction: once the backend is live,
+new events are created with `pdpa = true`, and any customer bundle older than
+Step 1's would still send `consent: !!ev.pdpa` — stamping `consent_at` for an act
+nobody performed, which is ADR 0027's exact defect recreated by deploy order.
+That window is closed by having done Step 1 first.
+
+- [ ] **Step 3: Push the console last**
+
+```bash
+cd ~/dev/staff-console && git push origin open-new-event
+```
+
+Then merge to `main` as above.
+
+- [ ] **Step 4: Confirm each deploy actually landed**
+
+Fetch a changed file from each live origin and grep it, rather than trusting a
+deploy dashboard.
 
 ```bash
 curl -s https://1neve.vercel.app/app.js | grep -c "brand-surface"
+curl -s https://1neve.vercel.app/privacy.html | grep -c "CONTACT_PENDING_1NEVE"
 curl -s https://1neve-console.vercel.app/staff.js | grep -c "ตั้งค่างาน"
 ```
 
-Expected: both non-zero.
+Expected: **non-zero**, **exactly 0**, **non-zero**. The middle one is Step 0's
+gate again, this time against what is actually being served — it catches a stale
+build serving an older bundle.
 
-- [ ] **Step 4: Run the spec's verification plan, steps 3–14**
+- [ ] **Step 5: Run the spec's verification plan, steps 3–14**
 
-Step 1 (Drive URL) was Task 1 and step 2 (`node --check`) ran per task. Work through steps 3–14 of the spec's **แผนการตรวจสอบ** section in order, recording pass/fail and the observed value for each. The three that have caught real defects on this project before, and must not be skipped:
+Step 1 of the spec's list (the Drive URL) was proven in Task 1: all three
+candidate URLs returned 200, `image/png`, and real PNG magic bytes from an
+unauthenticated client, and `drive.google.com/thumbnail` 302s to the `lh3` form.
+Step 2 (`node --check`) ran per task.
 
-- **step 11** — `listEvents` from a signed-out browser must not contain `organizerName` or `organizerContact`.
-- **step 12** — delete an attendee, then look their pass up by phone: must be `not_found`, and both sheets must show the personal columns blank.
-- **step 8** — close registration: badge grey **and** reading `ปิดรับแล้ว`, button dead, and `register()` answering `event_closed` when called directly.
+Work through steps 3–14 of the spec's **แผนการตรวจสอบ** in order, recording
+pass/fail and the observed value for each. Four that have caught real defects on
+this project and must not be skipped:
 
-- [ ] **Step 5: Report**
+- **step 3** — create an event and confirm **all 18 columns** are written. The
+  live Events sheet's header row may still have 16; `ensureEventCol_` lands
+  `organizer_name` and `organizer_contact` at 17 and 18, exactly where
+  `svcCreateEvent_` writes them, but that alignment has never been exercised
+  against the real sheet.
+- **step 8** — close registration: the pill must be grey **and read ปิดรับแล้ว**,
+  the button dead, `register()` answering `event_closed` when called directly,
+  and no ที่นั่ง row contradicting the pill.
+- **step 11** — `listEvents` from a signed-out client must contain neither
+  `organizerName` nor `organizerContact`.
+- **step 12** — delete an attendee, then look their pass up by phone: must be
+  `not_found`, both sheets must show the personal columns blank, and the badge
+  must be refused at the gate.
 
-Write the outcome of each step. Where something failed, say so with the observed value — a step that was skipped is reported as skipped, not as passed.
+- [ ] **Step 6: Report**
+
+Write the outcome of each step with the observed value. A step that was skipped
+is reported as skipped, not as passed.
 
 ---
 
@@ -1445,6 +1531,6 @@ Write the outcome of each step. Where something failed, say so with the observed
 
 **1. Spec coverage.** Every spec section maps to a task: หน้า "ตั้งค่างาน" → Task 4; สองคอลัมน์ใหม่ต้องเพิ่มแบบขี้เกียจ → Task 2; banner ทางเดินของไฟล์ + ย่อรูป + URL + ไฟล์เก่า + สิทธิ์ → Tasks 1, 3, 4; พื้นผิวเริ่มต้น → Task 5; ค่าเข้างาน และป้ายสถานะ → Task 6; ความยินยอม และหน้านโยบาย → Task 7; ลบข้อมูลให้ลบจริง → Task 8; all nine bugs in the spec's table → Tasks 2 (1, 2), 4 (7), 5 (6), 6 (8, 9), 7 (3), 8 (4, 5); แผนการตรวจสอบ → Task 9. The spec's known-limitations section needs no task by definition.
 
-**2. Placeholders.** One deliberate gap: `CONTACT_GOES_HERE` in Task 7 Step 1, which is a value only the controller can supply and which the task is instructed to treat as `BLOCKED` rather than invent. Two places instruct the implementer to read the file and trust it over this plan — `eventById_`'s field name (Task 3 Step 3) and the exact Thai default-date string (Task 2 Step 3) — because both are quoted from memory and the file is authoritative.
+**2. Placeholders.** One deliberate marker: `CONTACT_PENDING_1NEVE` ships in Task 7 Step 1 in place of a contact address only the human partner can supply. Task 9 Step 0 is a hard pre-push gate that greps for it and refuses to deploy while it is present, and Step 4 greps the deployed page for it again. Two places instruct the implementer to read the file and trust it over this plan — `eventById_`'s field name (Task 3 Step 3) and the exact Thai default-date string (Task 2 Step 3) — because both are quoted from memory and the file is authoritative.
 
 **3. Type consistency.** `driveImageUrl_(fileId)` / `driveFileIdFromUrl_(url)` defined in Task 1, used in Task 3. `ensureEventCol_(sh, t, col, name)` defined in Task 2, used in Tasks 2 and 3. `organizerName` / `organizerContact` are the camelCase API names throughout; `organizer_name` / `organizer_contact` are the sheet column names throughout; the two are never mixed. `brandSurfaceHtml()` defined and used in Task 5. `state.es` fields in Task 4 match the keys `saveEventSettings()` sends. `BANNER_OUT_MAX` in `staff.js` and `BANNER_MAX_BYTES` in `Code.gs` are both `1500000` and Task 4 Step 8 says so in a comment.
