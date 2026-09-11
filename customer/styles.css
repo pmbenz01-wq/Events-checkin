@@ -135,7 +135,6 @@ input::placeholder{color:#a9a290}
 .back-btn:hover{border-color:#17150f;color:#17150f}
 .next-btn{flex:1;border-radius:99px;background:#d8482b;color:#fff;text-align:center;padding:17px 0;font:600 14px Prompt,sans-serif;cursor:pointer}
 .next-btn:hover{background:#c03d22}
-.next-btn.is-disabled{opacity:.6;cursor:default}
 
 .already-row{text-align:center;font:400 11.5px Prompt,sans-serif;color:#7d7767;padding:14px 26px 0}
 .already-row .accent{color:#d8482b;font-weight:500;cursor:pointer}
@@ -193,10 +192,10 @@ input::placeholder{color:#a9a290}
 /* -- consent -- */
 .consent-row{display:flex;gap:11px;align-items:flex-start;padding:0 26px;margin-top:18px;
   font:300 13px/1.5 Prompt,sans-serif;cursor:pointer}
-.consent-box{appearance:none;flex:0 0 auto;width:19px;height:19px;margin:0;
+.consent-box{-webkit-appearance:none;appearance:none;flex:0 0 auto;width:19px;height:19px;margin:0;
   border:1px solid #bdb6a1;background:#fff;cursor:pointer;position:relative}
 .consent-box:checked{background:#d8482b;border-color:#d8482b}
 .consent-box:checked::after{content:"";position:absolute;left:6px;top:2px;
   width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
 .consent-box:focus-visible{outline:2px solid #d8482b;outline-offset:2px}
-.next-btn.is-disabled{opacity:.42;pointer-events:none}
+.next-btn.is-disabled{opacity:.42;pointer-events:none;cursor:default}
