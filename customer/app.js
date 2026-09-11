@@ -13,7 +13,7 @@
         sub: "เลือกงานเพื่อเปิดฟอร์มลงทะเบียนของงานนั้น แต่ละงานมีคำถามและบัตรของตัวเอง",
         cta: "ลงทะเบียนงานนี้", soon: "ยังไม่เปิดรับลงทะเบียน",
         facts: ["วันที่จัด", "สถานที่", "ที่นั่ง", "ค่าเข้าร่วม"],
-        hint: "วางรูปงานที่นี่", loading: "กำลังโหลดรายการงาน…",
+        loading: "กำลังโหลดรายการงาน…",
         error: "โหลดรายการงานไม่สำเร็จ ลองใหม่อีกครั้ง", retry: "ลองใหม่",
         empty: "ยังไม่มีงานที่เปิดให้ลงทะเบียนตอนนี้",
         emptySub: "ผู้จัดงานยังไม่ได้เปิดงานใด หรือเพิ่งปิดรับไป ลองกลับมาดูใหม่อีกครั้ง"
@@ -24,10 +24,10 @@
       askP1: { eyebrow: "ขั้นที่ 1 · จำเป็น", title: "ข้อมูลผู้เข้าร่วม", sub: "ใช้พิมพ์บัตรแขวนคอและส่ง QR เข้างานให้คุณ" },
       askP2: { eyebrow: "ขั้นที่ 2 · ไม่บังคับ", title: "อีกนิดเดียว ถ้าสะดวก", sub: "ข้ามได้ทั้งหน้า — ไม่กระทบการเข้างานของคุณ" },
       eventQuestions: "คำถามของงานนี้",
-      pdpaNotice: "การกดยืนยันถือว่าคุณยอมรับนโยบาย PDPA ของผู้จัดงาน",
       formLoading: "กำลังเปิดฟอร์ม…",
       types: ["ทั่วไป", "VIP", "สื่อ"],
-      consent: "ยินยอมให้ผู้จัดงานเก็บและใช้ข้อมูลตามนโยบาย PDPA",
+      consentAccept: "ยอมรับ",
+      consentPolicy: "นโยบายข้อมูลส่วนบุคคล",
       next: "ถัดไป", skip: "ข้าม", finish: "ยืนยันและรับ QR",
       already: "ลงทะเบียนไว้แล้ว?", lookupLink: "เปิดดู QR ของฉัน",
       saving: "กำลังบันทึกลง Google Sheet…",
@@ -52,7 +52,7 @@
         sub: "Pick an event to open its registration form. Each event has its own questions and badge.",
         cta: "Register for this event", soon: "Registration not open yet",
         facts: ["Date", "Venue", "Availability", "Fee"],
-        hint: "Drop the event photo", loading: "Loading events…",
+        loading: "Loading events…",
         error: "Couldn't load events. Please try again.", retry: "Retry",
         empty: "No events are open for registration right now",
         emptySub: "The organiser hasn't opened one yet, or registration has just closed. Please check back."
@@ -63,10 +63,10 @@
       askP1: { eyebrow: "STEP 1 · REQUIRED", title: "Your details", sub: "Used to print your lanyard badge and send your entry QR." },
       askP2: { eyebrow: "STEP 2 · OPTIONAL", title: "A little more, if you like", sub: "Skip the whole page — it won't affect your entry." },
       eventQuestions: "About this event",
-      pdpaNotice: "By confirming you accept the organiser's PDPA policy.",
       formLoading: "Opening the form…",
       types: ["General", "VIP", "Press"],
-      consent: "I consent to the organiser storing my data under its PDPA policy.",
+      consentAccept: "I accept the",
+      consentPolicy: "Privacy Policy",
       next: "NEXT", skip: "SKIP", finish: "CONFIRM & GET QR",
       already: "Already registered?", lookupLink: "Open my QR",
       saving: "Saving to Google Sheet…",
@@ -96,6 +96,7 @@
     fields: [], fieldsLoading: false, fieldsError: "",   // "" | "network"
     vals: {},
     errors: {},
+    consent: false,
     lookupTerm: "", lookupError: "", lookupBusy: false,   // lookupError: "" | "notfound"
     pass: null, toast: "",
     submitError: ""
@@ -109,6 +110,20 @@
     return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
   function nl2sp(s) { return String(s || "").replace(/\n/g, " "); }
+
+  // What an event with no banner shows. A designed surface, not a fault: the
+  // hatch swatch it replaces read as a broken image and its caption invited
+  // people to drop a file on something that could never receive one.
+  // The mark sits in the middle band on purpose — .hero-media-scrim darkens
+  // the bottom and .hero-topshade the top 120px, so the middle is the only
+  // part a surface actually gets to show. See ADR events-checkin-0024.
+  function brandSurfaceHtml() {
+    return `<div class="brand-surface" aria-hidden="true">
+      <span class="bs-ghost">1N</span>
+      <span class="bs-mark">1NEVE</span>
+      <span class="bs-hair"></span>
+    </div>`;
+  }
 
   // Error codes become sentences at the moment of drawing, so the words always
   // match the language button as it stands now.
@@ -225,16 +240,21 @@
     const sections = evs.map((e, i) => {
       const facts = [
         [c.facts[0], e.date], [c.facts[1], e.place], [c.facts[2], e.seats], [c.facts[3], e.price]
-      ].map(([k, v]) => `<div class="pick-fact"><span class="k">${esc(k)}</span><span>${esc(v)}</span></div>`).join("");
+      ].filter(([, v]) => String(v === null || v === undefined ? "" : v).trim())
+       .map(([k, v]) => `<div class="pick-fact"><span class="k">${esc(k)}</span><span>${esc(v)}</span></div>`).join("");
       // Goes straight into a style attribute, so it is quoted like the rest.
       const badgeBg = esc(e.open ? e.accent : "#ded8c6");
       const badgeFg = e.open ? "#fff" : "#57533f";
+      // status_label is the wording for an open event. A closed one says so,
+      // whatever the sheet holds — a grey pill still reading เปิดรับ is the
+      // page contradicting its own disabled button.
+      const badgeText = e.open ? (e.status || "เปิดรับ") : "ปิดรับแล้ว";
       return `<section class="hero-stage" data-hero-stage>
         <div class="hero-frame">
           <div class="hero-media">
-            ${e.image ? `<img class="hero-img" src="${esc(e.image)}" alt="">` : `<div class="img-placeholder">${esc(c.hint)}</div>`}
+            ${e.image ? `<img class="hero-img" src="${esc(e.image)}" alt="">` : brandSurfaceHtml()}
             <div class="hero-media-scrim"></div>
-            <div class="hero-media-badge" style="background:${badgeBg};color:${badgeFg}">${esc(e.status)}</div>
+            <div class="hero-media-badge" style="background:${badgeBg};color:${badgeFg}">${esc(badgeText)}</div>
           </div>
           <div class="hero-topshade"></div>
           <div class="hero-content">
@@ -384,7 +404,7 @@
     const c = t();
     const ev = state.events[state.evIdx];
     const banner = `<div class="ask-banner">
-        ${ev.image ? `<img class="ask-banner-img" src="${esc(ev.image)}" alt="">` : `<div class="img-placeholder">${esc(c.pick.hint)}</div>`}
+        ${ev.image ? `<img class="ask-banner-img" src="${esc(ev.image)}" alt="">` : brandSurfaceHtml()}
         <div class="ask-banner-scrim"></div>
         <div class="ask-banner-info">
           <div class="ask-banner-meta">${esc((ev.date || "") + " · " + (ev.place || ""))}</div>
@@ -447,8 +467,16 @@
       </div>`;
     }).join("");
 
-    const pdpa = (submits && ev.pdpa)
-      ? `<div class="pdpa-note">${esc(c.pdpaNotice)}</div>` : "";
+    // A tick, not a sentence under a button. consent_at used to be stamped for
+    // anyone who pressed ยืนยัน on an event with the switch on — a record of
+    // an act nobody performed. ADR events-checkin-0027.
+    const needsConsent = submits && ev.pdpa;
+    const pdpa = needsConsent
+      ? `<label class="consent-row">
+          <input type="checkbox" class="consent-box" data-action="consent" ${state.consent ? "checked" : ""}>
+          <span>${esc(c.consentAccept)} <a href="./privacy.html" target="_blank" rel="noopener">${esc(c.consentPolicy)}</a></span>
+        </label>`
+      : "";
 
     return `<div class="screen"><div class="screen-inner">
       ${banner}
@@ -467,11 +495,11 @@
         </div>
         <div class="ask-fields">${fieldsHtml}</div>
       </div>
+      ${pdpa}
       <div class="ask-actions">
         <div class="back-btn" data-action="back">←</div>
-        <div class="next-btn" data-action="next">${esc(submits ? c.finish : c.next)}</div>
+        <div class="next-btn ${needsConsent && !state.consent ? "is-disabled" : ""}" data-action="next">${esc(submits ? c.finish : c.next)}</div>
       </div>
-      ${pdpa}
       <div class="already-row">${esc(c.already)} <span class="accent" data-action="go-lookup">${esc(c.lookupLink)}</span></div>
     </div></div>`;
   }
@@ -649,7 +677,7 @@
         const ev = state.events[idx];
         if (!ev) break;
         if (!ev.open) { flash(t().err.eventClosed); break; }
-        setState({ screen: "ask", evIdx: idx, page: 1, errors: {}, vals: {}, fields: [], fieldsLoading: true, fieldsError: "" });
+        setState({ screen: "ask", evIdx: idx, page: 1, errors: {}, vals: {}, consent: false, fields: [], fieldsLoading: true, fieldsError: "" });
         loadForm(ev.id);
         break;
       }
@@ -664,6 +692,7 @@
       }
       case "back": back(); break;
       case "next": next(); break;
+      case "consent": setState({ consent: !state.consent }); break;
       case "do-lookup": doLookup(); break;
       case "save-img": saveBadgeImage(); break;
       case "reset": resetAll(); break;
@@ -695,6 +724,8 @@
     const errors = pageErrors(list);
     if (Object.keys(errors).length) { setState({ errors }); return; }
     if (state.page === 1 && optional.length) { setState({ page: 2, errors: {} }); return; }
+    const ev = state.events[state.evIdx];
+    if (ev && ev.pdpa && !state.consent) return;
     submit();
   }
 
@@ -721,9 +752,10 @@
         eventId: ev.id,
         name: val("name"), email: val("email"),
         phone: val("phone"), org: val("org"),
-        // Tapping the confirm button is the consenting act, and it is only
-        // asked for where the event actually shows the notice.
-        consent: !!ev.pdpa,
+        // The checkbox's own state. The server checks again — consent_required
+        // becomes reachable for the first time, because until now the client
+        // sent true whenever the server would have demanded it.
+        consent: !!state.consent,
         answers
       });
       if (!res.ok) throw new Error(res.error || "register_failed");
@@ -924,7 +956,7 @@
   function resetAll() {
     try { localStorage.removeItem(PASS_KEY); } catch (e) { /* ignore */ }
     setState({
-      screen: "pick", page: 1, vals: {}, errors: {},
+      screen: "pick", page: 1, vals: {}, errors: {}, consent: false,
       fields: [], fieldsLoading: false, fieldsError: "", pass: null
     });
   }

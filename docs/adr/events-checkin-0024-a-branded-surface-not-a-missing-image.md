@@ -31,7 +31,7 @@ ADR exists to stop.
 
 The mockup surfaced a constraint that words had hidden: the hero's scrim runs
 from `rgba(19,17,12,.88)` at the bottom to transparent at the top, and
-`.hero-topshade` darkens the top 96px for the brandmark. **The band a surface
+`.hero-topshade` darkens the top 120px for the brandmark. **The band a surface
 actually gets to show is the middle one.** The 1NEVE mark sits there for that
 reason. The same constraint applies to real photographs an Organizer supplies
 — anything that matters in the lower half is covered by the event name and the
