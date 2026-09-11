@@ -126,13 +126,17 @@ h1{font:200 34px/1.14 Prompt,sans-serif;letter-spacing:-.02em;margin:0;text-wrap
   background:#2f6b4f;margin-right:4px}
 .cam{flex:1;position:relative;background:repeating-linear-gradient(115deg,#1d1a13 0 2px,#16130d 2px 7px)}
 .cam .frame{position:absolute;inset:20% 16%;border:2px solid rgba(244,241,230,.5);border-radius:5px}
-.panel{position:absolute;left:0;right:0;bottom:0;padding:14px 13px 15px;
-  display:flex;flex-direction:column;gap:4px}
+/* The real .verdict is position:fixed inset:0 — it takes the whole screen,
+   over the top bar and the tabs. Drawing it as a bottom strip undersold it. */
+.panel{position:absolute;inset:0;z-index:5;padding:20px 16px;
+  display:flex;flex-direction:column;justify-content:center;gap:4px}
+.panel .mk{width:40px;height:40px;stroke:#f4f1e6;fill:none;stroke-width:2.2;
+  stroke-linecap:round;stroke-linejoin:round;margin-bottom:12px;opacity:.95}
 .p-kicker{font:600 7px/1 Prompt,sans-serif;letter-spacing:.18em;opacity:.75}
-.p-main{font:600 14.5px/1.2 Prompt,sans-serif}
-.p-sub{font:300 9px/1.4 Prompt,sans-serif;opacity:.85}
+.p-main{font:600 22px/1.12 Prompt,sans-serif;letter-spacing:-.01em}
+.p-sub{font:300 11px/1.45 Prompt,sans-serif;opacity:.85;margin-top:3px}
 .p-code{font:500 9.5px/1 "IBM Plex Mono",monospace;letter-spacing:.05em;margin-top:3px;opacity:.9}
-.p-neutral{background:#13110c;border-top:1px solid rgba(244,241,230,.14)}
+.p-neutral{background:#13110c}
 .p-ok{background:var(--ok)}.p-dup{background:var(--dup)}.p-no{background:var(--no)}
 .p-off{background:var(--blue)}
 .p-btn{margin-top:9px;text-align:center;padding:7px 0;border:1px solid rgba(244,241,230,.45);
@@ -396,13 +400,13 @@ html,body{margin:0}img{max-width:100%}
         <em>แผงขึ้นทันทีที่อ่านได้ ลดมือถือลงได้เลย ไม่ต้องคาไว้</em></span></div>
       <div class="phone dark"><div class="gate">
         <div class="gate-bar"><span><span class="dot"></span>ออนไลน์ · ประตู 1</span><span>G-FEST 2026</span></div>
-        <div class="cam"><div class="frame"></div>
+        <div class="cam"><div class="frame"></div></div>
+        <div class="gtabs"><div class="on">สแกน</div><div>ค้นหาคน</div><div>เพิ่งสแกน</div></div>
           <div class="panel p-neutral">
             <div class="p-kicker">รับรหัสแล้ว</div>
             <div class="p-main">กำลังตรวจ…</div>
             <div class="p-code">TT-4F2A-901</div>
-          </div></div>
-        <div class="gtabs"><div class="on">สแกน</div><div>ค้นหาคน</div><div>เพิ่งสแกน</div></div>
+          </div>
       </div></div>
     </div>
 
@@ -411,14 +415,15 @@ html,body{margin:0}img{max-width:100%}
         <em>เขียว ชื่อขึ้นบนจอ แล้วหายเองใน 2 วินาที คิวเดินต่อ</em></span></div>
       <div class="phone dark"><div class="gate">
         <div class="gate-bar"><span><span class="dot"></span>ออนไลน์ · ประตู 1</span><span>เช็คอินแล้ว 248</span></div>
-        <div class="cam"><div class="frame"></div>
+        <div class="cam"><div class="frame"></div></div>
+        <div class="gtabs"><div class="on">สแกน</div><div>ค้นหาคน</div><div>เพิ่งสแกน</div></div>
           <div class="panel p-ok">
+            <svg class="mk" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
             <div class="p-kicker">ผ่าน</div>
             <div class="p-main">ณัฐพงษ์ สุวรรณเลิศ</div>
             <div class="p-sub">ธิงค์เทค จำกัด · บัตรทั่วไป</div>
             <div class="p-code">TT-4F2A-901</div>
-          </div></div>
-        <div class="gtabs"><div class="on">สแกน</div><div>ค้นหาคน</div><div>เพิ่งสแกน</div></div>
+          </div>
       </div></div>
     </div>
 
@@ -427,34 +432,31 @@ html,body{margin:0}img{max-width:100%}
         <em>ทองค้างบนจอจนกดปิด บอกเวลาและประตูที่เข้าครั้งก่อน</em></span></div>
       <div class="phone dark"><div class="gate">
         <div class="gate-bar"><span><span class="dot"></span>ออนไลน์ · ประตู 1</span><span>เช็คอินแล้ว 248</span></div>
-        <div class="cam"><div class="frame"></div>
+        <div class="cam"><div class="frame"></div></div>
+        <div class="gtabs"><div class="on">สแกน</div><div>ค้นหาคน</div><div>เพิ่งสแกน</div></div>
           <div class="panel p-dup">
+            <svg class="mk" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg>
             <div class="p-kicker">บัตรนี้เข้าไปแล้ว</div>
             <div class="p-main">ณัฐพงษ์ สุวรรณเลิศ</div>
             <div class="p-sub">ครั้งก่อน 17:04 · ประตู 2</div>
             <div class="p-btn">ปิด</div>
-          </div></div>
-        <div class="gtabs"><div class="on">สแกน</div><div>ค้นหาคน</div><div>เพิ่งสแกน</div></div>
+          </div>
       </div></div>
     </div>
 
     <div class="step">
-      <div class="cap"><span class="n">11</span><span class="t">ไม่ผ่าน และ ออฟไลน์
-        <em>แดงคือบัตรผิดงานหรือบัตรปลอม · น้ำเงินคือเน็ตหลุด ระบบหยุดรับ ไม่ปล่อยผ่านมั่ว</em></span></div>
+      <div class="cap"><span class="n">11</span><span class="t">ไม่ผ่าน
+        <em>แดงเต็มจอ ค้างจนกดปิด · เน็ตหลุดใช้จอน้ำเงินแบบเดียวกัน ระบบหยุดรับ ไม่ปล่อยผ่านมั่ว</em></span></div>
       <div class="phone dark"><div class="gate">
         <div class="gate-bar"><span><span class="dot" style="background:#c13920"></span>ประตู 1</span><span>G-FEST 2026</span></div>
-        <div class="cam" style="flex:0 0 46%"><div class="frame" style="inset:14% 18%"></div>
-          <div class="panel p-no">
-            <div class="p-kicker">ไม่ผ่าน</div>
-            <div class="p-main">บัตรของงานอื่น</div>
-            <div class="p-btn">ปิด</div>
-          </div></div>
-        <div class="cam" style="flex:1"><div class="frame" style="inset:14% 18%"></div>
-          <div class="panel p-off">
-            <div class="p-kicker">ออฟไลน์ · หยุดรับ</div>
-            <div class="p-main">รอสัญญาณกลับมา</div>
-            <div class="p-sub">ยังไม่อนุญาตให้ใครเข้า</div>
-          </div></div>
+        <div class="cam"><div class="frame"></div></div>
+        <div class="panel p-no">
+          <svg class="mk" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          <div class="p-kicker">ไม่ผ่าน</div>
+          <div class="p-main">บัตรของงานอื่น</div>
+          <div class="p-sub">ไม่ใช่บัตรของ G-FEST 2026</div>
+          <div class="p-btn">ปิด</div>
+        </div>
       </div></div>
     </div>
 
