@@ -836,7 +836,7 @@ In `customer/app.js`, next to `esc()`:
   // hatch swatch it replaces read as a broken image and its caption invited
   // people to drop a file on something that could never receive one.
   // The mark sits in the middle band on purpose — .hero-media-scrim darkens
-  // the bottom and .hero-topshade the top 96px, so the middle is the only
+  // the bottom and .hero-topshade the top 120px, so the middle is the only
   // part a surface actually gets to show. See ADR events-checkin-0024.
   function brandSurfaceHtml() {
     return `<div class="brand-surface" aria-hidden="true">
