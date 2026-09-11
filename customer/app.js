@@ -33,7 +33,8 @@
       saving: "กำลังบันทึกลง Google Sheet…",
       lookupTitle: "เปิดดู\nบัตรของฉัน", lookupSub: "กรอกเบอร์โทรศัพท์ที่ใช้ลงทะเบียน (หรืออีเมลก็ได้) ระบบจะเปิด QR ใบเดิมให้", lookupBtn: "ค้นหาบัตร",
       lookupPh: "08X XXX XXXX",
-      done: "เรียบร้อย\nแล้ว!", passNote: "ยื่น QR นี้ที่ประตู เจ้าหน้าที่จะพิมพ์บัตรแขวนคอให้ทันที · ปิดหน้านี้ไปแล้วเปิดใหม่ได้ตลอด ด้วยเบอร์โทรที่ลงทะเบียนไว้",
+      done: "เรียบร้อย\nแล้ว!", passNote: "ยื่น QR นี้ที่ประตูได้เลย เจ้าหน้าที่จะพิมพ์บัตรแขวนคอให้ทันที",
+      passReopen: "เปิดบัตรนี้ใหม่ได้ด้วยเบอร์",
       kicker: "ENTRY PASS", eventDate: "วันที่จัดงาน", gate: "จุดลงทะเบียน",
       doors: "เวลาเปิดประตู", contact: "เบอร์ที่ลงทะเบียนไว้",
       saveImg: "บันทึกรูป", newReg: "ลงทะเบียนคนใหม่",
@@ -72,7 +73,8 @@
       saving: "Saving to Google Sheet…",
       lookupTitle: "Find\nmy pass", lookupSub: "Enter the phone number you registered with — or your email — and we'll reopen the same QR.", lookupBtn: "FIND MY PASS",
       lookupPh: "08X XXX XXXX",
-      done: "You're\nin!", passNote: "Show this QR at the door — staff print your lanyard badge on the spot. Close this page and you can reopen it any time with the phone number you registered.",
+      done: "You're\nin!", passNote: "Show this QR at the door — staff print your lanyard badge on the spot.",
+      passReopen: "Reopen this pass any time with",
       kicker: "ENTRY PASS", eventDate: "Event date", gate: "Check-in point",
       doors: "Doors open", contact: "Registered phone",
       saveImg: "SAVE IMAGE", newReg: "Register someone else",
@@ -585,12 +587,14 @@
     const typeLabel = typeLabelFor(p).toUpperCase();
     // Only rows there is an answer for. A heading with nothing under it tells
     // the customer nothing and reads as something that failed to load.
+    // Two lines rather than four rows, and the date is not repeated — the
+    // card's own footer already carries it. Each piece still only appears when
+    // there is an answer for it; a dangling separator reads as a bug.
+    const where = [ev.place, ev.doors && `${c.doors} ${ev.doors}`].filter(Boolean).join(" · ");
     const facts = [
-      [c.eventDate, ev.date], [c.gate, ev.place],
-      [c.doors, ev.doors], [c.contact, p.phone]
-    ].filter(pair => pair[1])
-     .map(pair => `<div class="pass-fact"><span class="k">${esc(pair[0])}</span><span>${esc(pair[1])}</span></div>`)
-     .join("");
+      where ? `<b>${esc(where)}</b>` : "",
+      p.phone ? `${esc(c.passReopen)} ${esc(p.phone)}` : ""
+    ].filter(Boolean).join("<br>");
     return `<div class="pass-screen"><div class="pass-inner">
       <div class="pass-topbar"><div class="pass-brandmark">${esc(BRAND)}</div>${langToggleHtml()}</div>
       <div>
