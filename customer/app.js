@@ -114,7 +114,7 @@
   // hatch swatch it replaces read as a broken image and its caption invited
   // people to drop a file on something that could never receive one.
   // The mark sits in the middle band on purpose — .hero-media-scrim darkens
-  // the bottom and .hero-topshade the top 96px, so the middle is the only
+  // the bottom and .hero-topshade the top 120px, so the middle is the only
   // part a surface actually gets to show. See ADR events-checkin-0024.
   function brandSurfaceHtml() {
     return `<div class="brand-surface" aria-hidden="true">
@@ -239,16 +239,21 @@
     const sections = evs.map((e, i) => {
       const facts = [
         [c.facts[0], e.date], [c.facts[1], e.place], [c.facts[2], e.seats], [c.facts[3], e.price]
-      ].map(([k, v]) => `<div class="pick-fact"><span class="k">${esc(k)}</span><span>${esc(v)}</span></div>`).join("");
+      ].filter(([, v]) => String(v || "").trim())
+       .map(([k, v]) => `<div class="pick-fact"><span class="k">${esc(k)}</span><span>${esc(v)}</span></div>`).join("");
       // Goes straight into a style attribute, so it is quoted like the rest.
       const badgeBg = esc(e.open ? e.accent : "#ded8c6");
       const badgeFg = e.open ? "#fff" : "#57533f";
+      // status_label is the wording for an open event. A closed one says so,
+      // whatever the sheet holds — a grey pill still reading เปิดรับ is the
+      // page contradicting its own disabled button.
+      const badgeText = e.open ? (e.status || "เปิดรับ") : "ปิดรับแล้ว";
       return `<section class="hero-stage" data-hero-stage>
         <div class="hero-frame">
           <div class="hero-media">
             ${e.image ? `<img class="hero-img" src="${esc(e.image)}" alt="">` : brandSurfaceHtml()}
             <div class="hero-media-scrim"></div>
-            <div class="hero-media-badge" style="background:${badgeBg};color:${badgeFg}">${esc(e.status)}</div>
+            <div class="hero-media-badge" style="background:${badgeBg};color:${badgeFg}">${esc(badgeText)}</div>
           </div>
           <div class="hero-topshade"></div>
           <div class="hero-content">

@@ -13,7 +13,7 @@ input::placeholder{color:#a9a290}
 .screen{min-height:100vh;display:flex;justify-content:center;background:#f4f1e6}
 .screen-inner{width:100%;max-width:440px;display:flex;flex-direction:column;padding:0 0 30px}
 
-/* -- shared: language toggle, image placeholders -- */
+/* -- shared: language toggle -- */
 .lang-toggle{display:flex;gap:2px}
 .lang-btn{padding:3px 7px;font:600 9.5px Prompt,sans-serif;cursor:pointer}
 .lang-btn.is-active{background:#17150f;color:#f4f1e6}
