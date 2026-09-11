@@ -13,7 +13,7 @@
         sub: "เลือกงานเพื่อเปิดฟอร์มลงทะเบียนของงานนั้น แต่ละงานมีคำถามและบัตรของตัวเอง",
         cta: "ลงทะเบียนงานนี้", soon: "ยังไม่เปิดรับลงทะเบียน",
         facts: ["วันที่จัด", "สถานที่", "ที่นั่ง", "ค่าเข้าร่วม"],
-        hint: "วางรูปงานที่นี่", loading: "กำลังโหลดรายการงาน…",
+        loading: "กำลังโหลดรายการงาน…",
         error: "โหลดรายการงานไม่สำเร็จ ลองใหม่อีกครั้ง", retry: "ลองใหม่",
         empty: "ยังไม่มีงานที่เปิดให้ลงทะเบียนตอนนี้",
         emptySub: "ผู้จัดงานยังไม่ได้เปิดงานใด หรือเพิ่งปิดรับไป ลองกลับมาดูใหม่อีกครั้ง"
@@ -52,7 +52,7 @@
         sub: "Pick an event to open its registration form. Each event has its own questions and badge.",
         cta: "Register for this event", soon: "Registration not open yet",
         facts: ["Date", "Venue", "Availability", "Fee"],
-        hint: "Drop the event photo", loading: "Loading events…",
+        loading: "Loading events…",
         error: "Couldn't load events. Please try again.", retry: "Retry",
         empty: "No events are open for registration right now",
         emptySub: "The organiser hasn't opened one yet, or registration has just closed. Please check back."
@@ -109,6 +109,20 @@
     return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
   function nl2sp(s) { return String(s || "").replace(/\n/g, " "); }
+
+  // What an event with no banner shows. A designed surface, not a fault: the
+  // hatch swatch it replaces read as a broken image and its caption invited
+  // people to drop a file on something that could never receive one.
+  // The mark sits in the middle band on purpose — .hero-media-scrim darkens
+  // the bottom and .hero-topshade the top 96px, so the middle is the only
+  // part a surface actually gets to show. See ADR events-checkin-0024.
+  function brandSurfaceHtml() {
+    return `<div class="brand-surface" aria-hidden="true">
+      <span class="bs-ghost">1N</span>
+      <span class="bs-mark">1NEVE</span>
+      <span class="bs-hair"></span>
+    </div>`;
+  }
 
   // Error codes become sentences at the moment of drawing, so the words always
   // match the language button as it stands now.
@@ -232,7 +246,7 @@
       return `<section class="hero-stage" data-hero-stage>
         <div class="hero-frame">
           <div class="hero-media">
-            ${e.image ? `<img class="hero-img" src="${esc(e.image)}" alt="">` : `<div class="img-placeholder">${esc(c.hint)}</div>`}
+            ${e.image ? `<img class="hero-img" src="${esc(e.image)}" alt="">` : brandSurfaceHtml()}
             <div class="hero-media-scrim"></div>
             <div class="hero-media-badge" style="background:${badgeBg};color:${badgeFg}">${esc(e.status)}</div>
           </div>
@@ -384,7 +398,7 @@
     const c = t();
     const ev = state.events[state.evIdx];
     const banner = `<div class="ask-banner">
-        ${ev.image ? `<img class="ask-banner-img" src="${esc(ev.image)}" alt="">` : `<div class="img-placeholder">${esc(c.pick.hint)}</div>`}
+        ${ev.image ? `<img class="ask-banner-img" src="${esc(ev.image)}" alt="">` : brandSurfaceHtml()}
         <div class="ask-banner-scrim"></div>
         <div class="ask-banner-info">
           <div class="ask-banner-meta">${esc((ev.date || "") + " · " + (ev.place || ""))}</div>

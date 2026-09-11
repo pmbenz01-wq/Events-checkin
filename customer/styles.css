@@ -21,7 +21,17 @@ input::placeholder{color:#a9a290}
 .pass-inner .lang-btn.is-active{background:#fff5ef;color:#d8482b}
 .pass-inner .lang-btn:not(.is-active){background:transparent;color:rgba(255,245,239,.75)}
 
-.img-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:16px;background:repeating-linear-gradient(135deg,#e8e4d6,#e8e4d6 10px,#e2ddcc 10px,#e2ddcc 20px);color:#9a927c;font:600 9.5px Prompt,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+/* -- shared: the surface an event with no banner gets (ADR 0024, variant C) -- */
+.brand-surface{position:absolute;inset:0;overflow:hidden;
+  background:linear-gradient(148deg,#d8482b 0%,#8e3524 34%,#17150f 82%)}
+.brand-surface .bs-ghost{position:absolute;top:14%;right:-7%;
+  font:600 clamp(72px,26vw,140px)/1 Prompt,sans-serif;letter-spacing:-.05em;
+  color:rgba(244,241,230,.085);pointer-events:none}
+.brand-surface .bs-mark{position:absolute;top:44%;left:22px;
+  font:600 10px/1 Prompt,sans-serif;letter-spacing:.3em;color:rgba(244,241,230,.72)}
+.brand-surface .bs-hair{position:absolute;top:calc(44% + 22px);left:22px;
+  width:44px;height:1px;background:rgba(244,241,230,.5)}
+.hero-media .brand-surface{transition:none}
 .ask-banner-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 
 /* -- pick screen (event picker / scroll-reveal hero list) -- */
@@ -46,7 +56,6 @@ input::placeholder{color:#a9a290}
 .hero-media{position:absolute;overflow:hidden;background:#e8e4d6;
   box-shadow:0 18px 40px rgba(23,21,15,.22)}
 .hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.35)}
-.hero-media .img-placeholder{transition:none}
 .hero-media-scrim{position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(to top,rgba(19,17,12,.88) 0%,rgba(19,17,12,.34) 38%,rgba(19,17,12,0) 100%)}
 .hero-media-badge{position:absolute;top:14px;right:14px;padding:4px 11px;border-radius:99px;
