@@ -104,14 +104,21 @@ h1{font:200 34px/1.14 Prompt,sans-serif;letter-spacing:-.02em;margin:0;text-wrap
 .nextbtn{margin-top:auto;border-radius:99px;text-align:center;padding:10px 0;
   font:600 10.5px Prompt,sans-serif;background:var(--accent);color:#fff}
 .nextbtn.off{background:#ded8c6;color:#8a8474}
-.pass{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:10px;text-align:center}
-.qr{width:104px;height:104px;background:#fff;padding:6px;display:grid;
+/* The card lifts to paper on the cream ground, or it disappears (ADR 0033). */
+.passcard{background:#fff5ef;padding:11px;margin-top:9px;display:flex;flex-direction:column;gap:8px;
+  box-shadow:0 1px 0 #e3ddcb,0 8px 20px rgba(23,21,15,.06)}
+.passcard-bot{display:flex;justify-content:space-between;align-items:baseline;
+  border-top:1px solid #e8e2d0;padding-top:7px}
+.passdate{font:500 7px/1 Prompt,sans-serif;color:#6f6a5a}
+.savebtn{margin-top:auto;border:1.2px solid var(--accent);color:var(--accent);text-align:center;
+  padding:9px 0;font:600 9.5px Prompt,sans-serif}
+.newreg{text-align:center;font:500 8.5px/1 Prompt,sans-serif;color:var(--muted);
+  text-decoration:underline;margin-top:7px}
+.qr{width:100%;aspect-ratio:1;background:#fff5ef;padding:4px;display:grid;
   grid-template-columns:repeat(21,1fr);grid-auto-rows:1fr}
 .qr i{background:#17150f}.qr i.o{background:transparent}
-.code{font:500 12.5px/1 "IBM Plex Mono",monospace;letter-spacing:.05em}
-.passname{font:400 11.5px/1.3 Prompt,sans-serif}
-.passev{font:300 9px/1.4 Prompt,sans-serif;color:var(--muted)}
+.code{font:600 10px/1 Prompt,sans-serif;letter-spacing:.1em}
+.passev{font:400 8.5px/1.6 Prompt,sans-serif;color:var(--muted);margin-top:9px;text-align:left}
 .doc{flex:1;padding:12px 15px;overflow:hidden}
 .doc h4{font:400 12px/1.3 Prompt,sans-serif;margin:11px 0 4px}
 .doc h4:first-of-type{margin-top:9px}
@@ -328,15 +335,19 @@ html,body{margin:0}img{max-width:100%}
 
     <div class="step">
       <div class="cap"><span class="n">04</span><span class="t">ได้บัตรทันที
-        <em>ไม่ต้องรออีเมล · รหัสใต้ QR ใช้แทนกันได้</em></span></div>
+        <em>ไม่ต้องรออีเมล · ทุกอย่างจบในหน้าเดียว ไม่ต้องเลื่อน</em></span></div>
       <div class="phone"><div class="scr">
         <div class="topbar"><span class="eyebrow">บัตรเข้างาน</span><span>ไทย / EN</span></div>
-        <div class="pass">
+        <div class="eyebrow">ENTRY PASS · G-FEST 2026</div>
+        <div style="font:600 13px/1.15 Prompt,sans-serif;margin-top:5px">ณัฐพงษ์ สุวรรณเลิศ</div>
+        <div style="font:400 8.5px/1 Prompt,sans-serif;color:var(--muted);margin-top:3px">ธิงค์เทค จำกัด</div>
+        <div class="passcard">
           <div class="qr" id="qr"></div>
-          <div class="code">TT-4F2A-901</div>
-          <div class="passname">ณัฐพงษ์ สุวรรณเลิศ</div>
-          <div class="passev">G-FEST 2026 · 15 มี.ค. 70<br>ไอคอนสยาม · เปิดประตู 17:00</div>
+          <div class="passcard-bot"><span class="code">TT-4F2A-901</span><span class="passdate">15 มี.ค. 70</span></div>
         </div>
+        <div class="passev">ไอคอนสยาม · เวลาเปิดประตู 17:00<br>เปิดบัตรนี้ใหม่ได้ด้วยเบอร์ 081 234 5678</div>
+        <div class="savebtn">บันทึกรูป</div>
+        <div class="newreg">ลงทะเบียนคนใหม่</div>
       </div></div>
     </div>
 

@@ -18,8 +18,8 @@ input::placeholder{color:#a9a290}
 .lang-btn{padding:3px 7px;font:600 9.5px Prompt,sans-serif;cursor:pointer}
 .lang-btn.is-active{background:#17150f;color:#f4f1e6}
 .lang-btn:not(.is-active){background:transparent;color:#8a8474}
-.pass-inner .lang-btn.is-active{background:#fff5ef;color:#d8482b}
-.pass-inner .lang-btn:not(.is-active){background:transparent;color:rgba(255,245,239,.75)}
+.pass-inner .lang-btn.is-active{background:#17150f;color:#f4f1e6}
+.pass-inner .lang-btn:not(.is-active){background:transparent;color:#8a8474}
 
 /* -- shared: the surface an event with no banner gets (ADR 0024, variant C) -- */
 .brand-surface{position:absolute;inset:0;overflow:hidden;
@@ -157,34 +157,41 @@ input::placeholder{color:#a9a290}
 .lookup-submit{flex:1;border-radius:99px;background:#17150f;color:#f4f1e6;text-align:center;padding:17px 0;font:600 14px Prompt,sans-serif;cursor:pointer}
 
 /* -- pass screen (QR badge) -- */
-.pass-screen{min-height:100vh;display:flex;justify-content:center;background:#d8482b;color:#fff5ef}
-.pass-inner{width:100%;max-width:440px;padding:24px 26px 34px;display:flex;flex-direction:column;gap:20px;animation:rise .4s ease}
+/* Cream, like every screen before it, so the pass belongs to the form that
+   produced it (ADR 0033). The vermilion field this replaces was the app saying
+   "done" without words; the 34px title carries that beat instead. */
+.pass-screen{min-height:100vh;display:flex;justify-content:center;background:#f4f1e6;color:#17150f}
+.pass-inner{width:100%;max-width:440px;padding:22px 26px 28px;display:flex;flex-direction:column;gap:17px;animation:rise .4s ease}
 .pass-topbar{display:flex;justify-content:space-between;align-items:center}
-.pass-brandmark{font:600 11px Prompt,sans-serif;letter-spacing:.16em;opacity:.85}
-.done-title{font:600 44px/.98 Prompt,sans-serif;letter-spacing:-.035em}
-.pass-note{font:400 13px/1.6 Prompt,sans-serif;margin-top:12px;opacity:.9;max-width:24em}
+.pass-brandmark{font:600 11px Prompt,sans-serif;letter-spacing:.16em;color:#d8482b}
+.done-title{font:600 34px/1 Prompt,sans-serif;letter-spacing:-.035em}
+.pass-note{font:400 12.5px/1.6 Prompt,sans-serif;margin-top:8px;color:#7d7767;max-width:26em}
 
-.badge-card{background:#f4f1e6;color:#17150f;padding:20px;display:flex;flex-direction:column;gap:16px}
+.badge-card{background:#fff5ef;color:#17150f;padding:18px;display:flex;flex-direction:column;gap:13px;
+  box-shadow:0 1px 0 #e3ddcb,0 12px 30px rgba(23,21,15,.07)}
 .badge-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
 .badge-kicker{font:500 9.5px Prompt,sans-serif;letter-spacing:.18em;color:#8a8474}
 .badge-name{font:600 22px/1.15 Prompt,sans-serif;margin-top:5px;letter-spacing:-.02em}
 .badge-org{font:400 12px Prompt,sans-serif;color:#7d7767;margin-top:4px}
 .badge-type{writing-mode:vertical-rl;font:600 11px Prompt,sans-serif;letter-spacing:.2em;color:#d8482b;white-space:nowrap}
-.badge-qr{width:100%;aspect-ratio:1;color:#17150f}
-.badge-bottom{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #d6d0bd;padding-top:12px;gap:10px}
+/* Capped so the whole pass clears a phone viewport. A QR only has to be
+   big enough for a second phone held about 30cm away; past that the extra
+   pixels only push the save button below the fold. */
+.badge-qr{width:100%;max-width:250px;margin:0 auto;aspect-ratio:1;color:#17150f}
+.badge-bottom{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #e8e2d0;padding-top:12px;gap:10px}
 .badge-code{font:600 14px Prompt,sans-serif;letter-spacing:.1em;white-space:nowrap}
 .badge-date{font:500 10px Prompt,sans-serif;color:#6f6a5a;white-space:nowrap}
 
-.pass-facts{display:flex;flex-direction:column;gap:9px}
-.pass-fact{display:flex;justify-content:space-between;font:400 12.5px Prompt,sans-serif;border-bottom:1px solid rgba(255,245,239,.32);padding-bottom:9px}
-.pass-fact:last-child{border-bottom:none;padding-bottom:0}
-.pass-fact .k{opacity:.8}
+/* Was four label/value rows. Same four facts, two lines, ~90px less height —
+   which is most of what kept the บันทึกรูป button below the fold. */
+.pass-facts{font:400 12.5px/1.75 Prompt,sans-serif;color:#7d7767}
+.pass-facts b{font-weight:500;color:#17150f}
 
 .pass-buttons{display:flex;gap:9px}
-.save-btn{flex:1;border:1.5px solid rgba(255,245,239,.55);background:transparent;color:inherit;text-align:center;padding:14px 0;font:600 12.5px Prompt,sans-serif;cursor:pointer}
-.save-btn:hover{border-color:#fff5ef}
+.save-btn{flex:1;border:1.5px solid #d8482b;background:transparent;color:#d8482b;text-align:center;padding:13px 0;font:600 12.5px Prompt,sans-serif;cursor:pointer}
+.save-btn:hover{background:#d8482b;color:#fff5ef}
 
-.new-reg{text-align:center;font:500 12px Prompt,sans-serif;color:#fff5ef;cursor:pointer;padding:6px 0 0;text-decoration:underline;text-underline-offset:3px}
+.new-reg{text-align:center;font:500 12px Prompt,sans-serif;color:#7d7767;cursor:pointer;padding:6px 0 0;text-decoration:underline;text-underline-offset:3px}
 
 /* -- toast -- */
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#17150f;color:#f4f1e6;padding:12px 20px;font:500 11.5px Prompt,sans-serif;white-space:nowrap;box-shadow:0 12px 30px rgba(23,21,15,.35);z-index:20}
