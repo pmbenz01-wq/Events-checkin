@@ -24,10 +24,10 @@
       askP1: { eyebrow: "ขั้นที่ 1 · จำเป็น", title: "ข้อมูลผู้เข้าร่วม", sub: "ใช้พิมพ์บัตรแขวนคอและส่ง QR เข้างานให้คุณ" },
       askP2: { eyebrow: "ขั้นที่ 2 · ไม่บังคับ", title: "อีกนิดเดียว ถ้าสะดวก", sub: "ข้ามได้ทั้งหน้า — ไม่กระทบการเข้างานของคุณ" },
       eventQuestions: "คำถามของงานนี้",
-      pdpaNotice: "การกดยืนยันถือว่าคุณยอมรับนโยบาย PDPA ของผู้จัดงาน",
       formLoading: "กำลังเปิดฟอร์ม…",
       types: ["ทั่วไป", "VIP", "สื่อ"],
-      consent: "ยินยอมให้ผู้จัดงานเก็บและใช้ข้อมูลตามนโยบาย PDPA",
+      consentAccept: "ยอมรับ",
+      consentPolicy: "นโยบายข้อมูลส่วนบุคคล",
       next: "ถัดไป", skip: "ข้าม", finish: "ยืนยันและรับ QR",
       already: "ลงทะเบียนไว้แล้ว?", lookupLink: "เปิดดู QR ของฉัน",
       saving: "กำลังบันทึกลง Google Sheet…",
@@ -63,10 +63,10 @@
       askP1: { eyebrow: "STEP 1 · REQUIRED", title: "Your details", sub: "Used to print your lanyard badge and send your entry QR." },
       askP2: { eyebrow: "STEP 2 · OPTIONAL", title: "A little more, if you like", sub: "Skip the whole page — it won't affect your entry." },
       eventQuestions: "About this event",
-      pdpaNotice: "By confirming you accept the organiser's PDPA policy.",
       formLoading: "Opening the form…",
       types: ["General", "VIP", "Press"],
-      consent: "I consent to the organiser storing my data under its PDPA policy.",
+      consentAccept: "I accept the",
+      consentPolicy: "Privacy Policy",
       next: "NEXT", skip: "SKIP", finish: "CONFIRM & GET QR",
       already: "Already registered?", lookupLink: "Open my QR",
       saving: "Saving to Google Sheet…",
@@ -96,6 +96,7 @@
     fields: [], fieldsLoading: false, fieldsError: "",   // "" | "network"
     vals: {},
     errors: {},
+    consent: false,
     lookupTerm: "", lookupError: "", lookupBusy: false,   // lookupError: "" | "notfound"
     pass: null, toast: "",
     submitError: ""
@@ -466,8 +467,16 @@
       </div>`;
     }).join("");
 
-    const pdpa = (submits && ev.pdpa)
-      ? `<div class="pdpa-note">${esc(c.pdpaNotice)}</div>` : "";
+    // A tick, not a sentence under a button. consent_at used to be stamped for
+    // anyone who pressed ยืนยัน on an event with the switch on — a record of
+    // an act nobody performed. ADR events-checkin-0027.
+    const needsConsent = submits && ev.pdpa;
+    const pdpa = needsConsent
+      ? `<label class="consent-row">
+          <input type="checkbox" class="consent-box" data-action="consent" ${state.consent ? "checked" : ""}>
+          <span>${esc(c.consentAccept)} <a href="./privacy.html" target="_blank" rel="noopener">${esc(c.consentPolicy)}</a></span>
+        </label>`
+      : "";
 
     return `<div class="screen"><div class="screen-inner">
       ${banner}
@@ -486,11 +495,11 @@
         </div>
         <div class="ask-fields">${fieldsHtml}</div>
       </div>
+      ${pdpa}
       <div class="ask-actions">
         <div class="back-btn" data-action="back">←</div>
-        <div class="next-btn" data-action="next">${esc(submits ? c.finish : c.next)}</div>
+        <div class="next-btn ${needsConsent && !state.consent ? "is-disabled" : ""}" data-action="next">${esc(submits ? c.finish : c.next)}</div>
       </div>
-      ${pdpa}
       <div class="already-row">${esc(c.already)} <span class="accent" data-action="go-lookup">${esc(c.lookupLink)}</span></div>
     </div></div>`;
   }
@@ -668,7 +677,7 @@
         const ev = state.events[idx];
         if (!ev) break;
         if (!ev.open) { flash(t().err.eventClosed); break; }
-        setState({ screen: "ask", evIdx: idx, page: 1, errors: {}, vals: {}, fields: [], fieldsLoading: true, fieldsError: "" });
+        setState({ screen: "ask", evIdx: idx, page: 1, errors: {}, vals: {}, consent: false, fields: [], fieldsLoading: true, fieldsError: "" });
         loadForm(ev.id);
         break;
       }
@@ -683,6 +692,7 @@
       }
       case "back": back(); break;
       case "next": next(); break;
+      case "consent": setState({ consent: !state.consent }); break;
       case "do-lookup": doLookup(); break;
       case "save-img": saveBadgeImage(); break;
       case "reset": resetAll(); break;
@@ -714,6 +724,8 @@
     const errors = pageErrors(list);
     if (Object.keys(errors).length) { setState({ errors }); return; }
     if (state.page === 1 && optional.length) { setState({ page: 2, errors: {} }); return; }
+    const ev = state.events[state.evIdx];
+    if (ev && ev.pdpa && !state.consent) return;
     submit();
   }
 
@@ -740,9 +752,10 @@
         eventId: ev.id,
         name: val("name"), email: val("email"),
         phone: val("phone"), org: val("org"),
-        // Tapping the confirm button is the consenting act, and it is only
-        // asked for where the event actually shows the notice.
-        consent: !!ev.pdpa,
+        // The checkbox's own state. The server checks again — consent_required
+        // becomes reachable for the first time, because until now the client
+        // sent true whenever the server would have demanded it.
+        consent: !!state.consent,
         answers
       });
       if (!res.ok) throw new Error(res.error || "register_failed");
@@ -943,7 +956,7 @@
   function resetAll() {
     try { localStorage.removeItem(PASS_KEY); } catch (e) { /* ignore */ }
     setState({
-      screen: "pick", page: 1, vals: {}, errors: {},
+      screen: "pick", page: 1, vals: {}, errors: {}, consent: false,
       fields: [], fieldsLoading: false, fieldsError: "", pass: null
     });
   }
