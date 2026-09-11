@@ -239,7 +239,7 @@
     const sections = evs.map((e, i) => {
       const facts = [
         [c.facts[0], e.date], [c.facts[1], e.place], [c.facts[2], e.seats], [c.facts[3], e.price]
-      ].filter(([, v]) => String(v ?? "").trim())
+      ].filter(([, v]) => String(v === null || v === undefined ? "" : v).trim())
        .map(([k, v]) => `<div class="pick-fact"><span class="k">${esc(k)}</span><span>${esc(v)}</span></div>`).join("");
       // Goes straight into a style attribute, so it is quoted like the rest.
       const badgeBg = esc(e.open ? e.accent : "#ded8c6");
